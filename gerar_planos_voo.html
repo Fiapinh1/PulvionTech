@@ -727,7 +727,7 @@
       updateUndoButtons();
       document.getElementById('fileInput').addEventListener('change', e => handleFiles(e.target.files));
       document.getElementById('btnClear').addEventListener('click', async () => {
-        const ok = await inlineConfirm('Remover todas as camadas e sele??es?','Limpar mapa');
+        const ok = await inlineConfirm('Remover todas as camadas e seleções?','Limpar mapa');
         if(ok){ pushUndo(); clearAll(); updateUndoButtons(); }
       });
       document.getElementById('btnMerge').addEventListener('click', mergeSelected);
@@ -742,3 +742,4 @@
   </script>
 </body>
 </html>
+
