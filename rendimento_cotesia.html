@@ -443,7 +443,7 @@ function buildMessage(){
   const dr   = document.getElementById('selDrone').value  || '—';
   const uni  = document.getElementById('selUnidade').value || '—';
 
-  let msg = `*Rendimento _Cotesia_Top Gun ✅*\n\n` +
+  let msg = `*Rendimento _Cotesia_Top Gun*\n\n` +
             `*Data:* ${dt ? fmtDateBRfromInput(dt) : 'Preencher'}\n` +
             `*Frente:* ${fr}\n` +
             `*Piloto:* ${pil}\n` +
@@ -545,6 +545,7 @@ function updatePreview(andScroll=true){
 
 </body>
 </html>
+
 
 
 
