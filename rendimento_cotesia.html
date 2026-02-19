@@ -341,8 +341,8 @@ function makeRow(prefill={}){
         <input type="text" class="objetivo" readonly>
       </div>
       <div class="row">
-        <label>Status</label>
-        <select class="status">
+        <label></label>
+        <select class="">
           <option value="Finalizada">✅Finalizada </option>
           <option value="Em andamento">🟠Em andamento</option>
         </select>
@@ -363,7 +363,7 @@ function makeRow(prefill={}){
 
   // recalcula ao digitar copos (área é puxada e readonly)
   el.querySelector('.copos').addEventListener('input', ()=>{ recalcTotals(); updatePreview(false); });
-  el.querySelector('.status').addEventListener('change', ()=> updatePreview(false));
+  el.querySelector('.').addEventListener('change', ()=> updatePreview(false));
 
   return el;
 }
@@ -443,7 +443,7 @@ function buildMessage(){
   const dr   = document.getElementById('selDrone').value  || '—';
   const uni  = document.getElementById('selUnidade').value || '—';
 
-  let msg = `*Rendimento _Cotesia_Top Gun*\n\n` +
+  let msg = `*Rendimento _Cotesia_Top Gun ✅*\n\n` +
             `*Data:* ${dt ? fmtDateBRfromInput(dt) : 'Preencher'}\n` +
             `*Frente:* ${fr}\n` +
             `*Piloto:* ${pil}\n` +
@@ -460,12 +460,12 @@ function buildMessage(){
     const ha   = toNumBR(el.querySelector('.ha').value);
     const cp   = toNumBR(el.querySelector('.copos').value);
     const obj  = (el.querySelector('.objetivo').value || '').trim();
-    const st   = el.querySelector('.status').value || '—';
+    const st   = el.querySelector('.').value || '—';
 
-  // Adiciona emoji conforme status
-  let statusStr = st;
-  if (st === "Finalizada") statusStr = "✅ *Finalizada*";
-  else if (st === "Em andamento") statusStr = "🟠 *Em andamento*";
+  // Adiciona emoji conforme 
+  let Str = st;
+  if (st === "Finalizada") Str = "✅ *Finalizada*";
+  else if (st === "Em andamento") Str = "🟠 *Em andamento*";
 
     tHa  += ha; tCop += cp;
 
@@ -475,7 +475,7 @@ function buildMessage(){
            `\n*Há:* ${fmtBR(ha)}` +
            `\n*Qtd. Copos:* ${cp ? fmtBR(cp,0) : 'Preencher'}` +
            `\n*Objetivo:* ${obj || '—'}` +
-           `\n*Status:* ${statusStr}` +
+           `\n*:* ${Str}` +
            `\n————————-`;
   });
   const farmCount = rowsEl.querySelectorAll('.farm').length;
@@ -545,6 +545,7 @@ function updatePreview(andScroll=true){
 
 </body>
 </html>
+
 
 
 
