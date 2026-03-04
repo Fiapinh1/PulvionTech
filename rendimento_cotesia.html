@@ -1,449 +1,1054 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<title>Rendimento (Cotesia) - Top Gun</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Ícones Lucide -->
+<title>Rendimento · Cotesia · Top Gun</title>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
 <style>
-  :root {
-    --primary: #d9b24c;
-    --primary-light: rgba(217,178,76,0.16);
-    --primary-dark: #b48f2f;
-    --background: #060912;
-    --card: #0c1224;
-    --text: #f5f5f5;
-    --text-muted: #cbd5e1;
-    --border: rgba(217,178,76,0.35);
-    --accent: #f7e7a1;
-    --accent-light: rgba(247,231,161,0.14);
-    --warning: #f59e0b;
-    --warning-light: rgba(245,158,11,0.16);
-    --danger: #ef4444;
-    --danger-light: rgba(239,68,68,0.14);
-    --success: #10b981;
-    --radius: 12px;
-    --shadow: 0 20px 50px rgba(0,0,0,0.32);
-  }
+/* ============================================================
+   THEME TOKENS
+============================================================ */
+:root, [data-theme="light"] {
+  --gold:         #b8942e;
+  --gold-light:   #d9b24c;
+  --gold-dim:     rgba(184,148,46,0.10);
+  --gold-border:  rgba(184,148,46,0.28);
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  --bg:           #f0ede6;
+  --card:         #ffffff;
+  --surface:      #f5f2eb;
+  --surface-2:    #ebe7dd;
+  --input-bg:     #f8f6f1;
+  --input-ro:     #ede9e0;
 
-  body {
-    background:
-      radial-gradient(circle at 10% 20%, rgba(217,178,76,0.08), transparent 32%),
-      radial-gradient(circle at 80% 0%, rgba(255,255,255,0.07), transparent 38%),
-      var(--background);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
-    padding-bottom: 20px;
-  }
+  --header-bg:    rgba(240,237,230,0.97);
+  --header-bdr:   rgba(184,148,46,0.22);
 
-  /* Header (mesmo padrão) */
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 0;
-    padding: 0;
-    background: linear-gradient(135deg,#0a0f1f 0%,#0c1224 100%);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    box-shadow: var(--shadow);
-    min-height: 64px;
-  }
-  header .btn.light {
-    margin-left: 16px;
-    width: auto;
-    min-width: 90px;
-    padding: 0 16px;
-    height: 48px;
-    font-size: 1rem;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-  }
-  header h1 {
-    flex: 1;
-    text-align: center;
-    margin: 0 auto 0 0;
-    font-size: 1.2rem;
-    color: var(--primary);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    justify-content: center;
-  }
-  @media (max-width: 790px) {
-    header { min-height: 56px; }
-    header .btn.light { margin-left: 8px; height: 40px; font-size: .98rem; padding: 0 10px; }
-    header h1 { font-size: 1rem; gap: 6px; }
-  }
+  --text:         #0d1117;
+  --text-muted:   #4b5563;
+  --text-label:   #94a3b8;
 
-  /* Botões */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    cursor: pointer;
-    border: 1px solid var(--border);
-    background: var(--card);
-    color: var(--text);
-    padding: 16px 0;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    box-shadow: var(--shadow);
-    width: 100%;
-    margin-bottom: 12px;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .btn.neon { background: var(--primary); color: #0b0f1f; border-color: var(--primary-dark); }
-  .btn.neon:hover { background: var(--primary-dark); color: #0b0f1f; }
-  .btn.light { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
-  .btn.warning { background: var(--warning-light); color: var(--warning); border-color: var(--warning); }
+  --success:      #16a34a;
+  --success-dim:  rgba(22,163,74,0.10);
+  --success-bdr:  rgba(22,163,74,0.28);
+  --warning:      #d97706;
+  --warning-dim:  rgba(217,119,6,0.10);
+  --warning-bdr:  rgba(217,119,6,0.32);
+  --danger:       #dc2626;
+  --danger-dim:   rgba(220,38,38,0.08);
+  --danger-bdr:   rgba(220,38,38,0.28);
 
-  /* Layout principal */
-  .wrap { padding: 16px; display: flex; flex-direction: column; gap: 16px; max-width: 520px; margin: 0 auto; width: 100%; }
+  --shadow-sm:    0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md:    0 4px 20px rgba(0,0,0,0.07);
+  --radius:       12px;
+  --radius-sm:    8px;
+}
 
-  /* Cards */
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); width: 100%; }
-  .card h2 { margin: 0 0 16px 0; font-size: 16px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+[data-theme="dark"] {
+  --gold:         #d9b24c;
+  --gold-light:   #f0d078;
+  --gold-dim:     rgba(217,178,76,0.10);
+  --gold-border:  rgba(217,178,76,0.28);
 
-  /* Formulários */
-  .grid { display: flex; flex-direction: column; gap: 12px; }
-  .row { display: flex; flex-direction: column; gap: 6px; }
+  --bg:           #060912;
+  --card:         #0c1224;
+  --surface:      #0f1628;
+  --surface-2:    rgba(255,255,255,0.04);
+  --input-bg:     #0b1425;
+  --input-ro:     #0f182c;
 
-  label { color: var(--text); font-size: 1rem; font-weight: 600; }
+  --header-bg:    rgba(10,15,31,0.97);
+  --header-bdr:   rgba(217,178,76,0.22);
 
-  input, select, textarea {
-    width: 100%;
-    background: #0b1425;
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px 12px;
-    font-size: 1rem;
-    outline: none;
-    transition: border 0.2s, box-shadow 0.2s;
-    -webkit-appearance: none;
-    -webkit-tap-highlight-color: transparent;
-    margin-bottom: 10px;
-  }
-  input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(217,178,76,.22); }
-  input[readonly] { background-color: #0f182c; color: var(--text-muted); }
+  --text:         #f0ece4;
+  --text-muted:   #9ca3af;
+  --text-label:   #6b7280;
 
-  .rows { display: flex; flex-direction: column; gap: 16px; }
+  --success:      #22c55e;
+  --success-dim:  rgba(34,197,94,0.10);
+  --success-bdr:  rgba(34,197,94,0.28);
+  --warning:      #f59e0b;
+  --warning-dim:  rgba(245,158,11,0.12);
+  --warning-bdr:  rgba(245,158,11,0.35);
+  --danger:       #ef4444;
+  --danger-dim:   rgba(239,68,68,0.10);
+  --danger-bdr:   rgba(239,68,68,0.30);
 
-  .farm {
-    border: 1px dashed var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    background: #0b1425;
-  }
-  .farm .top { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
-  .inline { display: flex; flex-direction: column; gap: 8px; }
-  .inline-row { display: flex; gap: 8px; align-items: center; }
-  @media (max-width: 790px){ .inline-row{ flex-direction: column; align-items: stretch; } .small-input{ max-width:100%; } }
+  --shadow-sm:    0 2px 8px rgba(0,0,0,0.20);
+  --shadow-md:    0 8px 28px rgba(0,0,0,0.30);
+  --radius:       12px;
+  --radius-sm:    8px;
+}
 
-  .muted { color: var(--text-muted); font-size: 13px; }
+/* ============================================================
+   BASE
+============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 
-  .preview {
-    white-space: pre-wrap;
-    background: #0b1425;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px;
-    min-height: 200px;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 1rem;
-    line-height: 1.5;
-    overflow: auto;
-    max-height: 320px;
-  }
-  .sep { height: 1px; background: var(--border); margin: 16px 0; }
+body {
+  font-family: 'Barlow', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  padding-bottom: 32px;
+  transition: background 0.3s, color 0.3s;
+}
 
-  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); color: var(--text-muted); background: var(--background); }
-  .warn { color: var(--warning); }
-  .success { color: var(--success); }
+[data-theme="light"] body {
+  background-image: radial-gradient(ellipse 70% 40% at 5% 0%, rgba(184,148,46,0.06) 0%, transparent 55%);
+}
 
-  .action-buttons { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
-  .small-input { max-width: 120px; }
+h1, h2, h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gold-border); border-radius: 4px; }
+
+/* ============================================================
+   HEADER
+============================================================ */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--header-bdr);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-sm);
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  height: 60px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.header-title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* ============================================================
+   BUTTONS
+============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  border: 1px solid var(--gold-border);
+  background: var(--gold-dim);
+  color: var(--gold);
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+.btn:hover { background: rgba(184,148,46,0.18); border-color: var(--gold); }
+
+.btn-primary {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(184,148,46,0.25);
+}
+[data-theme="dark"] .btn-primary { color: #0b0f1f; }
+.btn-primary:hover { background: var(--gold-light); border-color: var(--gold-light); }
+
+.btn-ghost {
+  background: var(--surface);
+  border-color: rgba(0,0,0,0.08);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .btn-ghost { border-color: rgba(255,255,255,0.08); }
+.btn-ghost:hover { background: var(--surface-2); color: var(--text); border-color: var(--gold-border); }
+
+.btn-danger {
+  background: var(--danger-dim);
+  border-color: var(--danger-bdr);
+  color: var(--danger);
+}
+.btn-danger:hover { background: rgba(220,38,38,0.15); }
+
+.btn-sm { padding: 7px 12px; font-size: 0.82rem; }
+.btn-full { width: 100%; }
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px; height: 34px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gold-border);
+  background: var(--gold-dim);
+  color: var(--gold);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.theme-toggle:hover { background: rgba(184,148,46,0.2); border-color: var(--gold); transform: rotate(20deg); }
+
+/* ============================================================
+   LAYOUT
+============================================================ */
+.wrap {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ============================================================
+   CARDS
+============================================================ */
+.card {
+  background: var(--card);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--gold-border);
+  background: var(--gold-dim);
+}
+
+.card-header-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--gold-border);
+  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.card-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+  flex: 1;
+}
+
+.card-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: var(--text-label);
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--gold-border);
+  background: var(--card);
+}
+
+.card-body { padding: 18px; }
+
+/* ============================================================
+   FORM FIELDS
+============================================================ */
+.field-group { display: flex; flex-direction: column; gap: 12px; }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-label);
+}
+
+input, select, textarea {
+  width: 100%;
+  background: var(--input-bg);
+  color: var(--text);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-dim);
+}
+input[readonly], input[readonly]:focus {
+  background: var(--input-ro);
+  color: var(--text-muted);
+  border-color: rgba(0,0,0,0.06);
+  box-shadow: none;
+  cursor: default;
+}
+[data-theme="dark"] input[readonly] { border-color: rgba(255,255,255,0.06); }
+select { cursor: pointer; }
+
+.fields-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* ============================================================
+   TOTALS BAR
+============================================================ */
+.totals-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--gold-border);
+  background: var(--gold-dim);
+}
+
+.total-item { display: flex; flex-direction: column; gap: 4px; }
+
+.total-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-label);
+}
+
+.total-val {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--gold);
+}
+
+/* ============================================================
+   FARM ROWS
+============================================================ */
+.farm-list { display: flex; flex-direction: column; }
+
+.farm {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--gold-border);
+  transition: background 0.2s;
+}
+.farm:last-child { border-bottom: none; }
+.farm:hover { background: rgba(184,148,46,0.03); }
+[data-theme="dark"] .farm:hover { background: rgba(255,255,255,0.02); }
+
+/* OS row */
+.os-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.os-number {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-label);
+  width: 24px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.os-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.os-input {
+  flex: 1;
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-weight: 500 !important;
+}
+
+.farm-msg {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  min-height: 18px;
+  padding-left: 32px;
+  margin-bottom: 10px;
+  color: var(--text-label);
+}
+.farm-msg.ok   { color: var(--success); }
+.farm-msg.warn { color: var(--warning); }
+.farm-msg.err  { color: var(--danger); }
+
+/* Farm data info cells */
+.farm-info-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding-left: 32px;
+  margin-bottom: 10px;
+}
+
+.info-cell {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  transition: background 0.3s;
+}
+
+.info-cell.full { grid-column: 1 / -1; }
+
+.i-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-label);
+  margin-bottom: 3px;
+}
+
+.i-val {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.i-val.mono {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--gold);
+}
+
+/* Copos input row */
+.farm-copos-row {
+  padding-left: 32px;
+  margin-bottom: 10px;
+}
+
+.farm-copos-row .field label { font-size: 0.63rem; }
+
+/* ============================================================
+   STATUS TOGGLE (per farm)
+============================================================ */
+.status-toggle-wrap {
+  padding-left: 32px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.status-toggle-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-label);
+  margin-right: 4px;
+}
+
+.st-opt { position: relative; cursor: pointer; }
+.st-opt input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+
+.st-opt-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--gold-border);
+  background: var(--surface);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  white-space: nowrap;
+}
+.st-opt-label:hover { background: var(--gold-dim); color: var(--gold); }
+
+.st-opt.s-finalizada input:checked ~ .st-opt-label {
+  background: var(--success-dim);
+  border-color: var(--success-bdr);
+  color: var(--success);
+  box-shadow: 0 0 0 2px rgba(22,163,74,0.10);
+}
+
+.st-opt.s-andamento input:checked ~ .st-opt-label {
+  background: var(--warning-dim);
+  border-color: var(--warning-bdr);
+  color: var(--warning);
+  box-shadow: 0 0 0 2px rgba(217,119,6,0.10);
+}
+
+/* Add farm row */
+.add-farm-row {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px dashed var(--gold-border);
+}
+
+.add-hint {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.63rem;
+  color: var(--text-label);
+  letter-spacing: 0.05em;
+}
+
+/* ============================================================
+   PREVIEW
+============================================================ */
+.preview-box {
+  white-space: pre-wrap;
+  background: var(--input-bg);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  min-height: 180px;
+  max-height: 300px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.75;
+  overflow: auto;
+  color: var(--text);
+}
+
+/* ============================================================
+   ACTION GRID
+============================================================ */
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.action-grid .span2 { grid-column: 1 / -1; }
+
+.divider { height: 1px; background: var(--gold-border); margin: 4px 0; }
+
+.status-badge {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  border: 1px solid var(--gold-border);
+  background: var(--gold-dim);
+  color: var(--text-label);
+  transition: all 0.2s;
+}
+.status-badge.ok   { display: inline-flex; color: var(--success); border-color: var(--success-bdr); background: var(--success-dim); }
+.status-badge.warn { display: inline-flex; color: var(--warning); border-color: var(--warning-bdr); background: var(--warning-dim); }
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 520px) {
+  .header-title { font-size: 0.88rem; }
+  .fields-2col  { grid-template-columns: 1fr; }
+  .farm-info-row { grid-template-columns: 1fr; padding-left: 0; }
+  .farm-copos-row, .status-toggle-wrap, .os-row, .farm-msg { padding-left: 0; }
+  .os-number { display: none; }
+  .action-grid { grid-template-columns: 1fr; }
+  .action-grid .span2 { grid-column: 1; }
+  .totals-bar { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
 
-<header>
-  <a class="btn light" href="./"><i data-lucide="arrow-left" width="16" height="16"></i> Voltar</a>
-  <h1><i data-lucide="bar-chart-3" width="20" height="20"></i> Rendimento (Cotesia) – Top Gun</h1>
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <a class="btn btn-sm" href="./" title="Voltar">
+      <i data-lucide="arrow-left" width="14" height="14"></i>
+      Voltar
+    </a>
+    <div class="header-title">
+      <i data-lucide="bar-chart-3" width="17" height="17"></i>
+      Rendimento · Cotesia
+    </div>
+    <button class="theme-toggle" id="themeToggle" title="Alternar tema">
+      <i data-lucide="moon" width="15" height="15" id="themeIcon"></i>
+    </button>
+  </div>
 </header>
 
 <div class="wrap">
-  <!-- Dados gerais -->
-  <section class="card">
-    <h2><i data-lucide="clipboard-list" width="18" height="18"></i> Dados gerais</h2>
-    <div class="grid">
-      <div class="row">
-        <label for="dtData">Data</label>
-        <input type="date" id="dtData">
-      </div>
 
-      <div class="row">
-        <label for="selFrente">Frente</label>
-        <select id="selFrente">
-          <option value="" selected>Selecione…</option>
-          <option value=" 01"> 01</option>
-          <option value=" 02"> 02</option>
-          <option value=" 03"> 03</option>
-          <option value=" 04"> 04</option>
-        </select>
+  <!-- ── Dados Gerais ─────────────────────────────────────── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">
+        <i data-lucide="clipboard-list" width="16" height="16"></i>
       </div>
+      <span class="card-title">Dados Gerais</span>
+      <span class="card-badge">Etapa 1</span>
+    </div>
+    <div class="card-body">
+      <div class="field-group">
 
-      <div class="row">
-        <label for="txtPiloto">Piloto</label>
-        <input type="text" id="txtPiloto" placeholder="Selecione a Frente" readonly title="Preenchido automaticamente pela Frente">
-      </div>
+        <div class="field">
+          <label>Data</label>
+          <input type="date" id="dtData">
+        </div>
 
-      <div class="row">
-        <label for="selDrone">Drone</label>
-        <select id="selDrone">
-          <option value="" selected>Selecione...</option>
-          <option value="XFLY X800">XFLY X800</option>
-          <option value="NEXUS NX6">NEXUS NX6</option>
-        </select>
-      </div>
+        <div class="fields-2col">
+          <div class="field">
+            <label>Frente</label>
+            <select id="selFrente">
+              <option value="" selected>Selecione…</option>
+              <option value=" 01">01</option>
+              <option value=" 02">02</option>
+              <option value=" 03">03</option>
+              <option value=" 04">04</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Piloto</label>
+            <input type="text" id="txtPiloto" placeholder="Auto" readonly title="Preenchido pela Frente">
+          </div>
+        </div>
 
-      <div class="row">
-        <label for="selUnidade">Unidade</label>
-        <select id="selUnidade">
-          <option value="" selected>Selecione…</option>
-          <option value="Delta - Delta">Delta - Delta</option>
-          <option value="Delta - Volta Grande">Delta - Volta Grande</option>
-          <option value="Cresciumal Bioenergia">Cresciumal Bioenergia</option>
-        </select>
+        <div class="field">
+          <label>Drone</label>
+          <select id="selDrone">
+            <option value="" selected>Selecione…</option>
+            <option value="XFLY X800">XFLY X800</option>
+            <option value="NEXUS NX6">NEXUS NX6</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Unidade</label>
+          <select id="selUnidade">
+            <option value="" selected>Selecione…</option>
+            <option value="Delta - Delta">Delta - Delta</option>
+            <option value="Delta - Volta Grande">Delta - Volta Grande</option>
+            <option value="Cresciumal Bioenergia">Cresciumal Bioenergia</option>
+          </select>
+        </div>
+
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- Fazendas -->
-  <section class="card">
-    <h2><i data-lucide="tractor" width="18" height="18"></i> Fazendas (por OS)</h2>
-
-    <div class="rows" id="rows"></div>
-
-    <div class="inline">
-      <button class="btn" id="btnAdd"><i data-lucide="plus" width="16" height="16"></i> Adicionar fazenda</button>
-      <span class="muted">Preencha a <b>OS</b> e clique "Buscar" para puxar Fazenda/Código/Área/Objetivo.</span>
+  <!-- ── Fazendas ─────────────────────────────────────────── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">
+        <i data-lucide="tractor" width="16" height="16"></i>
+      </div>
+      <span class="card-title">Fazendas por OS</span>
+      <span class="card-badge">Etapa 2</span>
     </div>
 
-    <div class="grid" style="margin-top:12px">
-      <div class="row">
-        <label>Total de fazendas</label>
-        <input id="totFazendas" type="text" readonly>
+    <div class="farm-list" id="rows"></div>
+
+    <div class="add-farm-row">
+      <button class="btn btn-sm" id="btnAdd">
+        <i data-lucide="plus" width="14" height="14"></i>
+        Adicionar fazenda
+      </button>
+      <span class="add-hint">Preencha a OS e clique "Buscar"</span>
+    </div>
+
+    <!-- Totals bar -->
+    <div class="totals-bar">
+      <div class="total-item">
+        <span class="total-label">Fazendas</span>
+        <span class="total-val" id="totFazendasDisplay">0</span>
+        <input type="hidden" id="totFazendas">
       </div>
-      <div class="row">
-        <label>Total hectares</label>
-        <input id="totHa" type="text" readonly>
+      <div class="total-item">
+        <span class="total-label">Hectares</span>
+        <span class="total-val" id="totHaDisplay">0,00</span>
+        <input type="hidden" id="totHa">
       </div>
-      <div class="row">
-        <label>Total de copos</label>
-        <input id="totCopos" type="text" readonly>
+      <div class="total-item">
+        <span class="total-label">Copos</span>
+        <span class="total-val" id="totCoposDisplay">0</span>
+        <input type="hidden" id="totCopos">
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- Prévia e ações -->
-  <section class="card">
-    <h2><i data-lucide="eye" width="18" height="18"></i> Prévia WhatsApp</h2>
-    <div class="preview" id="preview"></div>
-
-    <div class="sep"></div>
-
-    <div class="action-buttons">
-      <button class="btn neon" id="btnGerar"><i data-lucide="refresh-cw" width="16" height="16"></i> Gerar prévia</button>
-      <button class="btn" id="btnCopiar"><i data-lucide="copy" width="16" height="16"></i> Copiar mensagem</button>
-      <button class="btn light" id="btnWhats"><i data-lucide="message-circle" width="16" height="16"></i> Abrir no WhatsApp</button>
-      <span class="badge" id="lblInfo"></span>
+  <!-- ── Prévia & Ações ───────────────────────────────────── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">
+        <i data-lucide="eye" width="16" height="16"></i>
+      </div>
+      <span class="card-title">Prévia WhatsApp</span>
+      <span class="card-badge">Etapa 3</span>
     </div>
-  </section>
-</div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
+
+      <div class="preview-box" id="preview"></div>
+
+      <div class="divider"></div>
+
+      <div class="action-grid">
+        <button class="btn btn-primary span2" id="btnGerar">
+          <i data-lucide="refresh-cw" width="15" height="15"></i>
+          Gerar Prévia
+        </button>
+        <button class="btn btn-ghost" id="btnCopiar">
+          <i data-lucide="copy" width="15" height="15"></i>
+          Copiar
+        </button>
+        <button class="btn" id="btnWhats">
+          <i data-lucide="message-circle" width="15" height="15"></i>
+          WhatsApp
+        </button>
+      </div>
+
+      <div style="display:flex;justify-content:center;">
+        <span class="status-badge" id="lblInfo"></span>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /wrap -->
 
 <script>
-// Ícones
+/* ============================================================
+   THEME
+============================================================ */
+const html = document.documentElement;
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon   = document.getElementById('themeIcon');
+
+function applyTheme(t) {
+  html.setAttribute('data-theme', t);
+  localStorage.setItem('pulvion_theme', t);
+  themeIcon.setAttribute('data-lucide', t === 'dark' ? 'sun' : 'moon');
+  lucide.createIcons();
+  themeToggle.title = t === 'dark' ? 'Modo claro' : 'Modo escuro';
+}
+
+(function() { applyTheme(localStorage.getItem('pulvion_theme') || 'light'); })();
+themeToggle.addEventListener('click', () => applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+
 lucide.createIcons();
 
-/* ===== Util ===== */
-const pad2 = n => String(n).padStart(2,'0');
-function todaySP(){ const now = new Date(); return `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`; }
-function fmtBR(n, d=2){ return Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:d, maximumFractionDigits:d}); }
-function toNumBR(s){ if (typeof s === 'number') return s; const t = String(s||'').replace(/\./g,'').replace(',','.'); const n = parseFloat(t); return isNaN(n) ? 0 : n; }
-function fmtDateBRfromInput(yyyy_mm_dd){ if (!yyyy_mm_dd) return ''; const [y,m,d] = yyyy_mm_dd.split('-'); return `${d}/${m}/${y}`; }
-function nowStrSP(){ const f = new Intl.DateTimeFormat('pt-BR', { timeZone:'America/Sao_Paulo', dateStyle:'short', timeStyle:'short' }); return f.format(new Date()); }
+/* ============================================================
+   UTILS
+============================================================ */
+const pad2 = n => String(n).padStart(2, '0');
 
-/* ===== Frente → Piloto ===== */
-const PILOTOS = { ' 01': 'Victor Hugo', ' 02': 'Pedro', ' 03': 'Guilherme', ' 04': 'Erick Frota' };
-function setPilotByFrente(){ const frente = document.getElementById('selFrente').value || ''; document.getElementById('txtPiloto').value = PILOTOS[frente] || ''; }
+function todaySP() {
+  const now = new Date();
+  return `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
+}
 
-/* ===== API (Apps Script Web App) ===== */
-const API_URL = 'https://script.google.com/macros/s/AKfycbw2VQUIoe4PHR8MNcJ3dAeSf6gf_XjepYE6XdUvXP4d9MnEZ0yuNKP6uPEGwqN0_1lpUA/exec';
-const API_TOKEN = ''; // se proteger com token no Code.gs, coloque aqui
+function fmtBR(n, d = 2) {
+  return Number(n || 0).toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
 
-async function lookupOS(os){
-  const params = new URLSearchParams({ action:'lookup', os, ...(API_TOKEN ? {token:API_TOKEN} : {}) });
-  const url = `${API_URL}?${params.toString()}`;
-  const res = await fetch(url, { method: 'GET' });
+function toNumBR(s) {
+  if (typeof s === 'number') return s;
+  const t = String(s || '').replace(/\./g, '').replace(',', '.');
+  const n = parseFloat(t);
+  return isNaN(n) ? 0 : n;
+}
+
+function fmtDateBRfromInput(v) {
+  if (!v) return '';
+  const [y, m, d] = v.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function nowStrSP() {
+  return new Intl.DateTimeFormat('pt-BR', {
+    timeZone: 'America/Sao_Paulo', dateStyle: 'short', timeStyle: 'short'
+  }).format(new Date());
+}
+
+/* ============================================================
+   FRENTE → PILOTO
+============================================================ */
+const PILOTOS = { ' 01': 'Sem piloto', ' 02': 'Yuri Joudran', ' 03': 'Sem piloto', ' 04': 'Erick Frota' };
+
+function setPilotByFrente() {
+  document.getElementById('txtPiloto').value = PILOTOS[document.getElementById('selFrente').value] || '';
+}
+
+/* ============================================================
+   API
+============================================================ */
+const API_URL   = 'https://script.google.com/macros/s/AKfycbw2VQUIoe4PHR8MNcJ3dAeSf6gf_XjepYE6XdUvXP4d9MnEZ0yuNKP6uPEGwqN0_1lpUA/exec';
+const API_TOKEN = '';
+
+async function lookupOS(os) {
+  const params = new URLSearchParams({ action: 'lookup', os, ...(API_TOKEN ? { token: API_TOKEN } : {}) });
+  const res = await fetch(`${API_URL}?${params}`, { method: 'GET' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
-/* ===== UI Fazendas ===== */
+/* ============================================================
+   FARM ROW FACTORY
+============================================================ */
 const rowsEl = document.getElementById('rows');
+let farmCount = 0;
 
-function makeRow(prefill={}){
-  const el = document.createElement('div');
+function makeRow(prefill = {}) {
+  farmCount++;
+  const num = farmCount;
+  const uid = `st_${Date.now()}_${num}`; // unique name for radio group
+  const el  = document.createElement('div');
   el.className = 'farm';
+
   el.innerHTML = `
-    <div class="top">
-      <div class="inline">
-        <div class="inline-row">
-          <input type="text" class="os small-input" placeholder="Nº OS">
-          <button class="btn light buscar"><i data-lucide="search" width="14" height="14"></i> Buscar</button>
-        </div>
-        <button class="btn warning remover" title="Remover"><i data-lucide="trash-2" width="14" height="14"></i> Remover fazenda</button>
+    <!-- OS search -->
+    <div class="os-row">
+      <span class="os-number">#${String(num).padStart(2,'0')}</span>
+      <div class="os-input-wrap">
+        <input type="text" class="os os-input" placeholder="Nº OS" aria-label="Número OS">
+        <button class="btn btn-sm buscar">
+          <i data-lucide="search" width="13" height="13"></i>
+          Buscar
+        </button>
       </div>
-      <div class="muted msg" style="min-height:20px;"></div>
+      <button class="btn btn-sm btn-danger remover" title="Remover fazenda">
+        <i data-lucide="trash-2" width="13" height="13"></i>
+      </button>
     </div>
-    <div class="grid">
-      <div class="row">
-        <label>Fazenda</label>
-        <input type="text" class="faz" readonly>
+
+    <!-- Lookup status -->
+    <div class="farm-msg" role="status"></div>
+
+    <!-- Auto-filled info cells -->
+    <div class="farm-info-row">
+      <div class="info-cell">
+        <div class="i-label">Fazenda</div>
+        <div class="i-val faz-disp">—</div>
+        <input type="hidden" class="faz">
       </div>
-      <div class="row">
-        <label>Código</label>
-        <input type="text" class="cod" readonly>
+      <div class="info-cell">
+        <div class="i-label">Código</div>
+        <div class="i-val cod-disp">—</div>
+        <input type="hidden" class="cod">
       </div>
-      <div class="row">
-        <label>Hectares (ha)</label>
-        <input type="text" class="ha" readonly>
+      <div class="info-cell">
+        <div class="i-label">Hectares (ha)</div>
+        <div class="i-val mono ha-disp">—</div>
+        <input type="hidden" class="ha">
       </div>
-      <div class="row">
+      <div class="info-cell">
+        <div class="i-label">Objetivo</div>
+        <div class="i-val obj-disp">—</div>
+        <input type="hidden" class="objetivo">
+      </div>
+    </div>
+
+    <!-- Copos (editable) -->
+    <div class="farm-copos-row">
+      <div class="field">
         <label>Qtd. Copos</label>
-        <input type="text" class="copos" placeholder="Digite a quantidade (puxado da planilha se disponível)">
+        <input type="text" class="copos" placeholder="0" inputmode="decimal">
       </div>
-      <div class="row">
-        <label>Objetivo</label>
-        <input type="text" class="objetivo" readonly>
-      </div>
-      <div class="row">
-        <label>Status</label>
-        <select class="status">
-          <option value="Finalizada">✅Finalizada </option>
-          <option value="Em andamento">🟠Em andamento</option>
-        </select>
-      </div>
+    </div>
+
+    <!-- Status toggle -->
+    <div class="status-toggle-wrap">
+      <span class="status-toggle-label">Status:</span>
+      <label class="st-opt s-finalizada">
+        <input type="radio" name="${uid}" class="status" value="Finalizada" checked onchange="updatePreview(false)">
+        <span class="st-opt-label">✅ Finalizada</span>
+      </label>
+      <label class="st-opt s-andamento">
+        <input type="radio" name="${uid}" class="status" value="Em andamento" onchange="updatePreview(false)">
+        <span class="st-opt-label">🟠 Em andamento</span>
+      </label>
     </div>
   `;
+
   rowsEl.appendChild(el);
   lucide.createIcons();
 
-  const $os = el.querySelector('.os');
-  const $msg = el.querySelector('.msg');
+  el.querySelector('.remover').addEventListener('click', () => {
+    el.remove();
+    recalcTotals();
+    updatePreview(false);
+  });
 
-  if (prefill.os)  $os.value  = prefill.os;
+  el.querySelector('.buscar').addEventListener('click', () => doLookup(el));
+  el.querySelector('.os').addEventListener('keydown', e => { if (e.key === 'Enter') doLookup(el); });
+  el.querySelector('.copos').addEventListener('input', () => { recalcTotals(); updatePreview(false); });
 
-  el.querySelector('.remover').addEventListener('click', ()=>{ el.remove(); recalcTotals(); updatePreview(false); });
-  el.querySelector('.buscar').addEventListener('click', ()=> doLookup(el));
-  $os.addEventListener('keydown', (e)=>{ if(e.key==='Enter') doLookup(el); });
-
-  // recalcula ao digitar copos (área é puxada e readonly)
-  el.querySelector('.copos').addEventListener('input', ()=>{ recalcTotals(); updatePreview(false); });
-  el.querySelector('.status').addEventListener('change', ()=> updatePreview(false));
+  if (prefill.os) el.querySelector('.os').value = prefill.os;
 
   return el;
 }
 
-async function doLookup(el){
-  const $os = el.querySelector('.os');
-  const os = String($os.value || '').trim();
-  const $msg = el.querySelector('.msg');
-  if (!os){ $msg.innerHTML = '<span class="warn">Informe a OS.</span>'; return; }
+/* ============================================================
+   LOOKUP
+============================================================ */
+function setFarmMsg(el, text, type = '') {
+  const m = el.querySelector('.farm-msg');
+  m.textContent = text;
+  m.className   = 'farm-msg' + (type ? ' ' + type : '');
+}
 
-  $msg.textContent = 'Buscando...';
-  try{
+function fillFarmDisplay(el, faz, cod, ha, obj) {
+  el.querySelector('.faz-disp').textContent = faz || '—';
+  el.querySelector('.cod-disp').textContent = cod || '—';
+  el.querySelector('.ha-disp').textContent  = ha  ? fmtBR(Number(String(ha).replace(',','.')) || 0) + ' ha' : '—';
+  el.querySelector('.obj-disp').textContent = obj || '—';
+  el.querySelector('.faz').value      = faz || '';
+  el.querySelector('.cod').value      = cod || '';
+  el.querySelector('.ha').value       = ha  ? String(ha).replace('.', ',') : '';
+  el.querySelector('.objetivo').value = obj || '';
+}
+
+async function doLookup(el) {
+  const os = String(el.querySelector('.os').value || '').trim();
+  if (!os) { setFarmMsg(el, 'Informe o número da OS.', 'warn'); return; }
+
+  setFarmMsg(el, 'Buscando…');
+
+  try {
     const res = await lookupOS(os);
-    if (!res || !res.ok || !res.found || !res.items || res.items.length === 0){
-      $msg.innerHTML = '<span class="warn">OS não encontrada na planilha. Preencha manualmente.</span>';
+
+    if (!res || !res.ok || !res.found || !res.items || !res.items.length) {
+      setFarmMsg(el, 'OS não encontrada. Preencha manualmente.', 'warn');
       return;
     }
-    const items = res.items.slice().sort((a,b)=>{
-      const pa = (a.data||'').split('/'), pb = (b.data||'').split('/');
-      const da = pa.length===3 ? new Date(+pa[2], +pa[1]-1, +pa[0]) : new Date(0);
-      const db = pb.length===3 ? new Date(+pb[2], +pb[1]-1, +pb[0]) : new Date(0);
-      return db - da;
+
+    const items = res.items.slice().sort((a, b) => {
+      const toDate = s => {
+        const p = (s || '').split('/');
+        return p.length === 3 ? new Date(+p[2], +p[1]-1, +p[0]) : new Date(0);
+      };
+      return toDate(b.data) - toDate(a.data);
     });
+
     const it = items[0];
 
-    el.querySelector('.faz').value = it.fazenda || '';
-    el.querySelector('.cod').value = it.codigo  || '';
-    el.querySelector('.ha').value  = it.area ? String(it.area).replace('.', ',') : '';
-    el.querySelector('.objetivo').value = it.objetivo || '';
+    // Fill info cells
+    fillFarmDisplay(el, it.fazenda || '', it.codigo || '', it.area || '', it.objetivo || '');
 
-    // Preenche automaticamente a quantidade de copos / tubetes se o campo existir na planilha.
-    // Aceitamos várias possíveis chaves que a planilha/Apps Script pode retornar.
-    (function fillCoposIfExists(){
-      const possible = ['copos','tubetes','tubete','qtd_copos','qtd_tubetes','qtcopos','qtd_tubete','copos_qtd','tubetes_qtd'];
-      for(const k of possible){
-        if (k in it && it[k] !== null && it[k] !== undefined && String(it[k]).trim() !== ''){
-          try{
-            const v = toNumBR(it[k]);
-            // preencher com formatação brasileira, sem casas decimais
-            el.querySelector('.copos').value = fmtBR(v,0);
-          }catch(_e){
-            el.querySelector('.copos').value = String(it[k]);
-          }
-          break;
+    // Fill copos from whichever field exists
+    const COPOS_FIELDS = ['copos','tubetes','tubete','qtd_copos','qtd_tubetes','qtcopos','qtd_tubete','copos_qtd','tubetes_qtd'];
+    for (const k of COPOS_FIELDS) {
+      if (k in it && it[k] !== null && it[k] !== undefined && String(it[k]).trim() !== '') {
+        try {
+          el.querySelector('.copos').value = fmtBR(toNumBR(it[k]), 0);
+        } catch (_) {
+          el.querySelector('.copos').value = String(it[k]);
         }
+        break;
       }
-    })();
+    }
 
-    $msg.textContent = it.data ? `Carregado (Data ${it.data})` : 'Carregado';
+    setFarmMsg(el, it.data ? `✓ Carregado — referência: ${it.data}` : '✓ Carregado', 'ok');
     recalcTotals();
     updatePreview(false);
-  }catch(err){
-    $msg.innerHTML = `<span class="warn">Falha no lookup: ${err && err.message ? err.message : err}</span>`;
+
+  } catch (err) {
+    setFarmMsg(el, `Falha: ${err && err.message ? err.message : err}`, 'err');
   }
 }
 
-/* ===== Totais ===== */
-function recalcTotals(){
-  let tHa = 0, tCop = 0;
-  let count = 0;
-  rowsEl.querySelectorAll('.farm').forEach(el=>{
+/* ============================================================
+   TOTALS
+============================================================ */
+function recalcTotals() {
+  let tHa = 0, tCop = 0, count = 0;
+
+  rowsEl.querySelectorAll('.farm').forEach(el => {
     tHa  += toNumBR(el.querySelector('.ha').value);
     tCop += toNumBR(el.querySelector('.copos').value);
     count++;
   });
-  document.getElementById('totHa').value    = fmtBR(tHa);
-  document.getElementById('totCopos').value = fmtBR(tCop,0);
-  const totF = document.getElementById('totFazendas');
-  if (totF) totF.value = String(count);
+
+  document.getElementById('totFazendas').value         = count;
+  document.getElementById('totHa').value               = tHa;
+  document.getElementById('totCopos').value            = tCop;
+  document.getElementById('totFazendasDisplay').textContent = count;
+  document.getElementById('totHaDisplay').textContent       = fmtBR(tHa);
+  document.getElementById('totCoposDisplay').textContent    = fmtBR(tCop, 0);
 }
 
-/* ===== Mensagem ===== */
-function buildMessage(){
-  const dt   = document.getElementById('dtData').value;
-  const fr   = document.getElementById('selFrente').value || '—';
-  const pil  = document.getElementById('txtPiloto').value || '—';
-  const dr   = document.getElementById('selDrone').value  || '—';
-  const uni  = document.getElementById('selUnidade').value || '—';
+/* ============================================================
+   BUILD MESSAGE
+============================================================ */
+function buildMessage() {
+  const dt  = document.getElementById('dtData').value;
+  const fr  = document.getElementById('selFrente').value || '—';
+  const pil = document.getElementById('txtPiloto').value || '—';
+  const dr  = document.getElementById('selDrone').value  || '—';
+  const uni = document.getElementById('selUnidade').value || '—';
 
-  let msg = `*Rendimento _Cotesia_Top Gun✅*\n\n` +
+  let msg = `*Rendimento _Cotesia_ Top Gun ✅*\n\n` +
             `*Data:* ${dt ? fmtDateBRfromInput(dt) : 'Preencher'}\n` +
             `*Frente:* ${fr}\n` +
             `*Piloto:* ${pil}\n` +
@@ -453,106 +1058,104 @@ function buildMessage(){
 
   let tHa = 0, tCop = 0;
 
-  rowsEl.querySelectorAll('.farm').forEach((el, idx)=>{
-    const os   = (el.querySelector('.os').value || '').trim();
-    const faz  = (el.querySelector('.faz').value || '').trim();
-    const cod  = (el.querySelector('.cod').value || '').trim();
-    const ha   = toNumBR(el.querySelector('.ha').value);
-    const cp   = toNumBR(el.querySelector('.copos').value);
-    const obj  = (el.querySelector('.objetivo').value || '').trim();
-    const st   = el.querySelector('.status').value || '—';
+  rowsEl.querySelectorAll('.farm').forEach(el => {
+    const os  = (el.querySelector('.os').value       || '').trim();
+    const faz = (el.querySelector('.faz').value      || '').trim();
+    const cod = (el.querySelector('.cod').value      || '').trim();
+    const ha  = toNumBR(el.querySelector('.ha').value);
+    const cp  = toNumBR(el.querySelector('.copos').value);
+    const obj = (el.querySelector('.objetivo').value || '').trim();
+    const stEl = el.querySelector('input[name].status:checked');
+    const st  = stEl ? stEl.value : '—';
 
-  // Adiciona emoji conforme status
-  let statusStr = st;
-  if (st === "Finalizada") statusStr = "✅ *Finalizada*";
-  else if (st === "Em andamento") statusStr = "🟠 *Em andamento*";
+    tHa += ha; tCop += cp;
 
-    tHa  += ha; tCop += cp;
+    const statusStr = st === 'Finalizada'   ? '✅ *Finalizada*'
+                    : st === 'Em andamento' ? '🟠 *Em andamento*'
+                    : st;
 
     msg += `\n*OS:* ${os || 'Preencher'}` +
            `\n*Faz:* ${faz || '—'}` +
            `\n*Cod:* ${cod || '—'}` +
            `\n*Há:* ${fmtBR(ha)}` +
-           `\n*Qtd. Copos:* ${cp ? fmtBR(cp,0) : 'Preencher'}` +
+           `\n*Qtd. Copos:* ${cp ? fmtBR(cp, 0) : 'Preencher'}` +
            `\n*Objetivo:* ${obj || '—'}` +
            `\n*Status:* ${statusStr}` +
            `\n————————-`;
   });
-  const farmCount = rowsEl.querySelectorAll('.farm').length;
 
-  msg += `\nTotal de fazendas: ${farmCount}` +
-         `\nTotal de copos: ${fmtBR(tCop,0)}` +
+  const count = rowsEl.querySelectorAll('.farm').length;
+
+  msg += `\nTotal de fazendas: ${count}` +
+         `\nTotal de copos: ${fmtBR(tCop, 0)}` +
          `\nTotal hectares: ${fmtBR(tHa)}` +
-         `\n\nRelatorio gerado: ${nowStrSP()}`;
+         `\n\nRelatório gerado: ${nowStrSP()}`;
 
   return msg;
 }
-function updatePreview(andScroll=true){
+
+/* ============================================================
+   PREVIEW
+============================================================ */
+function updatePreview(andScroll = true) {
   const p = document.getElementById('preview');
   p.textContent = buildMessage();
   if (andScroll) p.scrollTop = p.scrollHeight;
 }
 
-/* ===== Init & eventos ===== */
-(function init(){
+/* ============================================================
+   STATUS BADGE
+============================================================ */
+function showStatus(msg, type) {
+  const badge = document.getElementById('lblInfo');
+  badge.textContent = msg;
+  badge.className   = 'status-badge ' + type;
+  setTimeout(() => { badge.className = 'status-badge'; }, 2200);
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+(function init() {
   document.getElementById('dtData').value = todaySP();
 
-  // primeira linha
   makeRow();
 
-  document.getElementById('btnAdd').addEventListener('click', ()=>{ makeRow(); updatePreview(false); });
-
-  document.getElementById('btnGerar').addEventListener('click', ()=>{
-    updatePreview();
-    const lblInfo = document.getElementById('lblInfo');
-    lblInfo.innerHTML = '<i data-lucide="check" width="12" height="12"></i> Prévia atualizada';
-    lucide.createIcons();
-    setTimeout(()=> lblInfo.textContent = '', 1800);
+  document.getElementById('btnAdd').addEventListener('click', () => {
+    makeRow();
+    updatePreview(false);
   });
 
-  document.getElementById('btnCopiar').addEventListener('click', async ()=>{
-    const txt = buildMessage();
-    try{
-      await navigator.clipboard.writeText(txt);
-      const lblInfo = document.getElementById('lblInfo');
-      lblInfo.innerHTML = '<i data-lucide="check" width="12" height="12"></i> Copiado';
-      lucide.createIcons();
-    }catch(_e){
-      document.getElementById('lblInfo').textContent = 'Falhou ao copiar';
+  document.getElementById('btnGerar').addEventListener('click', () => {
+    updatePreview(true);
+    showStatus('✓ Prévia atualizada', 'ok');
+  });
+
+  document.getElementById('btnCopiar').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(buildMessage());
+      showStatus('✓ Copiado!', 'ok');
+    } catch (_) {
+      showStatus('Falha ao copiar', 'warn');
     }
-    setTimeout(()=> document.getElementById('lblInfo').textContent = '', 1800);
   });
 
-  document.getElementById('btnWhats').addEventListener('click', ()=>{
-    const url = 'https://wa.me/?text=' + encodeURIComponent(buildMessage());
-    window.open(url, '_blank');
+  document.getElementById('btnWhats').addEventListener('click', () => {
+    window.open('https://wa.me/?text=' + encodeURIComponent(buildMessage()), '_blank');
   });
 
-  // atualiza prévia ao mudar os dados gerais
-  ['dtData','selFrente','txtPiloto','selDrone','selUnidade'].forEach(id=>{
-    document.getElementById(id).addEventListener('input', ()=> updatePreview(false));
+  ['dtData', 'selDrone', 'selUnidade'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => updatePreview(false));
   });
 
-  // Frente → Piloto
-  document.getElementById('selFrente').addEventListener('change', ()=>{
+  document.getElementById('selFrente').addEventListener('change', () => {
     setPilotByFrente();
     updatePreview(false);
   });
 
+  recalcTotals();
   updatePreview(false);
 })();
 </script>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
