@@ -1,858 +1,1084 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <title>Visualizador de KML por OS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualizador KML · OS · Top Gun</title>
 
-  <!-- Leaflet CSS -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin=""
-  />
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 
-  <style>
-    :root {
-      --accent: #c62828;
-      --accent-2: #168f4b;
-      --accent-light: #fdecec;
-      --bg: #f9fbff;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: #e2e8f0;
-    }
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:
-        radial-gradient(circle at 10% 20%, rgba(198,40,40,0.08), transparent 32%),
-        radial-gradient(circle at 85% 10%, rgba(22,143,75,0.08), transparent 38%),
-        linear-gradient(180deg, #fdf7f4 0%, #f2f7ff 70%, #fdf7f4 100%);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-    }
+  <!-- Lucide — carregado no head para garantir disponibilidade imediata -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
-    .container {
-      width: 100%;
-      max-width: 1200px;
-      margin: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+<style>
+/* ============================================================
+   THEME TOKENS
+============================================================ */
+:root, [data-theme="light"] {
+  --gold:         #b8942e;
+  --gold-light:   #d9b24c;
+  --gold-dim:     rgba(184,148,46,0.10);
+  --gold-border:  rgba(184,148,46,0.28);
 
-    .card {
-      background: var(--card-bg);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      box-shadow: 0 18px 40px rgba(15,23,42,0.12);
-      padding: 16px 18px;
-    }
+  --bg:           #f0ede6;
+  --card:         #ffffff;
+  --surface:      #f5f2eb;
+  --surface-2:    #ebe7dd;
+  --input-bg:     #f8f6f1;
 
-    .header .title { display: flex; align-items: center; gap: 10px; }
-    .header .title::before{
-      content: '';
-      width:10px;
-      height:10px;
-      background: linear-gradient(45deg,#d9b24c,#a37e20);
-      border-radius:3px;
-      display:inline-block;
-    }
+  --header-bg:    rgba(240,237,230,0.97);
+  --header-bdr:   rgba(184,148,46,0.22);
 
-    .form-row { align-items: center; gap: 10px; }
-    .form-row label { width: 120px; min-width: 90px; }
-    .form-row input[type="text"] { max-width: 260px; }
+  --text:         #0d1117;
+  --text-muted:   #4b5563;
+  --text-label:   #94a3b8;
 
-    .btn-action { background: linear-gradient(135deg,#d9b24c,#987417); color: #fff; }
-    .btn-secondary { background: #fff; color: var(--muted); border: 1px solid var(--border); box-shadow:none; }
-    .form-row button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 9px 14px;
-      position: relative;
-      min-height: 40px;
-    }
-    .btn-label { display: inline-flex; align-items: center; font-weight: 600; letter-spacing: 0.01em; }
-    .btn-icon {
-      width: 18px;
-      height: 18px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: #000000;
-    }
-    .btn-icon svg { width: 100%; height: 100%; stroke: currentColor; }
+  --success:      #16a34a;
+  --success-dim:  rgba(22,163,74,0.10);
+  --success-bdr:  rgba(22,163,74,0.28);
+  --warning:      #d97706;
+  --warning-dim:  rgba(217,119,6,0.10);
+  --warning-bdr:  rgba(217,119,6,0.32);
+  --danger:       #dc2626;
+  --danger-dim:   rgba(220,38,38,0.08);
+  --danger-bdr:   rgba(220,38,38,0.28);
+  --info:         #2563eb;
+  --info-dim:     rgba(37,99,235,0.08);
+  --info-bdr:     rgba(37,99,235,0.26);
 
-    .card[style] { padding: 12px; }
-    #map { border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); }
+  --shadow-sm:    0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md:    0 4px 20px rgba(0,0,0,0.07);
+  --radius:       12px;
+  --radius-sm:    8px;
+}
 
-    .header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+[data-theme="dark"] {
+  --gold:         #d9b24c;
+  --gold-light:   #f0d078;
+  --gold-dim:     rgba(217,178,76,0.10);
+  --gold-border:  rgba(217,178,76,0.28);
 
-    .title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: #040404;
-    }
+  --bg:           #060912;
+  --card:         #0c1224;
+  --surface:      #0f1628;
+  --surface-2:    rgba(255,255,255,0.04);
+  --input-bg:     #0b1425;
 
-    .subtitle {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
+  --header-bg:    rgba(10,15,31,0.97);
+  --header-bdr:   rgba(217,178,76,0.22);
 
-    .form-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      margin-top: 8px;
-    }
+  --text:         #f0ece4;
+  --text-muted:   #9ca3af;
+  --text-label:   #6b7280;
 
-    label {
-      font-size: 1rem;
-      color: #212529;
-    }
+  --success:      #22c55e;
+  --success-dim:  rgba(34,197,94,0.10);
+  --success-bdr:  rgba(34,197,94,0.28);
+  --warning:      #f59e0b;
+  --warning-dim:  rgba(245,158,11,0.12);
+  --warning-bdr:  rgba(245,158,11,0.35);
+  --danger:       #ef4444;
+  --danger-dim:   rgba(239,68,68,0.10);
+  --danger-bdr:   rgba(239,68,68,0.30);
+  --info:         #60a5fa;
+  --info-dim:     rgba(96,165,250,0.10);
+  --info-bdr:     rgba(96,165,250,0.26);
 
-    input[type="text"] {
-      flex: 1;
-      min-width: 140px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      font-size: 0.9rem;
-      background: rgba(255, 255, 255, 0.95);
-      color: var(--text);
-      outline: none;
-    }
+  --shadow-sm:    0 2px 8px rgba(0,0,0,0.20);
+  --shadow-md:    0 8px 28px rgba(0,0,0,0.30);
+  --radius:       12px;
+  --radius-sm:    8px;
+}
 
-    input[type="text"]:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(22, 163, 74, 0.6);
-    }
+/* ============================================================
+   BASE
+============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 
-    button {
-      padding: 6px 14px;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: linear-gradient(135deg, #c62828, #ef5350);
-      color: #fff;
-      box-shadow: 0 12px 25px rgba(198, 40, 40, 0.3);
-      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease;
-    }
+body {
+  font-family: 'Barlow', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
 
-    button:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.05);
-      box-shadow: 0 16px 35px rgba(22, 163, 74, 0.5);
-    }
+[data-theme="light"] body {
+  background-image: radial-gradient(ellipse 70% 40% at 5% 0%, rgba(184,148,46,0.06) 0%, transparent 55%);
+}
 
-    button:active {
-      transform: translateY(0);
-      box-shadow: 0 8px 18px linear-gradient(135deg, #d9b24c, #a48942);
-    }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gold-border); border-radius: 4px; }
 
-    button:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-      box-shadow: none;
-      filter: none;
-    }
+/* ============================================================
+   STICKY HEADER
+============================================================ */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--header-bdr);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-sm);
+  transition: background 0.3s, border-color 0.3s;
+}
 
-    .btn-secondary {
-      background: #fff;
-      color: #090a0c;
-      border: 1px solid var(--border);
-      box-shadow: none;
-    }
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  height: 58px;
+  max-width: 1300px;
+  margin: 0 auto;
+}
 
-    .btn-secondary:hover {
-      background: rgba(0, 0, 0, 0.06);
-      box-shadow: 0 8px 20px rgba(198, 40, 40, 0.16);
-    }
+.header-title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
 
-    #message {
-      margin-top: 6px;
-      font-size: 0.8rem;
-      min-height: 1.2em;
-    }
+/* ============================================================
+   BUTTONS
+============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 14px;
+  border: 1px solid var(--gold-border);
+  background: var(--gold-dim);
+  color: var(--gold);
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+.btn:hover:not(:disabled) { background: rgba(184,148,46,0.18); border-color: var(--gold); }
+.btn:disabled { opacity: 0.42; cursor: not-allowed; pointer-events: none; }
 
-    #message.success {
-      color: var(--accent);
-    }
+.btn-primary {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(184,148,46,0.28);
+}
+[data-theme="dark"] .btn-primary { color: #0b0f1f; }
+.btn-primary:hover:not(:disabled) { background: var(--gold-light); border-color: var(--gold-light); }
 
-    #message.error {
-      color: #c62828;
-    }
+.btn-ghost {
+  background: var(--surface);
+  border-color: rgba(0,0,0,0.08);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .btn-ghost { border-color: rgba(255,255,255,0.08); }
+.btn-ghost:hover:not(:disabled) { background: var(--surface-2); color: var(--text); border-color: var(--gold-border); }
 
-    #map {
-      width: 100%;
-      height: calc(100vh - 200px);
-      min-height: 360px;
-      border-radius: 14px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      background:#fff;
-    }
+.btn-success {
+  background: var(--success-dim);
+  border-color: var(--success-bdr);
+  color: var(--success);
+}
+.btn-success:hover:not(:disabled) { background: rgba(22,163,74,0.16); }
 
-    .map-footer {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 6px;
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+.btn-info {
+  background: var(--info-dim);
+  border-color: var(--info-bdr);
+  color: var(--info);
+}
+.btn-info:hover:not(:disabled) { background: rgba(37,99,235,0.14); }
 
-    /* Abas Mapa / PDF */
-    .tabs {
-      display: inline-flex;
-      gap: 6px;
-      background: #f7fafc;
-      border-radius: 999px;
-      padding: 4px;
-      margin-bottom: 8px;
-      border:1px solid var(--border);
-    }
+.btn-danger {
+  background: var(--danger-dim);
+  border-color: var(--danger-bdr);
+  color: var(--danger);
+}
+.btn-danger:hover:not(:disabled) { background: rgba(220,38,38,0.14); }
 
-    .tab-button {
-      border-radius: 999px;
-      border: none;
-      padding: 6px 12px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      background: transparent;
-      color: var(--muted);
-      box-shadow: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      transition: background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
-    }
+.btn-sm { padding: 7px 11px; font-size: 0.82rem; }
 
-    .tab-button.tab-active {
-      background: linear-gradient(135deg, #8d722a, #8d722a);
-      color: #fff;
-      box-shadow:0 10px 20px rgba(198,40,40,0.22);
-    }
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px; height: 34px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gold-border);
+  background: var(--gold-dim);
+  color: var(--gold);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.theme-toggle:hover { background: rgba(184,148,46,0.2); border-color: var(--gold); transform: rotate(20deg); }
 
-    .tab-content {
-      display: none;
-    }
+/* ============================================================
+   MAIN LAYOUT
+============================================================ */
+.page-wrap {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
 
-    .tab-content.tab-active {
-      display: block;
-    }
+/* ============================================================
+   CARDS
+============================================================ */
+.card {
+  background: var(--card);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  transition: background 0.3s, border-color 0.3s;
+}
 
-    #pdfFrame {
-      width: 100%;
-      height: calc(100vh - 230px);
-      min-height: 360px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: #fff;
-    }
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--gold-border);
+  background: var(--gold-dim);
+  flex-wrap: wrap;
+}
 
-    #pdfPlaceholder {
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
+.card-header-icon {
+  width: 30px; height: 30px;
+  border-radius: 7px;
+  border: 1px solid var(--gold-border);
+  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  flex-shrink: 0;
+}
 
-    @media (max-width: 768px) {
-      .container {
-        margin: 10px;
-      }
+.card-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+}
 
-      #map {
-        height: calc(100vh - 220px);
-      }
+.card-subtitle {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--text-label);
+  letter-spacing: 0.06em;
+  flex: 1;
+}
 
-      #pdfFrame {
-        height: calc(100vh - 230px);
-      }
-    }
-  </style>
+.card-body { padding: 16px 18px; }
+
+/* ============================================================
+   SEARCH ROW
+============================================================ */
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.os-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+  min-width: 200px;
+  max-width: 340px;
+  background: var(--input-bg);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.os-input-wrap:focus-within {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-dim);
+}
+
+.os-input-wrap input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 10px 14px;
+  background: transparent;
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.95rem;
+  font-weight: 500;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.os-input-wrap .os-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-label);
+  padding: 0 10px 0 14px;
+  white-space: nowrap;
+  user-select: none;
+  border-right: 1px solid var(--gold-border);
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Action buttons cluster */
+.action-cluster {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Message bar */
+.msg-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  padding: 4px 0 2px;
+}
+
+.msg-text {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  color: var(--text-label);
+  transition: color 0.2s;
+}
+
+.msg-text.success { color: var(--success); }
+.msg-text.error   { color: var(--danger); }
+.msg-text.loading { color: var(--gold); }
+
+/* Status info */
+.status-info {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--success);
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--success-bdr);
+  background: var(--success-dim);
+  display: none;
+}
+
+.status-info.show { display: inline-flex; }
+
+/* ============================================================
+   TABS
+============================================================ */
+.tabs-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 18px 0;
+  border-bottom: 1px solid var(--gold-border);
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border: 1px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-label);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: -1px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab-btn:hover { color: var(--gold); background: var(--gold-dim); }
+
+.tab-btn.active {
+  background: var(--card);
+  border-color: var(--gold-border);
+  color: var(--gold);
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ============================================================
+   MAP + PDF
+============================================================ */
+.map-wrap { padding: 14px; }
+
+#map {
+  width: 100%;
+  height: calc(100vh - 270px);
+  min-height: 380px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gold-border);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.map-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 0 2px;
+}
+
+.map-hint {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--text-label);
+  letter-spacing: 0.04em;
+}
+
+/* PDF */
+.pdf-wrap { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+
+.pdf-placeholder {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text-label);
+  letter-spacing: 0.06em;
+  padding: 6px 2px;
+}
+
+#pdfFrame {
+  width: 100%;
+  height: calc(100vh - 290px);
+  min-height: 360px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gold-border);
+  background: var(--surface);
+}
+
+/* ============================================================
+   LEAFLET OVERRIDES
+============================================================ */
+.leaflet-control-layers {
+  background: var(--card) !important;
+  border: 1px solid var(--gold-border) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow-md) !important;
+  color: var(--text) !important;
+  font-family: 'Barlow', sans-serif !important;
+  font-size: 0.88rem !important;
+}
+
+.leaflet-control-layers-base label,
+.leaflet-control-layers-overlays label {
+  color: var(--text) !important;
+}
+
+.leaflet-bar a {
+  background: var(--card) !important;
+  border-color: var(--gold-border) !important;
+  color: var(--text) !important;
+}
+
+.leaflet-bar a:hover { background: var(--gold-dim) !important; }
+
+/* ============================================================
+   DIVIDER
+============================================================ */
+.divider { height: 1px; background: var(--gold-border); }
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 640px) {
+  .header-title { font-size: 0.82rem; }
+  .os-input-wrap { max-width: 100%; }
+  .search-row { flex-direction: column; align-items: stretch; }
+  .action-cluster { justify-content: flex-start; }
+  #map { height: calc(100vh - 300px); min-height: 280px; }
+  #pdfFrame { height: calc(100vh - 320px); min-height: 280px; }
+}
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <div class="header">
-        <div>
-          <div class="title">Visualizador de OS · KML + PDF</div>
-          <div class="subtitle">Digite o número da OS para carregar o desenho da área e a prévia em PDF diretamente do Google Drive.</div>
-        </div>
-        <div class="header-actions">
 
-            
+<!-- ============================================================
+     HEADER
+============================================================ -->
+<header class="site-header">
+  <div class="header-inner">
+    <a class="btn btn-sm" href="./" title="Voltar">
+      <i data-lucide="arrow-left" width="14" height="14"></i>
+      Voltar
+    </a>
+    <div class="header-title">
+      <i data-lucide="map" width="16" height="16"></i>
+      Visualizador KML · OS
+    </div>
+    <button class="theme-toggle" id="themeToggle" title="Alternar tema">
+      <i data-lucide="moon" width="15" height="15" id="themeIcon"></i>
+    </button>
+  </div>
+</header>
+
+<!-- ============================================================
+     MAIN
+============================================================ -->
+<div class="page-wrap">
+
+  <!-- ── Busca ──────────────────────────────────────────────── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">
+        <i data-lucide="search" width="15" height="15"></i>
+      </div>
+      <span class="card-title">Buscar OS</span>
+      <span class="card-subtitle">KML + PDF via Google Drive</span>
+    </div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
+
+      <div class="search-row">
+        <!-- OS input with inline label -->
+        <div class="os-input-wrap">
+          <span class="os-label">Nº OS</span>
+          <input type="text" id="osInput" placeholder="Ex.: 710987" autocomplete="off">
+        </div>
+
+        <!-- Primary action -->
+        <button class="btn btn-primary" id="btnBuscar" type="button">
+          <i data-lucide="search" width="14" height="14"></i>
+          Buscar OS
+        </button>
+
+        <div class="divider" style="height:28px;width:1px;background:var(--gold-border);margin:0 2px;"></div>
+
+        <!-- Secondary actions -->
+        <div class="action-cluster">
+          <button class="btn btn-ghost" id="btnLimpar" type="button" title="Limpar mapa">
+            <i data-lucide="trash-2" width="14" height="14"></i>
+            Limpar
+          </button>
+          <button class="btn btn-ghost" id="btnDownload" type="button" disabled title="Baixar KML">
+            <i data-lucide="download-cloud" width="14" height="14"></i>
+            Baixar KML
+          </button>
+          <button class="btn btn-success" id="btnNavigate" type="button" disabled title="Navegar até a área">
+            <i data-lucide="navigation" width="14" height="14"></i>
+            Navegar
+          </button>
+          <button class="btn btn-info" id="btnLocate" type="button" title="Minha posição">
+            <i data-lucide="locate" width="14" height="14"></i>
+            Minha posição
           </button>
         </div>
       </div>
 
-      <div class="form-row">
-        <label for="osInput">Número da OS:</label>
-        <input type="text" id="osInput" placeholder="Ex: 710987" />
-        <button id="btnBuscar" type="button" class="btn-action">
-          <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
-          <span class="btn-label">Buscar OS</span>
-        </button>
-        <button id="btnLimpar" type="button" class="btn-secondary">
-          <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg></span>
-          <span class="btn-label">Limpar</span>
-        </button>
-        <button id="btnDownload" type="button" class="btn-secondary" disabled>
-          <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 17l4 4 4-4"></path><path d="M12 12v9"></path><path d="M20.88 18.09A4 4 0 0 0 18 10h-1.26A8 8 0 1 0 3 16"></path></svg></span>
-          <span class="btn-label">Baixar KML</span>
-        </button>
-        <button id="btnNavigate" type="button" class="btn-secondary" disabled>
-          <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg></span>
-          <span class="btn-label">Navegar até área</span>
-        </button>
-        <button id="btnLocate" type="button" class="btn-secondary">
-          <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
-          <span class="btn-label">Minha posição</span>
-        </button>
+      <!-- Message + area status -->
+      <div class="msg-bar">
+        <span class="msg-text" id="message"></span>
+        <span class="status-info" id="statusInfo"></span>
       </div>
 
-      <div id="message"></div>
-    </div>
-
-    <div class="card" style="padding: 10px 12px;">
-      <!-- Abas -->
-      <div class="tabs">
-        <button type="button" class="tab-button tab-active" data-tab="mapa">
-          🗺️ <span>Mapa</span>
-        </button>
-        <button type="button" class="tab-button" data-tab="pdf">
-          📄 <span>PDF</span>
-        </button>
-      </div>
-
-      <!-- Conteúdo da aba Mapa -->
-      <div class="tab-content tab-active" id="tab-mapa">
-        <div id="map"></div>
-        <div class="map-footer">
-          <span>🛰️ Zoom automático na área encontrada · polígonos em destaque e popup com nome + área (ha).</span>
-          <span id="statusInfo"></span>
-        </div>
-      </div>
-
-      <!-- Conteúdo da aba PDF -->
-      <div class="tab-content" id="tab-pdf">
-        <div id="pdfPlaceholder">Busque uma OS para carregar a pré-visualização do PDF.</div>
-        <iframe id="pdfFrame" title="Pré-visualização da OS"></iframe>
-      </div>
     </div>
   </div>
 
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- ── Mapa + PDF ─────────────────────────────────────────── -->
+  <div class="card">
 
-  <!-- toGeoJSON -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/togeojson/0.16.0/togeojson.min.js"></script>
+    <!-- Tabs -->
+    <div class="tabs-row">
+      <button class="tab-btn active" data-tab="mapa" type="button">
+        <i data-lucide="map-pin" width="13" height="13"></i>
+        Mapa
+      </button>
+      <button class="tab-btn" data-tab="pdf" type="button">
+        <i data-lucide="file-text" width="13" height="13"></i>
+        PDF
+      </button>
+    </div>
 
-  <!-- Turf.js -->
-  <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+    <!-- Tab: Mapa -->
+    <div class="tab-content active map-wrap" id="tab-mapa">
+      <div id="map"></div>
+      <div class="map-footer">
+        <span class="map-hint">
+          <i data-lucide="satellite" width="11" height="11" style="display:inline;vertical-align:middle;margin-right:4px;"></i>
+          Zoom automático na área · polígonos com popup de nome + área (ha)
+        </span>
+        <span class="map-hint" id="areaInfo" style="color:var(--gold);"></span>
+      </div>
+    </div>
 
-  <!-- Lucide icons -->
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.278.0/dist/lucide.min.js"></script>
+    <!-- Tab: PDF -->
+    <div class="tab-content pdf-wrap" id="tab-pdf">
+      <div class="pdf-placeholder" id="pdfPlaceholder">Busque uma OS para carregar a pré-visualização do PDF.</div>
+      <iframe id="pdfFrame" title="Pré-visualização PDF da OS"></iframe>
+    </div>
 
-  <script>
-    // URL do seu Web App (exec) – a mesma que você me mandou:
-    const API_URL = "https://script.google.com/macros/s/AKfycbx_tOQPnkKfIa1spUqL-UrPUcc3vylLI_dp9v55OFaxuRR3UA6MKht4sEQsEWpYl8ko/exec";
+  </div>
 
-    let map;
-    let kmlLayer = null;
-    let lastKmlText = null;
-    let lastKmlFileName = null;
-    let lastKmlOS = null;
-    let lastGeoJson = null;
-    let lastUserMarker = null;
-    let lastUserAccuracy = null;
+</div><!-- /page-wrap -->
 
-    // URL atual do blob do PDF (pra revogar quando limpar/trocar)
-    let currentPdfUrl = null;
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<!-- toGeoJSON -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/togeojson/0.16.0/togeojson.min.js"></script>
+<!-- Turf.js -->
+<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
 
-    function initMap() {
-      map = L.map('map', {
-        zoomControl: true,
-        attributionControl: true
-      }).setView([-15.8, -48.5], 4); // Brasil
+<script>
+/* ============================================================
+   THEME — aplica token sem precisar de Lucide ainda
+============================================================ */
+const html = document.documentElement;
 
-      const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap'
-      });
+function applyThemeToken(t) {
+  html.setAttribute('data-theme', t);
+  localStorage.setItem('pulvion_theme', t);
+}
 
-      const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 19,
-        attribution: 'Tiles &copy; Esri'
-      });
+// Aplica tema imediatamente (sem ícones ainda)
+applyThemeToken(localStorage.getItem('pulvion_theme') || 'light');
 
-      const baseLayers = {
-        'Mapa (OSM)': osm,
-        'Satélite (Esri)': esriSat
-      };
+/* ============================================================
+   LUCIDE + THEME TOGGLE — inicializa após DOM pronto
+============================================================ */
+function refreshIcons() {
+  if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+}
 
-      osm.addTo(map);
-      L.control.layers(baseLayers, null, { collapsed: false }).addTo(map);
+function applyTheme(t) {
+  applyThemeToken(t);
+  const icon = document.getElementById('themeIcon');
+  const btn  = document.getElementById('themeToggle');
+  if (icon) icon.setAttribute('data-lucide', t === 'dark' ? 'sun' : 'moon');
+  if (btn)  btn.title = t === 'dark' ? 'Modo claro' : 'Modo escuro';
+  refreshIcons();
+}
 
-      const compassControl = L.control({ position: 'topleft' });
-      compassControl.onAdd = function() {
-        const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-        div.innerHTML = '<div style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:24px;background:#fff;border-radius:4px;">↑</div>';
-        div.style.marginTop = '50px';
-        L.DomEvent.on(div, 'click', function(){
-          map.setView(map.getCenter(), map.getZoom());
-        });
-        return div;
-      };
-      compassControl.addTo(map);
-    }
+/* ============================================================
+   API
+============================================================ */
+const API_URL = 'https://script.google.com/macros/s/AKfycbx_tOQPnkKfIa1spUqL-UrPUcc3vylLI_dp9v55OFaxuRR3UA6MKht4sEQsEWpYl8ko/exec';
 
-    function setMessage(text, type) {
-      const messageEl = document.getElementById('message');
-      messageEl.textContent = text || '';
-      messageEl.className = '';
-      if (type) messageEl.classList.add(type);
-    }
+let map;
+let kmlLayer        = null;
+let lastKmlText     = null;
+let lastKmlFileName = null;
+let lastKmlOS       = null;
+let lastGeoJson     = null;
+let lastUserMarker  = null;
+let lastUserAccuracy = null;
+let currentPdfUrl   = null;
 
-    function setStatus(text) {
-      document.getElementById('statusInfo').textContent = text || '';
-    }
+/* ============================================================
+   MESSAGE / STATUS HELPERS
+============================================================ */
+function setMessage(text, type) {
+  const el = document.getElementById('message');
+  el.textContent = text || '';
+  el.className = 'msg-text' + (type ? ' ' + type : '');
+}
 
-    function limparMapa() {
-      if (kmlLayer) {
-        map.removeLayer(kmlLayer);
-        kmlLayer = null;
-      }
-      setStatus('');
-      clearPdfPreview('Nenhum PDF carregado.');
-      lastKmlText = null;
-      lastKmlFileName = null;
-      lastKmlOS = null;
-      lastGeoJson = null;
-      enableDownload(false);
-      enableNav(false);
-    }
+function setAreaInfo(text) {
+  const el = document.getElementById('areaInfo');
+  el.textContent = text || '';
+}
 
-    // ---- Abas (Mapa / PDF) ----
-    function switchTab(tabName) {
-      const buttons = document.querySelectorAll('.tab-button');
-      const contents = document.querySelectorAll('.tab-content');
+function setStatus(text) {
+  const el = document.getElementById('statusInfo');
+  if (text) {
+    el.textContent = '📐 ' + text;
+    el.classList.add('show');
+  } else {
+    el.textContent = '';
+    el.classList.remove('show');
+  }
+}
 
-      buttons.forEach(btn => {
-        const tab = btn.getAttribute('data-tab');
-        if (tab === tabName) btn.classList.add('tab-active');
-        else btn.classList.remove('tab-active');
-      });
+/* ============================================================
+   MAP INIT
+============================================================ */
+function initMap() {
+  map = L.map('map', { zoomControl: true, attributionControl: true })
+         .setView([-15.8, -48.5], 4);
 
-      contents.forEach(content => {
-        if (content.id === 'tab-' + tabName) content.classList.add('tab-active');
-        else content.classList.remove('tab-active');
-      });
-    }
+  const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '&copy; OpenStreetMap'
+  });
 
-    // ---- PDF Preview via JSONP + Base64 ----
-    function updatePdfPreview(osNumero) {
-      const frame = document.getElementById('pdfFrame');
-      const placeholder = document.getElementById('pdfPlaceholder');
-      if (!frame || !placeholder) return;
+  const esriSat = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19, attribution: 'Tiles &copy; Esri'
+  });
 
-      placeholder.textContent = 'Carregando PDF da OS ' + osNumero + '...';
+  osm.addTo(map);
+  L.control.layers({ 'Mapa (OSM)': osm, 'Satélite (Esri)': esriSat }, null, { collapsed: false }).addTo(map);
+}
 
-      // Revoga blob antigo
-      if (currentPdfUrl) {
-        URL.revokeObjectURL(currentPdfUrl);
-        currentPdfUrl = null;
-      }
+/* ============================================================
+   TABS
+============================================================ */
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => {
+    c.classList.toggle('active', c.id === 'tab-' + tabName);
+  });
+  // Force map resize when switching to mapa tab
+  if (tabName === 'mapa' && map) {
+    setTimeout(() => map.invalidateSize(), 50);
+  }
+}
+
+/* ============================================================
+   PDF PREVIEW
+============================================================ */
+function updatePdfPreview(osNumero) {
+  const frame       = document.getElementById('pdfFrame');
+  const placeholder = document.getElementById('pdfPlaceholder');
+  if (!frame || !placeholder) return;
+
+  placeholder.textContent = 'Carregando PDF da OS ' + osNumero + '...';
+
+  if (currentPdfUrl) { URL.revokeObjectURL(currentPdfUrl); currentPdfUrl = null; }
+  frame.src = 'about:blank';
+
+  const oldScript = document.getElementById('jsonp_pdf_script');
+  if (oldScript) oldScript.remove();
+
+  window.handlePdfResponse = function (data) {
+    if (!data || !data.success || !data.pdfBase64) {
+      placeholder.textContent = (data && data.message) ? data.message : 'Nenhum PDF encontrado para esta OS.';
       frame.src = 'about:blank';
+      return;
+    }
+    try {
+      const byteChars = atob(data.pdfBase64);
+      const bytes = new Uint8Array(byteChars.length);
+      for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      currentPdfUrl = URL.createObjectURL(blob);
+      frame.src = currentPdfUrl;
+      placeholder.textContent = 'PDF carregado: ' + (data.fileName || '');
+    } catch (e) {
+      console.error('Erro ao montar PDF:', e);
+      placeholder.textContent = 'Erro ao exibir o PDF.';
+      frame.src = 'about:blank';
+    }
+  };
 
-      // Remove JSONP anterior
-      const oldScript = document.getElementById('jsonp_pdf_script');
-      if (oldScript) oldScript.remove();
+  const script = document.createElement('script');
+  script.id  = 'jsonp_pdf_script';
+  script.src = `${API_URL}?os=${encodeURIComponent(osNumero)}&formato=pdfjson&callback=handlePdfResponse&_=${Date.now()}`;
+  document.body.appendChild(script);
+}
 
-      // Callback que o Apps Script vai chamar
-      window.handlePdfResponse = function(data) {
-        if (!data || !data.success || !data.pdfBase64) {
-          placeholder.textContent = (data && data.message)
-            ? data.message
-            : 'Nenhum PDF encontrado para esta OS.';
-          frame.src = 'about:blank';
-          return;
-        }
+function clearPdfPreview(msg) {
+  if (currentPdfUrl) { URL.revokeObjectURL(currentPdfUrl); currentPdfUrl = null; }
+  const frame = document.getElementById('pdfFrame');
+  const ph    = document.getElementById('pdfPlaceholder');
+  if (frame) frame.src = 'about:blank';
+  if (ph)    ph.textContent = msg || 'Nenhum PDF carregado.';
+  const old = document.getElementById('jsonp_pdf_script');
+  if (old) old.remove();
+}
 
-        try {
-          const byteChars = atob(data.pdfBase64);
-          const len = byteChars.length;
-          const bytes = new Uint8Array(len);
-          for (let i = 0; i < len; i++) {
-            bytes[i] = byteChars.charCodeAt(i);
-          }
-          const blob = new Blob([bytes], { type: 'application/pdf' });
-          const url = URL.createObjectURL(blob);
-          currentPdfUrl = url;
+/* ============================================================
+   ENABLE / DISABLE BUTTONS
+============================================================ */
+function enableNav(enabled) {
+  const btn = document.getElementById('btnNavigate');
+  if (btn) btn.disabled = !enabled;
+}
 
-          frame.src = url;
-          placeholder.textContent = 'PDF carregado: ' + (data.fileName || '');
-        } catch (e) {
-          console.error('Erro ao montar PDF:', e);
-          placeholder.textContent = 'Erro ao exibir o PDF.';
-          frame.src = 'about:blank';
-        }
-      };
+function enableDownload(enabled) {
+  const btn = document.getElementById('btnDownload');
+  if (btn) btn.disabled = !enabled;
+}
 
-      const script = document.createElement('script');
-      script.id = 'jsonp_pdf_script';
-      script.src = `${API_URL}?os=${encodeURIComponent(osNumero)}&formato=pdfjson&callback=handlePdfResponse&_=${Date.now()}`;
-      document.body.appendChild(script);
+/* ============================================================
+   LIMPAR MAPA
+============================================================ */
+function limparMapa() {
+  if (kmlLayer) { map.removeLayer(kmlLayer); kmlLayer = null; }
+  setStatus(''); setAreaInfo('');
+  clearPdfPreview('Nenhum PDF carregado.');
+  lastKmlText = null; lastKmlFileName = null; lastKmlOS = null; lastGeoJson = null;
+  enableDownload(false); enableNav(false);
+}
+
+/* ============================================================
+   BUSCAR KML (JSONP)
+============================================================ */
+function buscarKml() {
+  const osNumero = document.getElementById('osInput').value.trim();
+  if (!osNumero) { setMessage('Digite o número da OS.', 'error'); return; }
+
+  setMessage('Buscando KML no Google Drive…', 'loading');
+  setStatus(''); setAreaInfo('');
+  clearPdfPreview('Preparando pré-visualização do PDF…');
+  lastKmlText = null; lastKmlFileName = null; lastKmlOS = null;
+  enableDownload(false);
+
+  const oldScript = document.getElementById('jsonp_kml_script');
+  if (oldScript) oldScript.remove();
+
+  window.handleKmlResponse = function (data) {
+    if (!data || !data.success) {
+      limparMapa();
+      setMessage(data && data.message ? data.message : 'KML não encontrado.', 'error');
+      clearPdfPreview('Nenhum PDF encontrado para esta OS.');
+      return;
     }
 
-    function clearPdfPreview(msg) {
-      const frame = document.getElementById('pdfFrame');
-      const placeholder = document.getElementById('pdfPlaceholder');
+    lastKmlText     = data.kmlContent || null;
+    lastKmlFileName = data.fileName ? String(data.fileName) : `OS_${osNumero}.kml`;
+    lastKmlOS       = osNumero;
+    enableDownload(!!lastKmlText);
 
-      if (currentPdfUrl) {
-        URL.revokeObjectURL(currentPdfUrl);
-        currentPdfUrl = null;
-      }
+    setMessage('KML carregado: ' + (data.fileName || ''), 'success');
+    renderKmlOnMap(data.kmlContent, data.fileName, osNumero);
+    updatePdfPreview(osNumero);
+  };
 
-      if (frame) frame.src = 'about:blank';
-      if (placeholder) placeholder.textContent = msg || 'Nenhum PDF carregado.';
+  const script = document.createElement('script');
+  script.id  = 'jsonp_kml_script';
+  script.src = `${API_URL}?os=${encodeURIComponent(osNumero)}&callback=handleKmlResponse&_=${Date.now()}`;
+  document.body.appendChild(script);
+}
 
-      const oldScript = document.getElementById('jsonp_pdf_script');
-      if (oldScript) oldScript.remove();
+/* ============================================================
+   RENDER KML ON MAP
+============================================================ */
+function renderKmlOnMap(kmlText, fileName, osNumero) {
+  try {
+    if (kmlLayer) { map.removeLayer(kmlLayer); kmlLayer = null; }
+
+    const parser  = new DOMParser();
+    const kmlDom  = parser.parseFromString(kmlText, 'text/xml');
+    const geojson = toGeoJSON.kml(kmlDom);
+
+    try { lastGeoJson = geojson; } catch (_) { lastGeoJson = null; }
+
+    if (!geojson || !geojson.features || !geojson.features.length) {
+      setMessage('KML carregado, mas sem feições válidas para exibição.', 'error');
+      return;
     }
 
-    // Busca KML via JSONP
-    function buscarKml() {
-      const osNumero = document.getElementById('osInput').value.trim();
+    let totalAreaHa = 0;
 
-      if (!osNumero) {
-        setMessage('Digite o número da OS.', 'error');
-        return;
+    kmlLayer = L.geoJSON(geojson, {
+      style: () => ({ color: '#22c55e', weight: 2.5, fillColor: '#16a34a', fillOpacity: 0.28 }),
+      onEachFeature: function (feature, layer) {
+        const props = feature.properties || {};
+        let nome = props.name || props.NOME || props.Nome || props.nome_faz || fileName || ('OS ' + osNumero);
+
+        const codFazenda  = props.fazenda     || props['tal:fazenda']   || '';
+        const nomeFazenda = props.nome_faz    || props['tal:nome_faz']  || '';
+        const talhao      = props.talhao      || props['tal:talhao']    || '';
+        const areaAttr    = props.area        || props['tal:area']      || '';
+
+        let areaHa = 0;
+        try { const m2 = turf.area(feature); areaHa = m2 / 10000; totalAreaHa += areaHa; } catch (_) {}
+
+        layer.bindPopup(`
+          <strong>${nome}</strong><br>
+          OS: <strong>${osNumero}</strong><br>
+          Fazenda: ${nomeFazenda || '-'} ${codFazenda ? '(' + codFazenda + ')' : ''}<br>
+          Talhão: ${talhao || '-'}<br>
+          Área (KML): ${areaAttr ? Number(areaAttr).toFixed(2) + ' ha' : '-'}<br>
+          Área (geometria): ${areaHa > 0 ? areaHa.toFixed(2) + ' ha' : 'não calculada'}
+        `);
       }
+    }).addTo(map);
 
-      setMessage('Buscando KML no Google Drive...', 'success');
-      setStatus('');
-      clearPdfPreview('Preparando pré-visualização do PDF...');
+    try { map.fitBounds(kmlLayer.getBounds(), { padding: [20, 20] }); } catch (_) {}
 
-      lastKmlText = null;
-      lastKmlFileName = null;
-      lastKmlOS = null;
-      enableDownload(false);
-
-      const oldScript = document.getElementById('jsonp_kml_script');
-      if (oldScript) oldScript.remove();
-
-      window.handleKmlResponse = function (data) {
-        if (!data || !data.success) {
-          limparMapa();
-          setMessage(data && data.message ? data.message : 'KML não encontrado.', 'error');
-          clearPdfPreview('Nenhum PDF encontrado para esta OS.');
-          return;
-        }
-
-        lastKmlText = data.kmlContent || null;
-        lastKmlFileName = data.fileName ? String(data.fileName) : `OS_${osNumero}.kml`;
-        lastKmlOS = osNumero;
-        enableDownload(!!lastKmlText);
-
-        setMessage('KML carregado: ' + (data.fileName || ''), 'success');
-        renderKmlOnMap(data.kmlContent, data.fileName, osNumero);
-
-        // Atualiza a aba PDF
-        updatePdfPreview(osNumero);
-      };
-
-      const script = document.createElement('script');
-      script.id = 'jsonp_kml_script';
-      script.src = `${API_URL}?os=${encodeURIComponent(osNumero)}&callback=handleKmlResponse&_=${Date.now()}`;
-      document.body.appendChild(script);
+    if (totalAreaHa > 0) {
+      setStatus('Área total estimada: ' + totalAreaHa.toFixed(2) + ' ha');
+      setAreaInfo('Área: ' + totalAreaHa.toFixed(2) + ' ha');
     }
 
-    function renderKmlOnMap(kmlText, fileName, osNumero) {
-      try {
-        if (kmlLayer) {
-          map.removeLayer(kmlLayer);
-          kmlLayer = null;
-        }
+    enableNav(!!lastGeoJson);
+    refreshIcons();
 
-        const parser = new DOMParser();
-        const kmlDom = parser.parseFromString(kmlText, 'text/xml');
-        const geojson = toGeoJSON.kml(kmlDom);
+  } catch (e) {
+    console.error(e);
+    setMessage('Erro ao processar o KML: ' + e, 'error');
+  }
+}
 
-        try { lastGeoJson = geojson; } catch (_e) { lastGeoJson = null; }
+/* ============================================================
+   NAVIGATE TO KML
+============================================================ */
+function navigateToKml() {
+  if (!lastGeoJson) { setMessage('Nenhuma área carregada para navegar.', 'error'); return; }
 
-        if (!geojson || !geojson.features || geojson.features.length === 0) {
-          setMessage('KML carregado, mas sem feições válidas para exibição.', 'error');
-          return;
-        }
+  let centroid;
+  try { centroid = turf.centroid(lastGeoJson); } catch (e) {
+    setMessage('Não foi possível calcular ponto de destino.', 'error'); return;
+  }
 
-        let totalAreaHa = 0;
+  if (!centroid?.geometry?.coordinates) { setMessage('Ponto de destino inválido.', 'error'); return; }
 
-        kmlLayer = L.geoJSON(geojson, {
-          style: function () {
-            return {
-              color: '#22c55e',
-              weight: 2,
-              fillColor: '#16a34a',
-              fillOpacity: 0.35
-            };
-          },
-          onEachFeature: function (feature, layer) {
-            const props = feature.properties || {};
+  const [lon, lat] = centroid.geometry.coordinates;
+  setMessage('Obtendo sua posição para navegação…', 'loading');
 
-            let nome = props.name || props.NOME || props.Nome || '';
-            if (!nome) {
-              nome = props.nome_faz || fileName || ('OS ' + osNumero);
-            }
-
-            const codFazenda = props.fazenda || props['tal:fazenda'] || '';
-            const nomeFazenda = props.nome_faz || props['tal:nome_faz'] || '';
-            const talhao = props.talhao || props['tal:talhao'] || '';
-            const areaAttr = props.area || props['tal:area'] || '';
-
-            let areaHa = 0;
-            try {
-              const areaM2 = turf.area(feature);
-              areaHa = areaM2 / 10000.0;
-              totalAreaHa += areaHa;
-            } catch (e) {}
-
-            const popupHtml = `
-              <strong>${nome}</strong><br>
-              OS: <strong>${osNumero}</strong><br>
-              Fazenda: ${nomeFazenda || '-'} ${codFazenda ? '(' + codFazenda + ')' : ''}<br>
-              Talhão: ${talhao || '-'}<br>
-              Área (KML): ${areaAttr ? Number(areaAttr).toFixed(2) + ' ha' : '-'}<br>
-              Área (geometria): ${areaHa > 0 ? areaHa.toFixed(2) + ' ha' : 'não calculada'}
-            `;
-            layer.bindPopup(popupHtml);
-          }
-        }).addTo(map);
-
-        try {
-          map.fitBounds(kmlLayer.getBounds(), { padding: [20, 20] });
-        } catch (e) {
-          console.log('Não foi possível ajustar o zoom automaticamente:', e);
-        }
-
-        if (totalAreaHa > 0) {
-          setStatus('Área total estimada: ' + totalAreaHa.toFixed(2) + ' ha');
-        } else {
-          setStatus('');
-        }
-
-        enableNav(!!lastGeoJson);
-      } catch (e) {
-        console.error(e);
-        setMessage('Erro ao processar o KML no mapa: ' + e, 'error');
-      }
-    }
-
-    function enableNav(enabled) {
-      const btn = document.getElementById('btnNavigate');
-      if (!btn) return;
-      btn.disabled = !enabled;
-      if (enabled) btn.classList.remove('btn-secondary');
-      else btn.classList.add('btn-secondary');
-      try { if (window.lucide) lucide.createIcons(); } catch (_e) {}
-    }
-
-    function navigateToKml() {
-      if (!lastGeoJson) {
-        setMessage('Nenhuma área carregada para navegar.', 'error');
-        return;
-      }
-
-      let centroid;
-      try {
-        centroid = turf.centroid(lastGeoJson);
-      } catch (e) {
-        console.error('Erro ao calcular centroid:', e);
-        setMessage('Não foi possível calcular ponto de destino.', 'error');
-        return;
-      }
-
-      if (!centroid || !centroid.geometry || !centroid.geometry.coordinates) {
-        setMessage('Ponto de destino inválido.', 'error');
-        return;
-      }
-
-      const [lon, lat] = centroid.geometry.coordinates;
-      const destLat = Number(lat);
-      const destLon = Number(lon);
-
-      setMessage('Obtendo sua posição para navegação...', 'success');
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function (pos) {
-          const oLat = pos.coords.latitude;
-          const oLon = pos.coords.longitude;
-          const origin = `${oLat},${oLon}`;
-          const destination = `${destLat},${destLon}`;
-          const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
-          window.open(url, '_blank');
-        }, function (err) {
-          console.warn('Geolocation failed or denied:', err);
-          setMessage('Não foi possível obter sua localização — abrindo destino no Google Maps.', 'error');
-          const destination = `${destLat},${destLon}`;
-          const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destination)}`;
-          window.open(url, '_blank');
-        }, { enableHighAccuracy: true, timeout: 8000 });
-      } else {
-        setMessage('Geolocalização não suportada — abrindo destino no Google Maps.', 'error');
-        const destination = `${destLat},${destLon}`;
-        const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destination)}`;
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const url = `https://www.google.com/maps/dir/?api=1&origin=${pos.coords.latitude},${pos.coords.longitude}&destination=${lat},${lon}&travelmode=driving`;
         window.open(url, '_blank');
-      }
-    }
+      },
+      () => {
+        setMessage('Localização negada — abrindo destino no Google Maps.', 'error');
+        window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lon}`, '_blank');
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  } else {
+    setMessage('Geolocalização não suportada — abrindo no Google Maps.', 'error');
+    window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lon}`, '_blank');
+  }
+}
 
-    function enableDownload(enabled) {
-      const btn = document.getElementById('btnDownload');
-      if (!btn) return;
-      btn.disabled = !enabled;
-      if (enabled) btn.classList.remove('btn-secondary');
-      else btn.classList.add('btn-secondary');
-      try { if (window.lucide) lucide.createIcons(); } catch (_e) {}
-    }
+/* ============================================================
+   DOWNLOAD KML
+============================================================ */
+function downloadKml() {
+  if (!lastKmlText) { setMessage('Nenhum KML disponível para download.', 'error'); return; }
+  try {
+    const blob = new Blob([lastKmlText], { type: 'application/vnd.google-earth.kml+xml;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = lastKmlFileName || `kml_${lastKmlOS || ''}.kml`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    setMessage('Download iniciado: ' + a.download, 'success');
+  } catch (e) {
+    setMessage('Falha ao iniciar download: ' + e, 'error');
+  }
+}
 
-    function downloadKml() {
-      if (!lastKmlText) {
-        setMessage('Nenhum KML disponível para download.', 'error');
-        return;
-      }
-      try {
-        const blob = new Blob([lastKmlText], { type: 'application/vnd.google-earth.kml+xml;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = lastKmlFileName || (`kml_${lastKmlOS || ''}.kml`);
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-        setMessage('Download iniciado: ' + a.download, 'success');
-      } catch (e) {
-        console.error(e);
-        setMessage('Falha ao iniciar download: ' + e, 'error');
-      }
-    }
+/* ============================================================
+   SHOW USER LOCATION
+============================================================ */
+function showUserLocation() {
+  if (!navigator.geolocation) { setMessage('Navegador não suporta geolocalização.', 'error'); return; }
+  setMessage('Obtendo sua localização…', 'loading');
 
-    function showUserLocation() {
-      if (!navigator.geolocation) {
-        setMessage('Navegador não suporta geolocalização.', 'error');
-        return;
-      }
-      setMessage('Obtendo sua localização...', 'success');
-      navigator.geolocation.getCurrentPosition(function (pos) {
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
-        const accuracy = pos.coords.accuracy || 0;
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const { latitude: lat, longitude: lon, accuracy } = pos.coords;
 
-        if (lastUserMarker) {
-          try { map.removeLayer(lastUserMarker); } catch (_e) {}
-          lastUserMarker = null;
-        }
-        if (lastUserAccuracy) {
-          try { map.removeLayer(lastUserAccuracy); } catch (_e) {}
-          lastUserAccuracy = null;
-        }
+      if (lastUserMarker)   { try { map.removeLayer(lastUserMarker);   } catch (_) {} lastUserMarker   = null; }
+      if (lastUserAccuracy) { try { map.removeLayer(lastUserAccuracy); } catch (_) {} lastUserAccuracy = null; }
 
-        lastUserMarker = L.marker([lat, lon]).addTo(map).bindPopup('Sua posição').openPopup();
-        lastUserAccuracy = L.circle([lat, lon], { radius: accuracy, color: '#3b82f6', fillColor: '#bfdbfe', fillOpacity: 0.25 }).addTo(map);
+      lastUserMarker   = L.marker([lat, lon]).addTo(map).bindPopup('Sua posição').openPopup();
+      lastUserAccuracy = L.circle([lat, lon], {
+        radius: accuracy || 0, color: '#3b82f6', fillColor: '#bfdbfe', fillOpacity: 0.25
+      }).addTo(map);
 
-        try { map.panTo([lat, lon]); } catch (_e) {}
-        setMessage('Posição localizada (precisão ≈ ' + Math.round(accuracy) + ' m).', 'success');
-      }, function (err) {
-        console.warn('Geolocation error', err);
-        setMessage('Não foi possível obter sua localização: ' + (err && err.message ? err.message : err), 'error');
-      }, { enableHighAccuracy: true, timeout: 10000 });
-    }
+      try { map.panTo([lat, lon]); } catch (_) {}
+      setMessage('Posição localizada (precisão ≈ ' + Math.round(accuracy || 0) + ' m).', 'success');
+    },
+    err => {
+      setMessage('Não foi possível obter localização: ' + (err?.message || err), 'error');
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
 
-    document.addEventListener('DOMContentLoaded', function () {
-      initMap();
+/* ============================================================
+   DOM READY
+============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Aplica ícone correto agora que o DOM existe
+  applyTheme(html.getAttribute('data-theme') || 'light');
 
-      document.getElementById('btnBuscar').addEventListener('click', buscarKml);
-      document.getElementById('btnLimpar').addEventListener('click', () => {
-        limparMapa();
-        setMessage('Mapa limpo. Digite uma nova OS para buscar.', 'success');
-      });
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () =>
+      applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark')
+    );
+  }
 
-      const btnDl = document.getElementById('btnDownload');
-      if (btnDl) btnDl.addEventListener('click', downloadKml);
-      const btnNav = document.getElementById('btnNavigate');
-      if (btnNav) btnNav.addEventListener('click', navigateToKml);
-      const btnLocate = document.getElementById('btnLocate');
-      if (btnLocate) btnLocate.addEventListener('click', showUserLocation);
+  initMap();
 
-      document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const tab = btn.getAttribute('data-tab');
-          switchTab(tab);
-        });
-      });
+  document.getElementById('btnBuscar').addEventListener('click', buscarKml);
 
-      // Lucide
-      let lucideInitAttempts = 0;
-      const maxLucideRetries = 5;
-      const lucideRetryDelay = 250;
+  document.getElementById('btnLimpar').addEventListener('click', () => {
+    limparMapa();
+    setMessage('Mapa limpo. Digite uma nova OS para buscar.', 'success');
+  });
 
-      function initLucide(){
-        if (window.lucide && typeof lucide.createIcons === 'function') {
-          try {
-            lucide.createIcons();
-          } catch(e) {
-            console.error('Lucide init error:', e);
-          }
-          return;
-        }
+  document.getElementById('btnDownload').addEventListener('click', downloadKml);
+  document.getElementById('btnNavigate').addEventListener('click', navigateToKml);
+  document.getElementById('btnLocate').addEventListener('click', showUserLocation);
 
-        lucideInitAttempts += 1;
-        if (lucideInitAttempts <= maxLucideRetries) {
-          setTimeout(initLucide, lucideRetryDelay);
-        }
-      }
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
+  });
 
-      const lucideScriptTag = document.querySelector('script[src*="lucide"]');
-      if (lucideScriptTag) {
-        lucideScriptTag.addEventListener('load', initLucide);
-      }
-      initLucide();
+  document.getElementById('osInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); buscarKml(); }
+  });
 
-      document.getElementById('osInput').addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          buscarKml();
-        }
-      });
-    });
-  </script>
+  // Garante que todos os ícones estejam renderizados
+  refreshIcons();
+});
+</script>
 </body>
 </html>
