@@ -1,45 +1,73 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pulvion Tech</title>
-
-    <!-- Google Fonts: Barlow Condensed + IBM Plex Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800&family=Barlow:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
         /* ============================================================
-           TOKENS & RESET
+           THEME TOKENS
         ============================================================ */
-        :root {
-            --gold:        #d9b24c;
-            --gold-light:  #f0d078;
-            --gold-dim:    rgba(217,178,76,0.18);
-            --gold-border: rgba(217,178,76,0.30);
-            --bg-base:     #060912;
-            --bg-card:     rgba(255,255,255,0.045);
-            --bg-card-hov: rgba(255,255,255,0.075);
-            --surface:     #0c1224;
-            --surface-2:   #0f1628;
-            --text-primary: #f0ece4;
-            --text-muted:   #9ca3af;
-            --text-label:   #6b7280;
-            --radius-card:  14px;
-            --radius-btn:   8px;
-            --shadow-card:  0 16px 40px rgba(0,0,0,0.35);
-            --transition:   0.25s ease;
+        :root, [data-theme="light"] {
+            --gold:          #b8942e;
+            --gold-light:    #d9b24c;
+            --gold-dim:      rgba(184,148,46,0.12);
+            --gold-border:   rgba(184,148,46,0.28);
+
+            --bg-base:       #f0ede6;
+            --bg-card:       #ffffff;
+            --bg-card-hov:   #faf8f4;
+            --surface:       #f5f2eb;
+            --surface-2:     #ebe7dd;
+
+            --text-primary:  #0d1117;
+            --text-muted:    #4b5563;
+            --text-label:    #94a3b8;
+
+            --shadow-card:   0 4px 20px rgba(0,0,0,0.07);
+            --shadow-hov:    0 12px 36px rgba(0,0,0,0.10);
+
+            --header-bg:     rgba(240,237,230,0.95);
+            --header-border: rgba(184,148,46,0.22);
+
+            --scrollbar-thumb: rgba(184,148,46,0.4);
         }
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        [data-theme="dark"] {
+            --gold:          #d9b24c;
+            --gold-light:    #f0d078;
+            --gold-dim:      rgba(217,178,76,0.12);
+            --gold-border:   rgba(217,178,76,0.28);
 
+            --bg-base:       #060912;
+            --bg-card:       rgba(255,255,255,0.045);
+            --bg-card-hov:   rgba(255,255,255,0.075);
+            --surface:       #0c1224;
+            --surface-2:     #0f1628;
+
+            --text-primary:  #f0ece4;
+            --text-muted:    #9ca3af;
+            --text-label:    #6b7280;
+
+            --shadow-card:   0 16px 40px rgba(0,0,0,0.35);
+            --shadow-hov:    0 20px 50px rgba(0,0,0,0.45);
+
+            --header-bg:     rgba(6,9,18,0.97);
+            --header-border: rgba(217,178,76,0.22);
+
+            --scrollbar-thumb: rgba(217,178,76,0.35);
+        }
+
+        /* ============================================================
+           RESET
+        ============================================================ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
 
         body {
@@ -48,14 +76,24 @@
             line-height: 1.6;
             color: var(--text-primary);
             background-color: var(--bg-base);
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        [data-theme="light"] body {
+            background-image:
+                radial-gradient(ellipse 70% 50% at 5% 0%, rgba(184,148,46,0.07) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 40% at 95% 10%, rgba(184,148,46,0.04) 0%, transparent 50%);
+        }
+
+        [data-theme="dark"] body {
             background-image:
                 radial-gradient(ellipse 80% 60% at 10% 0%, rgba(217,178,76,0.07) 0%, transparent 55%),
                 radial-gradient(ellipse 60% 50% at 90% 10%, rgba(255,255,255,0.04) 0%, transparent 50%);
-            overflow-x: hidden;
         }
 
         /* ============================================================
-           TYPOGRAPHY SYSTEM
+           TYPOGRAPHY
         ============================================================ */
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Barlow Condensed', sans-serif;
@@ -64,40 +102,37 @@
             color: var(--text-primary);
         }
 
-        /* Monospace label style — matches AgroSentinel data labels */
-        .mono, .data-label {
+        .mono { font-family: 'IBM Plex Mono', monospace; }
+
+        .data-label {
             font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.68rem;
+            font-size: 0.65rem;
             font-weight: 500;
-            letter-spacing: 0.12em;
+            letter-spacing: 0.14em;
             text-transform: uppercase;
             color: var(--text-label);
-        }
-
-        .data-value {
-            font-family: 'IBM Plex Mono', monospace;
-            font-weight: 400;
-            color: var(--text-primary);
         }
 
         /* ============================================================
            SCROLLBAR
         ============================================================ */
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-base); }
-        ::-webkit-scrollbar-thumb { background: rgba(217,178,76,0.35); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
 
         /* ============================================================
-           AMBIENT PARTICLES
+           PARTICLES (dark only)
         ============================================================ */
         #particleCanvas {
             position: fixed;
             inset: 0;
             pointer-events: none;
             z-index: 0;
-            opacity: 0.55;
+            opacity: 0;
+            transition: opacity 0.5s ease;
         }
+
+        [data-theme="dark"] #particleCanvas { opacity: 0.55; }
 
         /* ============================================================
            HEADER
@@ -106,11 +141,12 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            background: linear-gradient(180deg, rgba(6,9,18,0.97) 0%, rgba(9,14,28,0.94) 100%);
+            background: var(--header-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--gold-border);
+            border-bottom: 1px solid var(--header-border);
             padding: 0 24px;
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
 
         .header-inner {
@@ -120,10 +156,9 @@
             height: 62px;
             max-width: 1280px;
             margin: 0 auto;
-            gap: 20px;
+            gap: 16px;
         }
 
-        /* Logo group */
         .logo-group {
             display: flex;
             align-items: center;
@@ -131,33 +166,35 @@
         }
 
         .logo-group img {
-            height: 40px;
+            height: 38px;
             object-fit: contain;
-            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.45));
-            transition: opacity var(--transition);
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
+            transition: opacity 0.2s;
         }
 
-        .logo-group img:hover { opacity: 0.85; }
+        [data-theme="light"] .logo-group img {
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.1));
+        }
 
-        /* Vertical divider */
+        .logo-group img:hover { opacity: 0.8; }
+
         .logo-sep {
             width: 1px;
-            height: 28px;
+            height: 26px;
             background: var(--gold-border);
             flex-shrink: 0;
         }
 
-        /* Header right side */
         .header-right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .flag-img {
-            height: 24px;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            height: 22px;
+            border-radius: 3px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.15);
         }
 
         /* Status chip */
@@ -168,25 +205,45 @@
             padding: 5px 12px;
             border-radius: 999px;
             border: 1px solid var(--gold-border);
-            background: rgba(217,178,76,0.08);
-            color: var(--gold-light);
+            background: var(--gold-dim);
             font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             letter-spacing: 0.1em;
             text-transform: uppercase;
+            color: var(--gold);
         }
 
         .status-chip .dot {
-            width: 6px;
-            height: 6px;
+            width: 6px; height: 6px;
             border-radius: 50%;
-            background: #22c55e;
+            background: #16a34a;
             animation: pulse-dot 2s infinite;
         }
 
         @keyframes pulse-dot {
-            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.5); }
-            50%       { opacity: 0.8; box-shadow: 0 0 0 4px rgba(34,197,94,0); }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(22,163,74,0.5); }
+            50%       { box-shadow: 0 0 0 4px rgba(22,163,74,0); }
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--gold-border);
+            background: var(--gold-dim);
+            color: var(--gold);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(184,148,46,0.2);
+            border-color: var(--gold);
+            transform: rotate(20deg);
         }
 
         /* Lock button */
@@ -194,42 +251,36 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
+            width: 36px; height: 36px;
             border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.15);
-            background: rgba(255,255,255,0.06);
-            color: #fff;
+            border: 1px solid rgba(0,0,0,0.12);
+            background: rgba(0,0,0,0.04);
+            color: var(--text-muted);
             cursor: pointer;
-            transition: all var(--transition);
+            transition: all 0.2s ease;
             font-size: 0.85rem;
         }
 
+        [data-theme="dark"] .lock-btn {
+            border-color: rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.06);
+            color: var(--text-muted);
+        }
+
         .lock-btn:hover {
-            background: rgba(217,178,76,0.15);
+            background: var(--gold-dim);
             border-color: var(--gold-border);
-            color: var(--gold-light);
+            color: var(--gold);
         }
 
         /* ============================================================
-           HERO SECTION
+           HERO
         ============================================================ */
         .hero-section {
             position: relative;
             z-index: 1;
             padding: 72px 0 60px;
             overflow: hidden;
-        }
-
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: -60%;
-            left: -10%;
-            width: 60%;
-            height: 200%;
-            background: radial-gradient(ellipse, rgba(217,178,76,0.1) 0%, transparent 65%);
-            pointer-events: none;
         }
 
         .hero-eyebrow {
@@ -241,17 +292,16 @@
             border: 1px solid var(--gold-border);
             background: var(--gold-dim);
             font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.68rem;
+            font-size: 0.66rem;
             font-weight: 500;
             letter-spacing: 0.15em;
             text-transform: uppercase;
-            color: var(--gold-light);
+            color: var(--gold);
             margin-bottom: 20px;
         }
 
         .hero-eyebrow .dot {
-            width: 5px;
-            height: 5px;
+            width: 5px; height: 5px;
             background: var(--gold);
             border-radius: 50%;
         }
@@ -261,66 +311,54 @@
             font-size: clamp(2.8rem, 5vw, 4.2rem);
             font-weight: 800;
             line-height: 1.05;
-            letter-spacing: -0.01em;
             margin-bottom: 20px;
             color: var(--text-primary);
         }
 
-        .hero-title .accent {
-            color: var(--gold);
-            -webkit-text-stroke: 0px;
-        }
+        .hero-title .accent { color: var(--gold); }
 
         .hero-lead {
-            font-size: 1.05rem;
-            color: #b0bec5;
-            max-width: 500px;
-            line-height: 1.7;
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 480px;
+            line-height: 1.75;
             font-weight: 300;
         }
 
         /* ============================================================
-           RANKING CARD (hero right)
+           RANKING CARD
         ============================================================ */
         .ranking-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
+            background: var(--bg-card);
             border: 1px solid var(--gold-border);
-            border-radius: var(--radius-card);
+            border-radius: 16px;
             box-shadow: var(--shadow-card);
-            backdrop-filter: blur(8px);
             padding: 22px 24px;
             position: relative;
             overflow: hidden;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
         }
 
         .ranking-card::before {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(217,178,76,0.6), transparent);
-        }
-
-        .ranking-card .rk-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            margin-bottom: 16px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
         }
 
         .ranking-card h3 {
             font-size: 1rem;
             font-weight: 700;
-            letter-spacing: 0.02em;
             color: var(--text-primary);
         }
 
         .rk-badge {
-            border: 1px solid rgba(217,178,76,0.45);
-            background: rgba(217,178,76,0.1);
-            color: var(--gold-light);
+            border: 1px solid var(--gold-border);
+            background: var(--gold-dim);
+            color: var(--gold);
             font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.65rem;
+            font-size: 0.62rem;
             font-weight: 500;
             letter-spacing: 0.1em;
             padding: 4px 10px;
@@ -328,10 +366,11 @@
         }
 
         .ranking-metric {
-            background: rgba(0,0,0,0.25);
-            border: 1px solid rgba(217,178,76,0.18);
+            background: var(--surface);
+            border: 1px solid var(--gold-border);
             border-radius: 10px;
             padding: 10px 14px;
+            transition: background 0.3s ease;
         }
 
         .ranking-metric .metric-label {
@@ -347,14 +386,13 @@
             font-family: 'IBM Plex Mono', monospace;
             font-size: 1rem;
             font-weight: 500;
-            color: var(--gold-light);
+            color: var(--gold);
         }
 
-        /* Ranking table */
         .ranking-table {
             width: 100%;
             border-collapse: separate;
-            border-spacing: 0 4px;
+            border-spacing: 0 3px;
             margin-top: 10px;
         }
 
@@ -365,15 +403,15 @@
             text-transform: uppercase;
             color: var(--text-label);
             padding: 0 8px 8px;
-            border-bottom: 1px solid rgba(217,178,76,0.15);
+            border-bottom: 1px solid var(--gold-border);
         }
 
         .ranking-table tbody tr {
-            background: rgba(255,255,255,0.025);
-            transition: background var(--transition);
+            background: var(--surface);
+            transition: background 0.2s;
         }
 
-        .ranking-table tbody tr:hover { background: rgba(255,255,255,0.05); }
+        .ranking-table tbody tr:hover { background: var(--surface-2); }
 
         .ranking-table tbody td {
             padding: 8px;
@@ -392,20 +430,16 @@
             width: 24px; height: 24px;
             border-radius: 50%;
             font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             font-weight: 500;
             border: 1px solid var(--gold-border);
-            color: var(--gold-light);
+            color: var(--gold);
         }
 
-        .small-muted {
-            font-size: 0.72rem;
-            color: var(--text-label);
-        }
+        .small-muted { font-size: 0.72rem; color: var(--text-label); }
 
-        /* Skeleton */
         .skeleton {
-            background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+            background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
             background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
             border-radius: 8px;
@@ -418,24 +452,17 @@
             100% { background-position: -200% 0; }
         }
 
-        /* Ranking controls */
-        .rk-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
         .rk-select {
-            background: var(--surface-2);
+            background: var(--surface);
             color: var(--text-primary);
             border: 1px solid var(--gold-border);
             border-radius: 6px;
             padding: 4px 8px;
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             font-family: 'IBM Plex Mono', monospace;
             outline: none;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
         .rk-select:focus { border-color: var(--gold); }
@@ -446,30 +473,25 @@
             gap: 5px;
             padding: 4px 10px;
             border-radius: 6px;
-            border: 1px solid rgba(217,178,76,0.35);
-            background: rgba(255,255,255,0.04);
-            color: var(--text-primary);
+            border: 1px solid var(--gold-border);
+            background: var(--gold-dim);
+            color: var(--gold);
             font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.68rem;
+            font-size: 0.66rem;
             letter-spacing: 0.05em;
             cursor: pointer;
-            transition: all var(--transition);
+            transition: all 0.2s;
         }
 
         .rk-btn:hover {
-            background: rgba(217,178,76,0.12);
+            background: rgba(184,148,46,0.2);
             border-color: var(--gold);
-            color: var(--gold-light);
         }
 
         /* ============================================================
-           NAVIGATION CARDS SECTION
+           SECTION DIVIDER
         ============================================================ */
-        .nav-section {
-            position: relative;
-            z-index: 1;
-            padding: 0 0 64px;
-        }
+        .nav-section { position: relative; z-index: 1; padding: 0 0 64px; }
 
         .section-divider {
             display: flex;
@@ -478,8 +500,7 @@
             margin-bottom: 36px;
         }
 
-        .section-divider::before,
-        .section-divider::after {
+        .section-divider::before, .section-divider::after {
             content: '';
             flex: 1;
             height: 1px;
@@ -488,7 +509,7 @@
 
         .section-label {
             font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.65rem;
+            font-size: 0.63rem;
             font-weight: 500;
             letter-spacing: 0.2em;
             text-transform: uppercase;
@@ -496,17 +517,19 @@
             white-space: nowrap;
         }
 
-        /* Nav Card */
+        /* ============================================================
+           NAV CARDS
+        ============================================================ */
         .nav-card {
             background: var(--bg-card);
             border: 1px solid var(--gold-border);
-            border-radius: var(--radius-card);
+            border-radius: 14px;
             padding: 28px 24px;
             position: relative;
             overflow: hidden;
-            transition: all var(--transition);
-            cursor: default;
+            transition: all 0.25s ease;
             height: 100%;
+            box-shadow: var(--shadow-card);
         }
 
         .nav-card::before {
@@ -521,14 +544,13 @@
 
         .nav-card:hover {
             background: var(--bg-card-hov);
-            border-color: rgba(217,178,76,0.55);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.35), 0 0 0 1px rgba(217,178,76,0.1) inset;
+            border-color: rgba(184,148,46,0.5);
+            box-shadow: var(--shadow-hov);
             transform: translateY(-4px);
         }
 
         .nav-card:hover::before { transform: scaleX(1); }
 
-        /* Card type tag */
         .card-tag {
             display: inline-flex;
             align-items: center;
@@ -545,21 +567,20 @@
         }
 
         .card-icon-wrap {
-            width: 52px;
-            height: 52px;
+            width: 52px; height: 52px;
             border-radius: 12px;
             border: 1px solid var(--gold-border);
-            background: rgba(217,178,76,0.07);
+            background: var(--gold-dim);
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 18px;
-            transition: all var(--transition);
+            transition: all 0.25s;
         }
 
         .nav-card:hover .card-icon-wrap {
-            background: rgba(217,178,76,0.14);
-            border-color: rgba(217,178,76,0.5);
+            background: rgba(184,148,46,0.18);
+            border-color: rgba(184,148,46,0.5);
         }
 
         .nav-card h3 {
@@ -568,49 +589,43 @@
             letter-spacing: 0.03em;
             text-transform: uppercase;
             margin-bottom: 8px;
-            color: var(--text-primary);
         }
 
         .nav-card p {
             font-size: 0.88rem;
             color: var(--text-muted);
-            line-height: 1.55;
+            line-height: 1.6;
             margin-bottom: 22px;
         }
 
-        /* Access button */
         .btn-access {
             display: flex;
             align-items: center;
             justify-content: space-between;
             width: 100%;
             padding: 12px 16px;
-            border-radius: var(--radius-btn);
+            border-radius: 8px;
             border: 1px solid var(--gold-border);
-            background: rgba(217,178,76,0.08);
-            color: var(--gold-light);
+            background: var(--gold-dim);
+            color: var(--gold);
             font-family: 'Barlow Condensed', sans-serif;
             font-size: 0.9rem;
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
             cursor: pointer;
-            transition: all var(--transition);
+            transition: all 0.2s;
         }
 
         .btn-access:hover {
-            background: rgba(217,178,76,0.16);
+            background: rgba(184,148,46,0.2);
             border-color: var(--gold);
-            color: var(--gold-light);
         }
 
-        .btn-access .arrow {
-            transition: transform var(--transition);
-        }
-
+        .btn-access .arrow { transition: transform 0.25s; }
         .btn-access.open .arrow { transform: rotate(90deg); }
 
-        /* Sub-options */
+        /* Sub options */
         .sub-options {
             display: grid;
             grid-template-rows: 0fr;
@@ -618,16 +633,13 @@
         }
 
         .sub-options.open { grid-template-rows: 1fr; }
-
-        .sub-options-inner {
-            overflow: hidden;
-        }
+        .sub-options-inner { overflow: hidden; }
 
         .sub-options-inner .sub-list {
             padding-top: 12px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
         }
 
         .sub-btn {
@@ -636,43 +648,42 @@
             gap: 10px;
             padding: 10px 14px;
             border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.07);
-            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(0,0,0,0.06);
+            background: var(--surface);
             color: var(--text-primary);
             font-family: 'Barlow', sans-serif;
             font-size: 0.85rem;
-            font-weight: 400;
             cursor: pointer;
-            transition: all var(--transition);
-            text-align: left;
+            transition: all 0.2s;
             text-decoration: none;
         }
 
-        .sub-btn i {
-            font-size: 0.75rem;
-            color: var(--text-label);
-            flex-shrink: 0;
-            transition: color var(--transition);
+        [data-theme="dark"] .sub-btn {
+            border-color: rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.03);
         }
 
+        .sub-btn i { font-size: 0.75rem; color: var(--text-label); transition: color 0.2s; }
+
         .sub-btn:hover {
-            background: rgba(217,178,76,0.1);
+            background: var(--gold-dim);
             border-color: var(--gold-border);
-            color: var(--gold-light);
+            color: var(--gold);
         }
 
         .sub-btn:hover i { color: var(--gold); }
 
         /* ============================================================
-           FEATURES SECTION
+           FEATURES
         ============================================================ */
         .features-section {
             position: relative;
             z-index: 1;
             padding: 60px 0;
-            background: linear-gradient(180deg, var(--surface) 0%, var(--bg-base) 100%);
+            background: var(--surface);
             border-top: 1px solid var(--gold-border);
             border-bottom: 1px solid var(--gold-border);
+            transition: background 0.3s ease;
         }
 
         .features-eyebrow {
@@ -688,48 +699,44 @@
             font-size: clamp(2rem, 4vw, 3rem);
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.01em;
             margin-bottom: 12px;
         }
 
         .feature-item {
             padding: 24px;
-            border-radius: var(--radius-card);
-            border: 1px solid rgba(217,178,76,0.15);
+            border-radius: 14px;
+            border: 1px solid var(--gold-border);
             background: var(--bg-card);
-            transition: all var(--transition);
+            box-shadow: var(--shadow-card);
+            transition: all 0.25s;
             text-align: center;
             height: 100%;
         }
 
         .feature-item:hover {
-            border-color: var(--gold-border);
-            background: var(--bg-card-hov);
+            border-color: rgba(184,148,46,0.45);
             transform: translateY(-4px);
-            box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+            box-shadow: var(--shadow-hov);
         }
 
         .feature-icon-wrap {
-            width: 56px;
-            height: 56px;
-            border-radius: 14px;
+            width: 52px; height: 52px;
+            border-radius: 12px;
             border: 1px solid var(--gold-border);
-            background: rgba(217,178,76,0.07);
+            background: var(--gold-dim);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 18px;
-            font-size: 1.4rem;
+            margin: 0 auto 16px;
+            font-size: 1.25rem;
             color: var(--gold);
-            transition: all var(--transition);
+            transition: background 0.2s;
         }
 
-        .feature-item:hover .feature-icon-wrap {
-            background: rgba(217,178,76,0.15);
-        }
+        .feature-item:hover .feature-icon-wrap { background: rgba(184,148,46,0.2); }
 
         .feature-item h4 {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.04em;
@@ -748,9 +755,10 @@
         footer {
             position: relative;
             z-index: 1;
-            background: #040710;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            background: var(--surface-2);
+            border-top: 1px solid var(--gold-border);
             padding: 24px 0;
+            transition: background 0.3s;
         }
 
         .footer-brand {
@@ -761,11 +769,7 @@
             color: var(--text-label);
         }
 
-        .social-links {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
+        .social-links { display: flex; align-items: center; gap: 4px; }
 
         .social-links a {
             display: inline-flex;
@@ -773,32 +777,32 @@
             justify-content: center;
             width: 34px; height: 34px;
             border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.07);
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            transition: all var(--transition);
+            border: 1px solid var(--gold-border);
+            background: var(--gold-dim);
+            color: var(--gold);
+            font-size: 0.88rem;
+            transition: all 0.2s;
             text-decoration: none;
         }
 
         .social-links a:hover {
-            color: var(--gold-light);
-            border-color: var(--gold-border);
-            background: rgba(217,178,76,0.1);
+            background: rgba(184,148,46,0.2);
+            border-color: var(--gold);
         }
 
         /* ============================================================
            MODAL
         ============================================================ */
         .modal-content {
-            background: linear-gradient(135deg, #0a0f1f 0%, #0c1224 100%);
+            background: var(--bg-card);
             color: var(--text-primary);
             border: 1px solid var(--gold-border);
-            box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+            box-shadow: 0 24px 60px rgba(0,0,0,0.15);
             border-radius: 14px;
         }
 
-        .modal-header { border-color: rgba(217,178,76,0.18); }
-        .modal-footer { border-color: rgba(217,178,76,0.18); }
+        .modal-header { border-color: var(--gold-border); }
+        .modal-footer { border-color: var(--gold-border); }
 
         .modal-title {
             font-family: 'Barlow Condensed', sans-serif;
@@ -806,11 +810,11 @@
             font-weight: 700;
             letter-spacing: 0.06em;
             text-transform: uppercase;
-            color: var(--gold-light);
+            color: var(--gold);
         }
 
         .form-control {
-            background: var(--surface-2);
+            background: var(--surface);
             color: var(--text-primary);
             border: 1px solid var(--gold-border);
             border-radius: 8px;
@@ -819,54 +823,47 @@
         }
 
         .form-control:focus {
-            background: var(--surface-2);
-            color: #fff;
+            background: var(--surface);
+            color: var(--text-primary);
             border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(217,178,76,0.18);
+            box-shadow: 0 0 0 3px var(--gold-dim);
         }
 
-        .form-floating label { color: var(--text-label); }
-        .btn-close { filter: invert(1) brightness(1.2); }
+        .btn-close { filter: none; }
+        [data-theme="dark"] .btn-close { filter: invert(1) brightness(1.2); }
 
-        /* ============================================================
-           BUTTONS
-        ============================================================ */
         .btn {
-            border-radius: var(--radius-btn);
+            border-radius: 8px;
             font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: 0.06em;
             text-transform: uppercase;
-            padding: 10px 22px;
-            transition: all var(--transition);
         }
 
         .btn-primary {
             background: var(--gold);
             border-color: var(--gold);
-            color: #070b18;
+            color: #fff;
         }
+
+        [data-theme="dark"] .btn-primary { color: #070b18; }
 
         .btn-primary:hover {
             background: var(--gold-light);
             border-color: var(--gold-light);
-            color: #070b18;
-            box-shadow: 0 8px 24px rgba(217,178,76,0.3);
+            box-shadow: 0 6px 20px rgba(184,148,46,0.3);
         }
 
         .btn-secondary {
-            background: rgba(255,255,255,0.07);
-            border-color: rgba(255,255,255,0.15);
-            color: var(--text-primary);
+            background: var(--surface);
+            border-color: var(--gold-border);
+            color: var(--text-muted);
         }
 
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.12);
-            color: #fff;
-        }
+        .btn-secondary:hover { background: var(--surface-2); color: var(--text-primary); }
 
         /* ============================================================
-           TOAST NOTIFICATION
+           TOAST
         ============================================================ */
         .toast-notification {
             position: fixed;
@@ -874,47 +871,24 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 9999;
-            padding: 12px 20px;
+            padding: 12px 18px;
             border-radius: 10px;
             border: 1px solid var(--gold-border);
-            background: linear-gradient(135deg, rgba(12,18,36,0.97), rgba(15,23,42,0.97));
+            background: var(--bg-card);
             backdrop-filter: blur(12px);
             color: var(--text-primary);
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 0.88rem;
-            box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+            font-size: 0.86rem;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
             animation: toast-in 0.3s ease;
             white-space: nowrap;
         }
 
-        .toast-notification .toast-icon { color: var(--gold-light); }
-
         @keyframes toast-in {
             from { opacity: 0; top: 70px; }
             to   { opacity: 1; top: 80px; }
-        }
-
-        /* ============================================================
-           RESPONSIVE
-        ============================================================ */
-        @media (max-width: 991px) {
-            .hero-section { padding: 48px 0 40px; }
-            .ranking-card { margin-top: 36px; }
-        }
-
-        @media (max-width: 767px) {
-            .hero-title { font-size: 2.4rem; }
-            .header-inner { padding: 0; }
-            .logo-group img { height: 32px; }
-            .logo-group gap { gap: 10px; }
-            .status-chip { display: none; }
-        }
-
-        @media (max-width: 576px) {
-            .nav-card { padding: 20px 18px; }
-            .ranking-card { padding: 18px; }
         }
 
         /* ============================================================
@@ -931,830 +905,602 @@
         .fade-up-d3 { animation-delay: 0.3s; }
         .fade-up-d4 { animation-delay: 0.4s; }
 
-        @keyframes fade-up-anim {
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fade-up-anim { to { opacity: 1; transform: translateY(0); } }
 
-        /* float for ranking card */
-        .hero-float {
-            animation: float 7s ease-in-out infinite;
-        }
+        .hero-float { animation: float 7s ease-in-out infinite; }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50%       { transform: translateY(-12px); }
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-10px); }
+        }
+
+        /* ============================================================
+           RESPONSIVE
+        ============================================================ */
+        @media (max-width: 991px) {
+            .hero-section { padding: 48px 0 40px; }
+            .ranking-card { margin-top: 36px; }
+        }
+
+        @media (max-width: 767px) {
+            .hero-title { font-size: 2.4rem; }
+            .status-chip { display: none; }
+            .logo-group img { height: 30px; }
         }
     </style>
 </head>
-
 <body>
 
-    <!-- Ambient particle canvas -->
-    <canvas id="particleCanvas"></canvas>
+<canvas id="particleCanvas"></canvas>
 
-    <!-- ============================================================
-         HEADER
-    ============================================================ -->
-    <header class="site-header">
-        <div class="header-inner">
-            <!-- Logos -->
-            <div class="logo-group">
-                <img src="logo_pulvion.png" alt="Pulvion Tech">
-                <div class="logo-sep"></div>
-                <img src="março.png" alt="2026">
+<!-- ============================================================
+     HEADER
+============================================================ -->
+<header class="site-header">
+    <div class="header-inner">
+        <div class="logo-group">
+            <img src="logo_pulvion.png" alt="Pulvion Tech">
+            <div class="logo-sep"></div>
+            <img src="logo_topgun.png" alt="Top Gun">
+            <div class="logo-sep"></div>
+            <img src="janeiro.branco.png" alt="2026">
+        </div>
+        <div class="header-right">
+            <div class="status-chip">
+                <span class="dot"></span>
+                Sistema Online
             </div>
+            <img src="https://flagcdn.com/w40/br.png" alt="Brasil" class="flag-img">
+            <!-- Theme toggle -->
+            <button class="theme-toggle" id="themeToggle" title="Alternar tema">
+                <i class="bi bi-moon-fill" id="themeIcon"></i>
+            </button>
+            <button class="lock-btn" id="lockButton" title="Área restrita" aria-label="Acesso restrito">
+                <i class="bi bi-lock-fill"></i>
+            </button>
+        </div>
+    </div>
+</header>
 
-            <!-- Right controls -->
-            <div class="header-right">
-                <div class="status-chip">
-                    <span class="dot"></span>
-                    Sistema Online
+<!-- Modal de senha -->
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-shield-lock-fill me-2"></i>Área Restrita</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body pt-3">
+                <p class="mb-3" style="color:var(--text-muted); font-size:0.88rem;">Digite a senha para acessar o painel administrativo.</p>
+                <div class="form-floating mb-2">
+                    <input type="password" class="form-control" id="passwordInput" placeholder="Senha" autocomplete="off">
+                    <label for="passwordInput" style="color:var(--text-label);">Senha de acesso</label>
                 </div>
-                <img src="https://flagcdn.com/w40/br.png" alt="Brasil" class="flag-img">
-                <button class="lock-btn" id="lockButton" title="Área restrita" aria-label="Acesso restrito">
-                    <i class="bi bi-lock-fill"></i>
+                <div id="passwordFeedback" class="text-danger small mt-2" style="display:none;">
+                    <i class="bi bi-x-circle me-1"></i>Senha incorreta. Tente novamente.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="passwordSubmit">
+                    <i class="bi bi-unlock-fill me-2"></i>Acessar
                 </button>
             </div>
         </div>
-    </header>
+    </div>
+</div>
 
-    <!-- Modal de senha -->
-    <div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-shield-lock-fill me-2"></i>Área Restrita</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5">
+                <div class="hero-eyebrow fade-up">
+                    <span class="dot"></span>
+                    Plataforma Agrícola · 2026
                 </div>
-                <div class="modal-body pt-3">
-                    <p class="mb-3" style="color:#9ca3af; font-size:0.88rem;">Digite a senha para acessar o painel administrativo.</p>
-                    <div class="form-floating mb-2">
-                        <input type="password" class="form-control" id="passwordInput" placeholder="Senha" autocomplete="off">
-                        <label for="passwordInput">Senha de acesso</label>
+                <h1 class="hero-title fade-up fade-up-d1">
+                    Gestão<br>
+                    <span class="accent">Inteligente</span><br>
+                    no Campo
+                </h1>
+                <p class="hero-lead fade-up fade-up-d2">
+                    Ferramentas essenciais para otimizar suas operações de pulverização e liberação biológica. Acompanhe desempenho, programações e resultados em um só lugar.
+                </p>
+            </div>
+
+            <div class="col-lg-7 fade-up fade-up-d3">
+                <div class="ranking-card hero-float" style="max-width:560px;margin-left:auto;">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+                        <div>
+                            <div class="data-label" style="color:var(--gold);margin-bottom:6px;">
+                                <i class="bi bi-trophy-fill me-1"></i>Ranking de Aplicação
+                            </div>
+                            <h3>Top Pilotos</h3>
+                            <div class="small-muted mt-1">
+                                <span id="rkPeriodPrefix">Últimos</span>
+                                <strong style="color:var(--text-primary);"> <span id="rkPeriodLabel">7 dias</span></strong>
+                                · atualiza automaticamente
+                            </div>
+                        </div>
+                        <span class="rk-badge"><i class="bi bi-calendar3 me-1"></i><span id="rkBadgeText">7D</span></span>
                     </div>
-                    <div id="passwordFeedback" class="text-danger small mt-2" style="display:none;">
-                        <i class="bi bi-x-circle me-1"></i>Senha incorreta. Tente novamente.
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <div class="ranking-metric">
+                                <div class="metric-label">Área total</div>
+                                <div class="metric-val" id="rkTotalArea">—</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="ranking-metric">
+                                <div class="metric-label">Voos realizados</div>
+                                <div class="metric-val" id="rkTotalFlights">—</div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="passwordSubmit">
-                        <i class="bi bi-unlock-fill me-2"></i>Acessar
-                    </button>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+                        <span class="data-label">Classificação</span>
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                            <select id="rkPeriod" class="rk-select">
+                                <option value="7" selected>7 dias</option>
+                                <option value="15">15 dias</option>
+                                <option value="30">30 dias</option>
+                                <option value="60">60 dias</option>
+                                <option value="90">90 dias</option>
+                                <option value="all">Tudo</option>
+                                <option value="custom">Período (datas)</option>
+                            </select>
+                            <button class="rk-btn" id="rkToggleFilterBtn"><i class="bi bi-funnel"></i> Filtro</button>
+                            <button class="rk-btn" id="rkRefreshBtn"><i class="bi bi-arrow-clockwise"></i> Atualizar</button>
+                        </div>
+                    </div>
+
+                    <div id="rkFilterRow" style="display:none;margin-bottom:10px;">
+                        <div class="row g-2">
+                            <div class="col-6"><input id="rkDateFrom" type="date" class="form-control form-control-sm"></div>
+                            <div class="col-6"><input id="rkDateTo" type="date" class="form-control form-control-sm"></div>
+                        </div>
+                        <div style="display:flex;gap:8px;margin-top:8px;">
+                            <button class="rk-btn" id="rkApplyRange">Aplicar</button>
+                            <button class="rk-btn" id="rkClearRange" style="opacity:.75;">Limpar</button>
+                        </div>
+                    </div>
+
+                    <div id="rkLoading">
+                        <div class="skeleton" style="height:18px;width:100%;"></div>
+                        <div class="skeleton" style="width:90%;"></div>
+                        <div class="skeleton" style="width:82%;"></div>
+                        <div class="skeleton" style="width:76%;"></div>
+                        <div class="skeleton" style="width:64%;"></div>
+                    </div>
+
+                    <div id="rkError" style="display:none;margin-top:8px;padding:10px 14px;background:rgba(239,68,68,0.10);border:1px solid rgba(239,68,68,0.25);border-radius:8px;color:#b91c1c;font-size:0.82rem;">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Falha ao carregar ranking.
+                    </div>
+
+                    <div id="rkTableWrap" style="display:none;">
+                        <table class="ranking-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:44px;">#</th>
+                                    <th>Piloto</th>
+                                    <th class="text-end">Área</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rkTbody"></tbody>
+                        </table>
+                        <div class="small-muted mt-2" id="rkUpdatedAt"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</section>
 
-    <!-- ============================================================
-         HERO SECTION
-    ============================================================ -->
-    <section class="hero-section">
-        <div class="container">
-            <div class="row align-items-center g-5">
-
-                <!-- Left: Text -->
-                <div class="col-lg-5">
-                    <div class="hero-eyebrow fade-up">
-                        <span class="dot"></span>
-                        Pulvion · 2026
-                    </div>
-                    <h1 class="hero-title fade-up fade-up-d1">
-                        Gestão<br>
-                        <span class="accent">Inteligente</span><br>
-                        no Campo
-                    </h1>
-                    <p class="hero-lead fade-up fade-up-d2">
-                        Ferramentas essenciais para otimizar suas operações de pulverização e liberação biológica. Acompanhe desempenho, programações e resultados em um só lugar.
-                    </p>
-                </div>
-
-                <!-- Right: Ranking Card -->
-                <div class="col-lg-7 fade-up fade-up-d3">
-                    <div class="ranking-card hero-float" style="max-width: 560px; margin-left: auto;">
-
-                        <div class="rk-header">
-                            <div>
-                                <div class="data-label mb-2" style="color: var(--gold);">
-                                    <i class="bi bi-trophy-fill me-1"></i>Ranking de Aplicação
-                                </div>
-                                <h3>Top Pilotos</h3>
-                                <div class="small-muted mt-1">
-                                    <span id="rkPeriodPrefix">Últimos</span>
-                                    <strong style="color:var(--text-primary);"> <span id="rkPeriodLabel">7 dias</span></strong>
-                                    · atualiza automaticamente
-                                </div>
-                            </div>
-                            <span class="rk-badge">
-                                <i class="bi bi-calendar3 me-1"></i><span id="rkBadgeText">7D</span>
-                            </span>
-                        </div>
-
-                        <!-- Metrics -->
-                        <div class="row g-2 mb-3">
-                            <div class="col-6">
-                                <div class="ranking-metric">
-                                    <div class="metric-label">Área total</div>
-                                    <div class="metric-val" id="rkTotalArea">—</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="ranking-metric">
-                                    <div class="metric-label">Voos realizados</div>
-                                    <div class="metric-val" id="rkTotalFlights">—</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Controls -->
-                        <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-                            <span class="data-label">Classificação</span>
-                            <div class="rk-controls">
-                                <select id="rkPeriod" class="rk-select">
-                                    <option value="7" selected>7 dias</option>
-                                    <option value="15">15 dias</option>
-                                    <option value="30">30 dias</option>
-                                    <option value="60">60 dias</option>
-                                    <option value="90">90 dias</option>
-                                    <option value="all">Tudo</option>
-                                    <option value="custom">Período (datas)</option>
-                                </select>
-                                <button class="rk-btn" id="rkToggleFilterBtn" type="button">
-                                    <i class="bi bi-funnel"></i> Filtro
-                                </button>
-                                <button class="rk-btn" id="rkRefreshBtn" type="button">
-                                    <i class="bi bi-arrow-clockwise"></i> Atualizar
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Date filter row -->
-                        <div id="rkFilterRow" style="display:none;" class="mb-2">
-                            <div class="row g-2">
-                                <div class="col-6">
-                                    <input id="rkDateFrom" type="date" class="form-control form-control-sm">
-                                </div>
-                                <div class="col-6">
-                                    <input id="rkDateTo" type="date" class="form-control form-control-sm">
-                                </div>
-                            </div>
-                            <div class="d-flex gap-2 mt-2">
-                                <button class="rk-btn" id="rkApplyRange" type="button">Aplicar</button>
-                                <button class="rk-btn" id="rkClearRange" type="button" style="opacity:.75;">Limpar</button>
-                            </div>
-                        </div>
-
-                        <!-- Loading skeleton -->
-                        <div id="rkLoading" class="mt-1">
-                            <div class="skeleton" style="height:18px; width:100%;"></div>
-                            <div class="skeleton" style="width:90%;"></div>
-                            <div class="skeleton" style="width:85%;"></div>
-                            <div class="skeleton" style="width:80%;"></div>
-                            <div class="skeleton" style="width:65%;"></div>
-                        </div>
-
-                        <!-- Error -->
-                        <div id="rkError" style="display:none; margin-top:8px; padding:10px 14px; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:8px; color:#fca5a5; font-size:0.82rem;">
-                            <i class="bi bi-exclamation-triangle me-2"></i>Falha ao carregar ranking.
-                        </div>
-
-                        <!-- Table -->
-                        <div id="rkTableWrap" style="display:none;">
-                            <table class="ranking-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width:48px;">#</th>
-                                        <th>Piloto</th>
-                                        <th class="text-end">Área</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="rkTbody"></tbody>
-                            </table>
-                            <div class="small-muted mt-2" id="rkUpdatedAt"></div>
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
+<!-- ============================================================
+     NAV CARDS
+============================================================ -->
+<section class="nav-section">
+    <div class="container">
+        <div class="section-divider">
+            <span class="section-label">Módulos do Sistema</span>
         </div>
-    </section>
+        <div class="row g-4">
 
-    <!-- ============================================================
-         NAVIGATION CARDS
-    ============================================================ -->
-    <section class="nav-section">
-        <div class="container">
-
-            <div class="section-divider">
-                <span class="section-label">Módulos do Sistema</span>
+            <!-- Pulverização -->
+            <div class="col-lg-4 col-md-6 fade-up fade-up-d1">
+                <div class="nav-card">
+                    <div class="card-tag"><i class="bi bi-cpu"></i> Módulo 01</div>
+                    <div class="card-icon-wrap">
+                        <svg width="26" height="26" viewBox="0 0 48 48" fill="none">
+                            <circle cx="24" cy="24" r="6" stroke="var(--gold)" stroke-width="2" fill="none"/>
+                            <rect x="22" y="10" width="4" height="8" rx="2" fill="var(--gold)"/>
+                            <rect x="22" y="30" width="4" height="8" rx="2" fill="var(--gold)"/>
+                            <rect x="10" y="22" width="8" height="4" rx="2" fill="var(--gold)"/>
+                            <rect x="30" y="22" width="8" height="4" rx="2" fill="var(--gold)"/>
+                            <circle cx="8"  cy="8"  r="3" stroke="var(--gold)" stroke-width="1.5" fill="none"/>
+                            <circle cx="40" cy="8"  r="3" stroke="var(--gold)" stroke-width="1.5" fill="none"/>
+                            <circle cx="8"  cy="40" r="3" stroke="var(--gold)" stroke-width="1.5" fill="none"/>
+                            <circle cx="40" cy="40" r="3" stroke="var(--gold)" stroke-width="1.5" fill="none"/>
+                            <line x1="12" y1="12" x2="20" y2="20" stroke="var(--gold)" stroke-width="1.5"/>
+                            <line x1="36" y1="12" x2="28" y2="20" stroke="var(--gold)" stroke-width="1.5"/>
+                            <line x1="12" y1="36" x2="20" y2="28" stroke="var(--gold)" stroke-width="1.5"/>
+                            <line x1="36" y1="36" x2="28" y2="28" stroke="var(--gold)" stroke-width="1.5"/>
+                        </svg>
+                    </div>
+                    <h3>Pulverização</h3>
+                    <p>Programação de trabalho e informe de rendimentos diários das operações aéreas.</p>
+                    <button class="btn-access" onclick="toggleOpcoes('pulverizacao-opcoes', this)">
+                        <span>Acessar módulo</span>
+                        <i class="bi bi-chevron-right arrow"></i>
+                    </button>
+                    <div class="sub-options" id="pulverizacao-opcoes">
+                        <div class="sub-options-inner">
+                            <div class="sub-list">
+                                <button class="sub-btn" onclick="window.location.href='programacao_aplicacao.html'"><i class="bi bi-calendar-check"></i> Programação</button>
+                                <button class="sub-btn" onclick="window.location.href='status_operacional_aplicacao.html'"><i class="bi bi-activity"></i> Status Operacional</button>
+                                <button class="sub-btn" onclick="window.location.href='rendimento_aplicacao.html'"><i class="bi bi-graph-up-arrow"></i> Rendimento</button>
+                                <button class="sub-btn" onclick="window.location.href='enc_kml_uplo.html'"><i class="bi bi-folder-symlink"></i> Buscar KML ou PDF</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="row g-4">
-
-                <!-- Pulverização -->
-                <div class="col-lg-4 col-md-6 fade-up fade-up-d1">
-                    <div class="nav-card">
-                        <div class="card-tag">
-                            <i class="bi bi-cpu"></i> Módulo 01
-                        </div>
-                        <div class="card-icon-wrap">
-                            <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
-                                <circle cx="24" cy="24" r="6" stroke="#d9b24c" stroke-width="2" fill="none"/>
-                                <rect x="22" y="10" width="4" height="8" rx="2" fill="#d9b24c"/>
-                                <rect x="22" y="30" width="4" height="8" rx="2" fill="#d9b24c"/>
-                                <rect x="10" y="22" width="8" height="4" rx="2" fill="#d9b24c"/>
-                                <rect x="30" y="22" width="8" height="4" rx="2" fill="#d9b24c"/>
-                                <circle cx="8"  cy="8"  r="3" stroke="#d9b24c" stroke-width="1.5" fill="none"/>
-                                <circle cx="40" cy="8"  r="3" stroke="#d9b24c" stroke-width="1.5" fill="none"/>
-                                <circle cx="8"  cy="40" r="3" stroke="#d9b24c" stroke-width="1.5" fill="none"/>
-                                <circle cx="40" cy="40" r="3" stroke="#d9b24c" stroke-width="1.5" fill="none"/>
-                                <line x1="12" y1="12" x2="20" y2="20" stroke="#d9b24c" stroke-width="1.5"/>
-                                <line x1="36" y1="12" x2="28" y2="20" stroke="#d9b24c" stroke-width="1.5"/>
-                                <line x1="12" y1="36" x2="20" y2="28" stroke="#d9b24c" stroke-width="1.5"/>
-                                <line x1="36" y1="36" x2="28" y2="28" stroke="#d9b24c" stroke-width="1.5"/>
-                            </svg>
-                        </div>
-                        <h3>Pulverização</h3>
-                        <p>Programação de trabalho e informe de rendimentos diários das operações aéreas.</p>
-                        <button class="btn-access" onclick="toggleOpcoes('pulverizacao-opcoes', this)">
-                            <span>Acessar módulo</span>
-                            <i class="bi bi-chevron-right arrow"></i>
-                        </button>
-                        <div class="sub-options" id="pulverizacao-opcoes">
-                            <div class="sub-options-inner">
-                                <div class="sub-list">
-                                    <button class="sub-btn" onclick="window.location.href='programacao_aplicacao.html'">
-                                        <i class="bi bi-calendar-check"></i> Programação
-                                    </button>
-                                    <button class="sub-btn" onclick="window.location.href='status_operacional_aplicacao.html'">
-                                        <i class="bi bi-activity"></i> Status Operacional
-                                    </button>
-                                    <button class="sub-btn" onclick="window.location.href='rendimento_aplicacao.html'">
-                                        <i class="bi bi-graph-up-arrow"></i> Rendimento
-                                    </button>
-                                    <button class="sub-btn" onclick="window.location.href='enc_kml_uplo.html'">
-                                        <i class="bi bi-folder-symlink"></i> Buscar KML ou PDF
-                                    </button>
-                                </div>
+            <!-- Cotésia -->
+            <div class="col-lg-4 col-md-6 fade-up fade-up-d2">
+                <div class="nav-card">
+                    <div class="card-tag"><i class="bi bi-cpu"></i> Módulo 02</div>
+                    <div class="card-icon-wrap">
+                        <svg width="26" height="26" viewBox="0 0 48 48" fill="none">
+                            <ellipse cx="24" cy="32" rx="6" ry="12" fill="none" stroke="var(--gold)" stroke-width="2"/>
+                            <ellipse cx="24" cy="18" rx="3" ry="5" fill="none" stroke="var(--gold)" stroke-width="1.5"/>
+                            <line x1="24" y1="13" x2="24" y2="8"  stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="24" y1="13" x2="20" y2="6"  stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="24" y1="13" x2="28" y2="6"  stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="18" y1="32" x2="8"  y2="40" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="30" y1="32" x2="40" y2="40" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3>Cotésia</h3>
+                    <p>Programação de trabalho e informe de rendimentos diários das operações de controle biológico.</p>
+                    <button class="btn-access" onclick="toggleOpcoes('cotesia-opcoes', this)">
+                        <span>Acessar módulo</span>
+                        <i class="bi bi-chevron-right arrow"></i>
+                    </button>
+                    <div class="sub-options" id="cotesia-opcoes">
+                        <div class="sub-options-inner">
+                            <div class="sub-list">
+                                <button class="sub-btn" onclick="window.location.href='programacao_cotesia.html'"><i class="bi bi-calendar-check"></i> Programação</button>
+                                <button class="sub-btn" onclick="window.location.href='status_operacional_cotesia.html'"><i class="bi bi-activity"></i> Status Operacional</button>
+                                <button class="sub-btn" onclick="window.location.href='rendimento_cotesia.html'"><i class="bi bi-graph-up-arrow"></i> Rendimento</button>
+                                <button class="sub-btn" onclick="window.location.href='enc_kml_uplo.html'"><i class="bi bi-folder-symlink"></i> Buscar KML ou PDF</button>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Cotésia -->
-                <div class="col-lg-4 col-md-6 fade-up fade-up-d2">
-                    <div class="nav-card">
-                        <div class="card-tag">
-                            <i class="bi bi-cpu"></i> Módulo 02
-                        </div>
-                        <div class="card-icon-wrap">
-                            <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
-                                <ellipse cx="24" cy="32" rx="6"  ry="12" fill="none" stroke="#d9b24c" stroke-width="2"/>
-                                <ellipse cx="24" cy="18" rx="3"  ry="5"  fill="none" stroke="#d9b24c" stroke-width="1.5"/>
-                                <line x1="24" y1="13" x2="24" y2="8"  stroke="#d9b24c" stroke-width="1.5" stroke-linecap="round"/>
-                                <line x1="24" y1="13" x2="20" y2="6"  stroke="#d9b24c" stroke-width="1.5" stroke-linecap="round"/>
-                                <line x1="24" y1="13" x2="28" y2="6"  stroke="#d9b24c" stroke-width="1.5" stroke-linecap="round"/>
-                                <line x1="18" y1="32" x2="8"  y2="40" stroke="#d9b24c" stroke-width="1.5" stroke-linecap="round"/>
-                                <line x1="30" y1="32" x2="40" y2="40" stroke="#d9b24c" stroke-width="1.5" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <h3>Cotésia</h3>
-                        <p>Programação de trabalho e informe de rendimentos diários das operações de controle biológico.</p>
-                        <button class="btn-access" onclick="toggleOpcoes('cotesia-opcoes', this)">
-                            <span>Acessar módulo</span>
-                            <i class="bi bi-chevron-right arrow"></i>
-                        </button>
-                        <div class="sub-options" id="cotesia-opcoes">
-                            <div class="sub-options-inner">
-                                <div class="sub-list">
-                                    <button class="sub-btn" onclick="window.location.href='programacao_cotesia.html'">
-                                        <i class="bi bi-calendar-check"></i> Programação
-                                    </button>
-                                    <button class="sub-btn" onclick="window.location.href='status_operacional_cotesia.html'">
-                                        <i class="bi bi-activity"></i> Status Operacional
-                                    </button>
-                                    <button class="sub-btn" onclick="window.location.href='rendimento_cotesia.html'">
-                                        <i class="bi bi-graph-up-arrow"></i> Rendimento
-                                    </button>
-                                    <button class="sub-btn" onclick="window.location.href='enc_kml_uplo.html'">
-                                        <i class="bi bi-folder-symlink"></i> Buscar KML ou PDF
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Trichogramma -->
-                <div class="col-lg-4 col-md-6 mx-auto fade-up fade-up-d3">
-                    <div class="nav-card">
-                        <div class="card-tag">
-                            <i class="bi bi-cpu"></i> Módulo 03
-                        </div>
-                        <div class="card-icon-wrap">
-                            <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
-                                <path d="M24 8c-6 0-11 8-11 15s4.9 13 11 13 11-6 11-13S30 8 24 8z" fill="none" stroke="#d9b24c" stroke-width="2"/>
-                                <path d="M34 16c-3 0-6 5-6 9s2.5 8 6 8 6-3.7 6-8-3-9-6-9z" fill="none" stroke="#d9b24c" stroke-width="1.5"/>
-                                <circle cx="16" cy="30" r="5" fill="none" stroke="#d9b24c" stroke-width="1.5"/>
-                                <circle cx="12" cy="36" r="3" fill="none" stroke="#d9b24c" stroke-width="1.2"/>
-                            </svg>
-                        </div>
-                        <h3>Trichogramma</h3>
-                        <p>Painel completo com programação, status operacional e rendimento das liberações.</p>
-                        <button class="btn-access" onclick="toggleOpcoes('trichogramma-opcoes', this)">
-                            <span>Acessar módulo</span>
-                            <i class="bi bi-chevron-right arrow"></i>
-                        </button>
-                        <div class="sub-options" id="trichogramma-opcoes">
-                            <div class="sub-options-inner">
-                                <div class="sub-list">
-                                    <button class="sub-btn" onclick="window.location.href='programacao_trichogramma.html'">
-                                        <i class="bi bi-calendar-check"></i> Programação
-                                    </button>
-                                    <button class="sub-btn" onclick="window.location.href='status_operacional_trichogramma.html'">
-                                        <i class="bi bi-activity"></i> Status Operacional
-                                    </button>
-                                    <button class="sub-btn" onclick="window.location.href='rendimento_trichogramma.html'">
-                                        <i class="bi bi-graph-up-arrow"></i> Rendimento
-                                    </button>
-                                    <button class="sub-btn" onclick="window.location.href='enc_kml_uplo.html'">
-                                        <i class="bi bi-folder-symlink"></i> Buscar KML ou PDF
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
+
+            <!-- Trichogramma -->
+            <div class="col-lg-4 col-md-6 mx-auto fade-up fade-up-d3">
+                <div class="nav-card">
+                    <div class="card-tag"><i class="bi bi-cpu"></i> Módulo 03</div>
+                    <div class="card-icon-wrap">
+                        <svg width="26" height="26" viewBox="0 0 48 48" fill="none">
+                            <path d="M24 8c-6 0-11 8-11 15s4.9 13 11 13 11-6 11-13S30 8 24 8z" fill="none" stroke="var(--gold)" stroke-width="2"/>
+                            <path d="M34 16c-3 0-6 5-6 9s2.5 8 6 8 6-3.7 6-8-3-9-6-9z" fill="none" stroke="var(--gold)" stroke-width="1.5"/>
+                            <circle cx="16" cy="30" r="5" fill="none" stroke="var(--gold)" stroke-width="1.5"/>
+                            <circle cx="12" cy="36" r="3" fill="none" stroke="var(--gold)" stroke-width="1.2"/>
+                        </svg>
+                    </div>
+                    <h3>Trichogramma</h3>
+                    <p>Painel completo com programação, status operacional e rendimento das liberações.</p>
+                    <button class="btn-access" onclick="toggleOpcoes('trichogramma-opcoes', this)">
+                        <span>Acessar módulo</span>
+                        <i class="bi bi-chevron-right arrow"></i>
+                    </button>
+                    <div class="sub-options" id="trichogramma-opcoes">
+                        <div class="sub-options-inner">
+                            <div class="sub-list">
+                                <button class="sub-btn" onclick="window.location.href='programacao_trichogramma.html'"><i class="bi bi-calendar-check"></i> Programação</button>
+                                <button class="sub-btn" onclick="window.location.href='status_operacional_trichogramma.html'"><i class="bi bi-activity"></i> Status Operacional</button>
+                                <button class="sub-btn" onclick="window.location.href='rendimento_trichogramma.html'"><i class="bi bi-graph-up-arrow"></i> Rendimento</button>
+                                <button class="sub-btn" onclick="window.location.href='enc_kml_uplo.html'"><i class="bi bi-folder-symlink"></i> Buscar KML ou PDF</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- ============================================================
-         FEATURES SECTION
-    ============================================================ -->
-    <section class="features-section">
-        <div class="container">
-            <div class="text-center mb-5">
-                <div class="features-eyebrow">Pulvion Tech · 2026</div>
-                <h2>Seguimos Voando<br>com Precisão</h2>
-                <p style="color:var(--text-muted); max-width:520px; margin:0 auto; font-size:0.95rem; line-height:1.7;">
-                    Tecnologia aérea e controle biológico de ponta para que seu planejamento seja cada vez mais produtivo.
-                </p>
+<!-- ============================================================
+     FEATURES
+============================================================ -->
+<section class="features-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="features-eyebrow">Pulvion Tech · 2026</div>
+            <h2>Seguimos Voando<br>com Precisão</h2>
+            <p style="color:var(--text-muted);max-width:500px;margin:0 auto;font-size:0.95rem;line-height:1.7;">
+                Tecnologia aérea e controle biológico de ponta para um planejamento cada vez mais produtivo.
+            </p>
+        </div>
+        <div class="row g-3">
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-item">
+                    <div class="feature-icon-wrap"><i class="bi bi-shield-check"></i></div>
+                    <h4>Qualidade Garantida</h4>
+                    <p>Serviços com padrão de excelência e garantia de qualidade em cada operação.</p>
+                </div>
             </div>
-
-            <div class="row g-3">
-                <div class="col-lg-3 col-md-6">
-                    <div class="feature-item">
-                        <div class="feature-icon-wrap">
-                            <i class="bi bi-shield-check"></i>
-                        </div>
-                        <h4>Qualidade Garantida</h4>
-                        <p>Serviços com padrão de excelência e garantia de qualidade em cada operação.</p>
-                    </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-item">
+                    <div class="feature-icon-wrap"><i class="bi bi-lightning-charge"></i></div>
+                    <h4>Agilidade</h4>
+                    <p>Processos otimizados para entregas rápidas, eficientes e dentro do prazo.</p>
                 </div>
-
-                <div class="col-lg-3 col-md-6">
-                    <div class="feature-item">
-                        <div class="feature-icon-wrap">
-                            <i class="bi bi-lightning-charge"></i>
-                        </div>
-                        <h4>Agilidade</h4>
-                        <p>Processos otimizados para entregas rápidas, eficientes e dentro do prazo.</p>
-                    </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-item">
+                    <div class="feature-icon-wrap"><i class="bi bi-headset"></i></div>
+                    <h4>Suporte Especializado</h4>
+                    <p>Equipe qualificada e dedicada para atender todas as suas necessidades.</p>
                 </div>
-
-                <div class="col-lg-3 col-md-6">
-                    <div class="feature-item">
-                        <div class="feature-icon-wrap">
-                            <i class="bi bi-headset"></i>
-                        </div>
-                        <h4>Suporte Especializado</h4>
-                        <p>Equipe qualificada e dedicada para atender todas as suas necessidades.</p>
-                    </div>
-                </div>
-
-                <div class="col-lg-3 col-md-6">
-                    <div class="feature-item">
-                        <div class="feature-icon-wrap">
-                            <i class="bi bi-graph-up-arrow"></i>
-                        </div>
-                        <h4>Resultados Comprovados</h4>
-                        <p>Histórico sólido de sucesso, eficiência e satisfação dos clientes.</p>
-                    </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-item">
+                    <div class="feature-icon-wrap"><i class="bi bi-graph-up-arrow"></i></div>
+                    <h4>Resultados Comprovados</h4>
+                    <p>Histórico sólido de sucesso, eficiência e satisfação dos clientes.</p>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- ============================================================
-         FOOTER
-    ============================================================ -->
-    <footer>
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <p class="footer-brand mb-0">&copy; 2026 Pulvion Tech · Todos os direitos reservados</p>
-                </div>
-                <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                    <div class="social-links justify-content-end">
-                        <a href="https://www.instagram.com/davidcbcampos/" title="Instagram"><i class="bi bi-instagram"></i></a>
-                        <a href="https://www.linkedin.com/in/david-campos-26001425a/" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
-                        <a href="/cdn-cgi/l/email-protection#2e4a4f58474a004d4d4f42434b474a4f6e49434f4742004d4143" title="E-mail"><i class="bi bi-envelope"></i></a>
-                        <a href="https://wa.me/5534998033258" target="_blank" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
-                    </div>
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <p class="footer-brand mb-0">&copy; 2026 Pulvion Tech · Todos os direitos reservados</p>
+            </div>
+            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                <div class="social-links justify-content-end">
+                    <a href="https://www.instagram.com/davidcbcampos/" title="Instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="https://www.linkedin.com/in/david-campos-26001425a/" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                    <a href="/cdn-cgi/l/email-protection#..." title="E-mail"><i class="bi bi-envelope"></i></a>
+                    <a href="https://wa.me/5534998033258" target="_blank" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
                 </div>
             </div>
         </div>
-    </footer>
+    </div>
+</footer>
 
-    <!-- Bootstrap JS -->
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycby1vZSlo0QbWkonHAsstQhVZNGI9R6IwN8GUgAVNuywRVTculgmaZ4_usklWnVHMwIBdA/exec";
+    let passwordModal;
 
-    <script>
-        /* ============================================================
-           CONFIG
-        ============================================================ */
-        const GAS_URL = "https://script.google.com/macros/s/AKfycby1vZSlo0QbWkonHAsstQhVZNGI9R6IwN8GUgAVNuywRVTculgmaZ4_usklWnVHMwIBdA/exec";
+    /* ---- THEME ---- */
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon   = document.getElementById('themeIcon');
 
-        let passwordModal;
+    function applyTheme(theme) {
+        html.setAttribute('data-theme', theme);
+        localStorage.setItem('pulvion_theme', theme);
+        themeIcon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        themeToggle.title   = theme === 'dark' ? 'Modo claro' : 'Modo escuro';
+    }
 
-        /* ============================================================
-           PARTICLES
-        ============================================================ */
-        (function initParticles() {
-            const canvas = document.getElementById('particleCanvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            let particles = [];
+    (function initTheme() {
+        const saved = localStorage.getItem('pulvion_theme') || 'light';
+        applyTheme(saved);
+    })();
 
-            function resize() {
-                canvas.width  = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
+    themeToggle.addEventListener('click', () => {
+        const current = html.getAttribute('data-theme');
+        applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
 
-            function createParticle() {
-                return {
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    r: Math.random() * 1.2 + 0.3,
-                    alpha: Math.random() * 0.35 + 0.05,
-                    vx: (Math.random() - 0.5) * 0.15,
-                    vy: -Math.random() * 0.2 - 0.05,
-                    gold: Math.random() > 0.55
-                };
-            }
+    /* ---- PARTICLES (dark only) ---- */
+    (function initParticles() {
+        const canvas = document.getElementById('particleCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let particles = [];
 
-            function init() {
-                resize();
-                particles = Array.from({ length: 60 }, createParticle);
-            }
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
 
-            function draw() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                for (const p of particles) {
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                    ctx.fillStyle = p.gold
-                        ? `rgba(217,178,76,${p.alpha})`
-                        : `rgba(255,255,255,${p.alpha * 0.6})`;
-                    ctx.fill();
-
-                    p.x += p.vx;
-                    p.y += p.vy;
-
-                    if (p.y < -5) { Object.assign(p, createParticle(), { y: canvas.height + 5 }); }
-                    if (p.x < -5 || p.x > canvas.width + 5) { Object.assign(p, createParticle()); }
-                }
-                requestAnimationFrame(draw);
-            }
-
-            init();
-            draw();
-            window.addEventListener('resize', resize);
-        })();
-
-        /* ============================================================
-           PASSWORD MODAL
-        ============================================================ */
-        function openPasswordModal() {
-            const feedback = document.getElementById('passwordFeedback');
-            const input    = document.getElementById('passwordInput');
-            if (feedback) feedback.style.display = 'none';
-            if (input)    input.value = '';
-            if (passwordModal) {
-                passwordModal.show();
-                setTimeout(() => input && input.focus(), 150);
-            }
+        function createParticle() {
+            return { x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 1.2 + 0.3, alpha: Math.random() * 0.3 + 0.05, vx: (Math.random() - 0.5) * 0.15, vy: -Math.random() * 0.2 - 0.05, gold: Math.random() > 0.5 };
         }
 
-        function submitPassword() {
-            const input    = document.getElementById('passwordInput');
-            const feedback = document.getElementById('passwordFeedback');
-            if (input && input.value === 'topgungeo') {
-                if (passwordModal) passwordModal.hide();
-                window.location.href = 'painel_admin.html';
-            } else {
-                if (feedback) feedback.style.display = 'block';
-                if (input)    input.focus();
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (const p of particles) {
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = p.gold ? `rgba(217,178,76,${p.alpha})` : `rgba(255,255,255,${p.alpha * 0.5})`;
+                ctx.fill();
+                p.x += p.vx; p.y += p.vy;
+                if (p.y < -5) Object.assign(p, createParticle(), { y: canvas.height + 5 });
+                if (p.x < -5 || p.x > canvas.width + 5) Object.assign(p, createParticle());
             }
+            requestAnimationFrame(draw);
         }
 
-        /* ============================================================
-           NOTIFICATION TOAST
-        ============================================================ */
-        function showNotification(message, type = 'info') {
-            document.querySelectorAll('.toast-notification').forEach(n => n.remove());
+        resize();
+        particles = Array.from({ length: 60 }, createParticle);
+        draw();
+        window.addEventListener('resize', resize);
+    })();
 
-            const iconMap = { info: 'bi-info-circle', warning: 'bi-exclamation-triangle', error: 'bi-x-octagon', success: 'bi-check-circle' };
-            const colorMap = { info: 'var(--gold-light)', warning: '#fbbf24', error: '#f87171', success: '#4ade80' };
+    /* ---- PASSWORD ---- */
+    function openPasswordModal() {
+        const f = document.getElementById('passwordFeedback'), i = document.getElementById('passwordInput');
+        if (f) f.style.display = 'none';
+        if (i) i.value = '';
+        if (passwordModal) { passwordModal.show(); setTimeout(() => i && i.focus(), 150); }
+    }
 
-            const toast = document.createElement('div');
-            toast.className = 'toast-notification';
-            toast.innerHTML = `
-                <i class="bi ${iconMap[type] || iconMap.info} toast-icon" style="color:${colorMap[type] || colorMap.info};"></i>
-                <span>${message}</span>
-                <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#6b7280;cursor:pointer;padding:0 0 0 8px;font-size:1rem;" aria-label="Fechar">&times;</button>
-            `;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.parentNode && toast.remove(), 4500);
+    function submitPassword() {
+        const i = document.getElementById('passwordInput'), f = document.getElementById('passwordFeedback');
+        if (i && i.value === 'topgungeo') { if (passwordModal) passwordModal.hide(); window.location.href = 'painel_admin.html'; }
+        else { if (f) f.style.display = 'block'; if (i) i.focus(); }
+    }
+
+    /* ---- TOAST ---- */
+    function showNotification(message, type = 'info') {
+        document.querySelectorAll('.toast-notification').forEach(n => n.remove());
+        const icons  = { info: 'bi-info-circle', warning: 'bi-exclamation-triangle', error: 'bi-x-octagon', success: 'bi-check-circle' };
+        const colors = { info: 'var(--gold)', warning: '#d97706', error: '#b91c1c', success: '#16a34a' };
+        const t = document.createElement('div');
+        t.className = 'toast-notification';
+        t.innerHTML = `<i class="bi ${icons[type]||icons.info}" style="color:${colors[type]||colors.info};"></i><span>${message}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--text-label);cursor:pointer;padding:0 0 0 8px;">&times;</button>`;
+        document.body.appendChild(t);
+        setTimeout(() => t.parentNode && t.remove(), 4500);
+    }
+
+    /* ---- NAV CARDS ---- */
+    function toggleOpcoes(id, btn) {
+        document.querySelectorAll('.sub-options').forEach(p => { if (p.id !== id) p.classList.remove('open'); });
+        document.querySelectorAll('.btn-access').forEach(b => { if (b !== btn) b.classList.remove('open'); });
+        const panel = document.getElementById(id);
+        if (!panel) return;
+        const open = !panel.classList.contains('open');
+        panel.classList.toggle('open', open);
+        if (btn) btn.classList.toggle('open', open);
+    }
+
+    /* ---- RANKING ---- */
+    function loadJsonp(url) {
+        return new Promise((res, rej) => {
+            const cb = "cb_" + Math.random().toString(36).slice(2);
+            const s  = document.createElement("script");
+            window[cb] = d => { cleanup(); res(d); };
+            const cleanup = () => { try { delete window[cb]; } catch(e){} if(s.parentNode) s.parentNode.removeChild(s); };
+            s.onerror = () => { cleanup(); rej(new Error("JSONP failed")); };
+            s.src = url + (url.includes("?")?"&":"?") + "callback=" + encodeURIComponent(cb) + "&_=" + Date.now();
+            document.body.appendChild(s);
+        });
+    }
+
+    const fmtN = (n,d=2) => { const x=Number(n); return isFinite(x)?x.toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d}):"0"; };
+    const fmtI = n => { const x=Number(n); return isFinite(x)?x.toLocaleString("pt-BR"):"0"; };
+
+    function showRkLoading(on) {
+        const l=document.getElementById("rkLoading"), w=document.getElementById("rkTableWrap"), e=document.getElementById("rkError");
+        if(l) l.style.display=on?"block":"none";
+        if(w) w.style.display=on?"none":(w.dataset.hasData==="1"?"block":"none");
+        if(e) e.style.display="none";
+    }
+
+    function showRkError(msg) {
+        const e=document.getElementById("rkError"), l=document.getElementById("rkLoading"), w=document.getElementById("rkTableWrap");
+        if(l) l.style.display="none"; if(w) w.style.display="none";
+        if(e) { e.innerHTML=`<i class="bi bi-exclamation-triangle me-2"></i>${msg||"Falha ao carregar ranking."}`; e.style.display="block"; }
+    }
+
+    const rkS = { mode:"period", periodDays:"7", dateFrom:"", dateTo:"" };
+
+    function buildRkUrl() {
+        const q=new URLSearchParams(); q.set("action","getRanking");
+        if(rkS.mode==="range"&&(rkS.dateFrom||rkS.dateTo)) { if(rkS.dateFrom) q.set("dateFrom",rkS.dateFrom); if(rkS.dateTo) q.set("dateTo",rkS.dateTo); }
+        else q.set("periodDays", rkS.periodDays||"7");
+        return `${GAS_URL}?${q.toString()}`;
+    }
+
+    function updateRkUI() {
+        const pre=document.getElementById("rkPeriodPrefix"), lbl=document.getElementById("rkPeriodLabel"), badge=document.getElementById("rkBadgeText");
+        if(!pre||!lbl||!badge) return;
+        if(rkS.mode==="range"&&(rkS.dateFrom||rkS.dateTo)) {
+            pre.textContent="Período"; badge.textContent="DATA";
+            const a=rkS.dateFrom?rkS.dateFrom.split("-").reverse().join("/"):"—", b=rkS.dateTo?rkS.dateTo.split("-").reverse().join("/"):"—";
+            lbl.textContent=`${a} a ${b}`;
+        } else {
+            pre.textContent="Últimos"; const p=rkS.periodDays||"7";
+            lbl.textContent=p==="all"?"tudo":`${p} dias`; badge.textContent=p==="all"?"ALL":`${p}D`;
         }
+    }
 
-        /* ============================================================
-           NAV CARD SUB-MENU (CSS grid-template-rows animation)
-        ============================================================ */
-        function toggleOpcoes(id, btn) {
-            const allPanels = document.querySelectorAll('.sub-options');
-            const allBtns   = document.querySelectorAll('.btn-access');
-
-            allPanels.forEach(p => {
-                if (p.id !== id) p.classList.remove('open');
+    async function fetchRanking() {
+        showRkLoading(true);
+        try {
+            const data = await loadJsonp(buildRkUrl());
+            if(!data) throw new Error("Vazio");
+            if(data.ok===false) throw new Error(data.message||"Erro");
+            const list = Array.isArray(data)?data:(data.data||[]);
+            if(!Array.isArray(list)||!list.length) {
+                document.getElementById("rkTotalArea").textContent="0,00 ha";
+                document.getElementById("rkTotalFlights").textContent="0";
+                const w=document.getElementById("rkTableWrap"); if(w){w.dataset.hasData="0"; w.style.display="none";}
+                showRkLoading(false); return;
+            }
+            document.getElementById("rkTotalArea").textContent=`${fmtN(list.reduce((s,x)=>s+(Number(x.area)||0),0),2)} ha`;
+            document.getElementById("rkTotalFlights").textContent=fmtI(list.reduce((s,x)=>s+(Number(x.flights)||0),0));
+            const tbody=document.getElementById("rkTbody"); tbody.innerHTML="";
+            list.slice(0,5).forEach((x,i)=>{
+                const tr=document.createElement("tr");
+                tr.innerHTML=`<td><span class="rank-pill">${i+1}</span></td><td><div style="font-size:.85rem;font-weight:600;">${x.pilot||"SEM PILOTO"}</div><div class="small-muted">Voos: <strong>${fmtI(x.flights||0)}</strong> · L/ha: <strong>${fmtN(x.lpha||0,2)}</strong></div></td><td class="text-end"><span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--gold);">${fmtN(x.area||0,2)} ha</span></td>`;
+                tbody.appendChild(tr);
             });
-            allBtns.forEach(b => {
-                if (b !== btn) b.classList.remove('open');
-            });
+            const w=document.getElementById("rkTableWrap"); if(w){w.dataset.hasData="1"; w.style.display="block";}
+            const u=document.getElementById("rkUpdatedAt"); if(u) u.textContent=`Atualizado em ${new Date().toLocaleString("pt-BR")}`;
+            showRkLoading(false);
+        } catch(err) { console.error(err); showRkError("Falha ao carregar ranking."); }
+    }
 
-            const panel = document.getElementById(id);
-            if (!panel) return;
-            const isOpen = panel.classList.contains('open');
-            panel.classList.toggle('open', !isOpen);
-            if (btn) btn.classList.toggle('open', !isOpen);
-        }
+    document.addEventListener('DOMContentLoaded', () => {
+        const modalEl = document.getElementById('passwordModal');
+        if(modalEl) passwordModal = new bootstrap.Modal(modalEl);
 
-        /* ============================================================
-           RANKING — JSONP loader
-        ============================================================ */
-        function loadJsonp(url) {
-            return new Promise((resolve, reject) => {
-                const cbName = "cb_" + Math.random().toString(36).slice(2);
-                const script = document.createElement("script");
+        document.getElementById('lockButton').addEventListener('click', openPasswordModal);
+        document.getElementById('passwordSubmit').addEventListener('click', submitPassword);
+        document.getElementById('passwordInput').addEventListener('keydown', e => { if(e.key==='Enter'){e.preventDefault();submitPassword();} });
 
-                window[cbName] = (data) => { cleanup(); resolve(data); };
+        setTimeout(() => showNotification('Plataforma carregada com sucesso!', 'success'), 1000);
 
-                const cleanup = () => {
-                    try { delete window[cbName]; } catch(e) { window[cbName] = undefined; }
-                    if (script && script.parentNode) script.parentNode.removeChild(script);
-                };
+        updateRkUI(); fetchRanking();
 
-                script.onerror = () => { cleanup(); reject(new Error("JSONP failed")); };
+        const sel=document.getElementById("rkPeriod"), filterRow=document.getElementById("rkFilterRow");
+        const inFrom=document.getElementById("rkDateFrom"), inTo=document.getElementById("rkDateTo");
+        const btnApply=document.getElementById("rkApplyRange"), btnClear=document.getElementById("rkClearRange");
 
-                const sep = url.includes("?") ? "&" : "?";
-                script.src = url + sep + "callback=" + encodeURIComponent(cbName) + "&_=" + Date.now();
-                document.body.appendChild(script);
-            });
-        }
-
-        function fmtNumber(n, d = 2) {
-            const num = Number(n);
-            return isFinite(num) ? num.toLocaleString("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d }) : "0";
-        }
-
-        function fmtInt(n) {
-            const num = Number(n);
-            return isFinite(num) ? num.toLocaleString("pt-BR") : "0";
-        }
-
-        function showRankingLoading(on) {
-            const elL = document.getElementById("rkLoading");
-            const elW = document.getElementById("rkTableWrap");
-            const elE = document.getElementById("rkError");
-            if (elL) elL.style.display = on ? "block" : "none";
-            if (elW) elW.style.display = on ? "none" : (elW.dataset.hasData === "1" ? "block" : "none");
-            if (elE) elE.style.display = "none";
-        }
-
-        function showRankingError(msg) {
-            const elE = document.getElementById("rkError");
-            const elL = document.getElementById("rkLoading");
-            const elW = document.getElementById("rkTableWrap");
-            if (elL) elL.style.display = "none";
-            if (elW) elW.style.display = "none";
-            if (elE) { elE.textContent = msg || "Falha ao carregar ranking."; elE.style.display = "block"; }
-        }
-
-        const rkState = { mode: "period", periodDays: "7", dateFrom: "", dateTo: "" };
-
-        function buildRankingUrl_() {
-            const qs = new URLSearchParams();
-            qs.set("action", "getRanking");
-            if (rkState.mode === "range" && (rkState.dateFrom || rkState.dateTo)) {
-                if (rkState.dateFrom) qs.set("dateFrom", rkState.dateFrom);
-                if (rkState.dateTo)   qs.set("dateTo", rkState.dateTo);
-            } else {
-                qs.set("periodDays", rkState.periodDays || "7");
-            }
-            return `${GAS_URL}?${qs.toString()}`;
-        }
-
-        function updateRankingPeriodUI_() {
-            const prefixEl = document.getElementById("rkPeriodPrefix");
-            const labelEl  = document.getElementById("rkPeriodLabel");
-            const badgeEl  = document.getElementById("rkBadgeText");
-            if (!prefixEl || !labelEl || !badgeEl) return;
-
-            if (rkState.mode === "range" && (rkState.dateFrom || rkState.dateTo)) {
-                prefixEl.textContent = "Período";
-                const a = rkState.dateFrom ? rkState.dateFrom.split("-").reverse().join("/") : "—";
-                const b = rkState.dateTo   ? rkState.dateTo.split("-").reverse().join("/")   : "—";
-                labelEl.textContent = `${a} a ${b}`;
-                badgeEl.textContent = "DATA";
-            } else {
-                prefixEl.textContent = "Últimos";
-                const p = rkState.periodDays || "7";
-                labelEl.textContent = (p === "all") ? "tudo" : `${p} dias`;
-                badgeEl.textContent = (p === "all") ? "ALL"  : `${p}D`;
-            }
-        }
-
-        async function fetchRanking() {
-            showRankingLoading(true);
-            try {
-                const url  = buildRankingUrl_();
-                const data = await loadJsonp(url);
-
-                if (!data) throw new Error("Resposta vazia");
-                if (data.ok === false) throw new Error(data.message || "Erro no servidor");
-
-                const list = Array.isArray(data) ? data : (data.data || []);
-
-                if (!Array.isArray(list) || list.length === 0) {
-                    document.getElementById("rkTotalArea").textContent    = "0,00 ha";
-                    document.getElementById("rkTotalFlights").textContent = "0";
-                    const wrap = document.getElementById("rkTableWrap");
-                    if (wrap) { wrap.dataset.hasData = "0"; wrap.style.display = "none"; }
-                    showRankingLoading(false);
-                    return;
-                }
-
-                const totalArea    = list.reduce((s, x) => s + (Number(x.area) || 0), 0);
-                const totalFlights = list.reduce((s, x) => s + (Number(x.flights) || 0), 0);
-                document.getElementById("rkTotalArea").textContent    = `${fmtNumber(totalArea, 2)} ha`;
-                document.getElementById("rkTotalFlights").textContent = fmtInt(totalFlights);
-
-                const top   = list.slice(0, 5);
-                const tbody = document.getElementById("rkTbody");
-                tbody.innerHTML = "";
-
-                top.forEach((x, i) => {
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `
-                        <td><span class="rank-pill">${i + 1}</span></td>
-                        <td>
-                            <div class="fw-semibold" style="font-size:0.85rem;">${x.pilot || "SEM PILOTO"}</div>
-                            <div class="small-muted">Voos: <strong>${fmtInt(x.flights || 0)}</strong> · L/ha: <strong>${fmtNumber(x.lpha || 0, 2)}</strong></div>
-                        </td>
-                        <td class="text-end">
-                            <span style="font-family:'IBM Plex Mono',monospace; font-size:0.82rem; color:var(--gold-light);">${fmtNumber(x.area || 0, 2)} ha</span>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-
-                const wrap = document.getElementById("rkTableWrap");
-                if (wrap) { wrap.dataset.hasData = "1"; wrap.style.display = "block"; }
-
-                const updated = document.getElementById("rkUpdatedAt");
-                if (updated) {
-                    const now = new Date();
-                    updated.textContent = `Atualizado em ${now.toLocaleString("pt-BR")}`;
-                }
-
-                showRankingLoading(false);
-            } catch (err) {
-                console.error(err);
-                showRankingError("Falha ao carregar ranking.");
-            }
-        }
-
-        /* ============================================================
-           DOM READY
-        ============================================================ */
-        document.addEventListener('DOMContentLoaded', () => {
-            // Bootstrap modal
-            const modalEl = document.getElementById('passwordModal');
-            if (modalEl) passwordModal = new bootstrap.Modal(modalEl);
-
-            // Lock button
-            const lockButton = document.getElementById('lockButton');
-            if (lockButton) lockButton.addEventListener('click', openPasswordModal);
-
-            // Password submit
-            const passwordSubmit = document.getElementById('passwordSubmit');
-            if (passwordSubmit) passwordSubmit.addEventListener('click', submitPassword);
-
-            const passwordInput = document.getElementById('passwordInput');
-            if (passwordInput) {
-                passwordInput.addEventListener('keydown', e => {
-                    if (e.key === 'Enter') { e.preventDefault(); submitPassword(); }
-                });
-            }
-
-            // Social link titles
-            document.querySelectorAll('.social-links a').forEach(link => {
-                const icon = link.querySelector('i');
-                if (icon) {
-                    if (icon.classList.contains('bi-instagram')) link.title = 'Instagram';
-                    else if (icon.classList.contains('bi-linkedin')) link.title = 'LinkedIn';
-                    else if (icon.classList.contains('bi-envelope')) link.title = 'E-mail';
-                    else if (icon.classList.contains('bi-whatsapp')) link.title = 'WhatsApp';
-                }
-            });
-
-            // Welcome toast
-            setTimeout(() => showNotification('Boas-vindas! Plataforma carregada com sucesso.', 'success'), 1200);
-
-            // Ranking init
-            updateRankingPeriodUI_();
-            fetchRanking();
-
-            // Ranking controls
-            const btn       = document.getElementById("rkRefreshBtn");
-            const sel       = document.getElementById("rkPeriod");
-            const toggle    = document.getElementById("rkToggleFilterBtn");
-            const filterRow = document.getElementById("rkFilterRow");
-            const inFrom    = document.getElementById("rkDateFrom");
-            const inTo      = document.getElementById("rkDateTo");
-            const btnApply  = document.getElementById("rkApplyRange");
-            const btnClear  = document.getElementById("rkClearRange");
-
-            if (btn) btn.addEventListener("click", fetchRanking);
-
-            if (toggle && filterRow) {
-                toggle.addEventListener("click", () => {
-                    filterRow.style.display = (filterRow.style.display === "none" || !filterRow.style.display) ? "block" : "none";
-                });
-            }
-
-            if (sel) {
-                sel.addEventListener("change", () => {
-                    const v = sel.value || "7";
-                    if (v === "custom") {
-                        rkState.mode = "range";
-                        if (filterRow) filterRow.style.display = "block";
-                    } else {
-                        rkState.mode = "period";
-                        rkState.periodDays = v;
-                        rkState.dateFrom   = "";
-                        rkState.dateTo     = "";
-                        if (inFrom) inFrom.value = "";
-                        if (inTo)   inTo.value   = "";
-                        updateRankingPeriodUI_();
-                        fetchRanking();
-                    }
-                });
-            }
-
-            if (btnApply) {
-                btnApply.addEventListener("click", () => {
-                    const from = (inFrom && inFrom.value) ? inFrom.value : "";
-                    const to   = (inTo   && inTo.value)   ? inTo.value   : "";
-                    if (!from && !to) { showNotification("Selecione a data inicial e/ou final.", "warning"); return; }
-                    rkState.mode = "range"; rkState.dateFrom = from; rkState.dateTo = to;
-                    if (sel) sel.value = "custom";
-                    updateRankingPeriodUI_(); fetchRanking();
-                });
-            }
-
-            if (btnClear) {
-                btnClear.addEventListener("click", () => {
-                    rkState.mode = "period"; rkState.periodDays = "7"; rkState.dateFrom = ""; rkState.dateTo = "";
-                    if (sel)    sel.value    = "7";
-                    if (inFrom) inFrom.value = "";
-                    if (inTo)   inTo.value   = "";
-                    if (filterRow) filterRow.style.display = "none";
-                    updateRankingPeriodUI_(); fetchRanking();
-                });
-            }
-
-            console.log('Pulvion Tech · Sistema carregado.');
+        document.getElementById("rkRefreshBtn").addEventListener("click", fetchRanking);
+        document.getElementById("rkToggleFilterBtn").addEventListener("click", () => {
+            filterRow.style.display = (filterRow.style.display==="none"||!filterRow.style.display) ? "block" : "none";
         });
 
-        window.addEventListener('error', e => {
-            console.error('Erro capturado:', e.error);
+        sel.addEventListener("change", () => {
+            const v=sel.value||"7";
+            if(v==="custom"){rkS.mode="range"; filterRow.style.display="block";}
+            else{rkS.mode="period";rkS.periodDays=v;rkS.dateFrom="";rkS.dateTo="";if(inFrom)inFrom.value="";if(inTo)inTo.value="";updateRkUI();fetchRanking();}
         });
-    </script>
 
+        btnApply.addEventListener("click", () => {
+            const from=inFrom?inFrom.value:"", to=inTo?inTo.value:"";
+            if(!from&&!to){showNotification("Selecione a data inicial e/ou final.","warning");return;}
+            rkS.mode="range";rkS.dateFrom=from;rkS.dateTo=to;sel.value="custom";updateRkUI();fetchRanking();
+        });
+
+        btnClear.addEventListener("click", () => {
+            rkS.mode="period";rkS.periodDays="7";rkS.dateFrom="";rkS.dateTo="";
+            sel.value="7";if(inFrom)inFrom.value="";if(inTo)inTo.value="";
+            filterRow.style.display="none";updateRkUI();fetchRanking();
+        });
+    });
+</script>
 </body>
 </html>
