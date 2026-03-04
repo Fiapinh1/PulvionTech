@@ -1,629 +1,1160 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rendimento de Aplicação — Top Gun</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="%230d6efd"/><path d="M16 40l16-24 16 24H16z" fill="white"/></svg>'>
-
+<title>Rendimento de Aplicação · Top Gun</title>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  body { background:#f8f9fa; }
-  .card { border-radius:.75rem; }
-  .form-section-title{font-weight:600;font-size:1rem;color:#0d6efd;display:flex;align-items:center;gap:.5rem;}
-  pre#preview{white-space:pre-wrap;min-height:260px;}
-  label { display:inline-block; margin-bottom:.25rem; }
-  .fazenda-card{border:1px solid #e9ecef;border-radius:.75rem;padding:1rem;margin-bottom:.75rem;background:#fff}
-  .fazenda-card + .fazenda-card{border-top:2px dashed #dee2e6; margin-top:.5rem; padding-top:1rem}
-  .badge-counter{font-weight:600}
-  .talhoes-wrap .row + .row{margin-top:.5rem}
+/* ============================================================
+   THEME TOKENS
+============================================================ */
+:root, [data-theme="light"] {
+  --gold:         #b8942e;
+  --gold-light:   #d9b24c;
+  --gold-dim:     rgba(184,148,46,0.10);
+  --gold-border:  rgba(184,148,46,0.28);
+
+  --bg:           #f0ede6;
+  --card:         #ffffff;
+  --surface:      #f5f2eb;
+  --surface-2:    #ebe7dd;
+  --input-bg:     #f8f6f1;
+  --input-ro:     #ede9e0;
+
+  --header-bg:    rgba(240,237,230,0.97);
+  --header-bdr:   rgba(184,148,46,0.22);
+
+  --text:         #0d1117;
+  --text-muted:   #4b5563;
+  --text-label:   #94a3b8;
+
+  --success:      #16a34a;
+  --success-dim:  rgba(22,163,74,0.10);
+  --success-bdr:  rgba(22,163,74,0.28);
+  --warning:      #d97706;
+  --warning-dim:  rgba(217,119,6,0.10);
+  --warning-bdr:  rgba(217,119,6,0.32);
+  --danger:       #dc2626;
+  --danger-dim:   rgba(220,38,38,0.08);
+  --danger-bdr:   rgba(220,38,38,0.28);
+
+  --shadow-sm:    0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md:    0 4px 20px rgba(0,0,0,0.07);
+  --radius:       12px;
+  --radius-sm:    8px;
+}
+
+[data-theme="dark"] {
+  --gold:         #d9b24c;
+  --gold-light:   #f0d078;
+  --gold-dim:     rgba(217,178,76,0.10);
+  --gold-border:  rgba(217,178,76,0.28);
+
+  --bg:           #060912;
+  --card:         #0c1224;
+  --surface:      #0f1628;
+  --surface-2:    rgba(255,255,255,0.04);
+  --input-bg:     #0b1425;
+  --input-ro:     #0f182c;
+
+  --header-bg:    rgba(10,15,31,0.97);
+  --header-bdr:   rgba(217,178,76,0.22);
+
+  --text:         #f0ece4;
+  --text-muted:   #9ca3af;
+  --text-label:   #6b7280;
+
+  --success:      #22c55e;
+  --success-dim:  rgba(34,197,94,0.10);
+  --success-bdr:  rgba(34,197,94,0.28);
+  --warning:      #f59e0b;
+  --warning-dim:  rgba(245,158,11,0.12);
+  --warning-bdr:  rgba(245,158,11,0.35);
+  --danger:       #ef4444;
+  --danger-dim:   rgba(239,68,68,0.10);
+  --danger-bdr:   rgba(239,68,68,0.30);
+
+  --shadow-sm:    0 2px 8px rgba(0,0,0,0.20);
+  --shadow-md:    0 8px 28px rgba(0,0,0,0.30);
+  --radius:       12px;
+  --radius-sm:    8px;
+}
+
+/* ============================================================
+   BASE
+============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Barlow', sans-serif; font-size: 15px; line-height: 1.6;
+  color: var(--text); background: var(--bg);
+  min-height: 100vh; padding-bottom: 40px;
+  transition: background 0.3s, color 0.3s;
+}
+[data-theme="light"] body {
+  background-image: radial-gradient(ellipse 70% 40% at 5% 0%, rgba(184,148,46,0.06) 0%, transparent 55%);
+}
+h1,h2,h3 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; }
+::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--gold-border); border-radius:4px; }
+
+/* ============================================================
+   HEADER
+============================================================ */
+.site-header {
+  position:sticky; top:0; z-index:50;
+  background:var(--header-bg); border-bottom:1px solid var(--header-bdr);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  box-shadow:var(--shadow-sm); transition:background 0.3s,border-color 0.3s;
+}
+.header-inner {
+  display:flex; align-items:center; gap:12px;
+  padding:0 16px; height:60px; max-width:1400px; margin:0 auto;
+}
+.header-title {
+  flex:1; display:flex; align-items:center; justify-content:center; gap:8px;
+  font-family:'Barlow Condensed',sans-serif; font-size:1.05rem; font-weight:800;
+  letter-spacing:0.04em; text-transform:uppercase; color:var(--gold);
+}
+
+/* ============================================================
+   BUTTONS
+============================================================ */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-weight:700;
+  font-size:0.95rem; letter-spacing:0.06em; text-transform:uppercase;
+  text-decoration:none; border-radius:var(--radius-sm); padding:10px 16px;
+  border:1px solid var(--gold-border); background:var(--gold-dim); color:var(--gold);
+  transition:all 0.2s ease; -webkit-tap-highlight-color:transparent; white-space:nowrap;
+}
+.btn:hover { background:rgba(184,148,46,0.18); border-color:var(--gold); }
+
+.btn-primary { background:var(--gold); border-color:var(--gold); color:#fff; box-shadow:0 4px 14px rgba(184,148,46,0.25); }
+[data-theme="dark"] .btn-primary { color:#0b0f1f; }
+.btn-primary:hover { background:var(--gold-light); border-color:var(--gold-light); }
+
+.btn-ghost { background:var(--surface); border-color:rgba(0,0,0,0.08); color:var(--text-muted); }
+[data-theme="dark"] .btn-ghost { border-color:rgba(255,255,255,0.08); }
+.btn-ghost:hover { background:var(--surface-2); color:var(--text); border-color:var(--gold-border); }
+
+.btn-success-soft { background:var(--success-dim); border-color:var(--success-bdr); color:var(--success); }
+.btn-success-soft:hover { background:rgba(22,163,74,0.16); }
+
+.btn-danger-soft { background:var(--danger-dim); border-color:var(--danger-bdr); color:var(--danger); }
+.btn-danger-soft:hover { background:rgba(220,38,38,0.14); }
+
+.btn-warning-soft { background:var(--warning-dim); border-color:var(--warning-bdr); color:var(--warning); }
+
+.btn-sm  { padding:7px 12px; font-size:0.82rem; }
+.btn-xs  { padding:5px 9px;  font-size:0.75rem; }
+
+.theme-toggle {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:34px; height:34px; border-radius:var(--radius-sm);
+  border:1px solid var(--gold-border); background:var(--gold-dim);
+  color:var(--gold); cursor:pointer; transition:all 0.2s; flex-shrink:0;
+}
+.theme-toggle:hover { background:rgba(184,148,46,0.2); border-color:var(--gold); transform:rotate(20deg); }
+
+/* ============================================================
+   PAGE LAYOUT
+============================================================ */
+.page-wrap {
+  max-width:1400px; margin:0 auto; padding:18px 16px;
+  display:grid; grid-template-columns:1fr 380px; gap:14px; align-items:start;
+}
+@media (max-width:1024px) { .page-wrap { grid-template-columns:1fr; } }
+
+/* ============================================================
+   CARDS
+============================================================ */
+.card {
+  background:var(--card); border:1px solid var(--gold-border);
+  border-radius:var(--radius); box-shadow:var(--shadow-md);
+  overflow:hidden; transition:background 0.3s,border-color 0.3s;
+}
+.card-header {
+  display:flex; align-items:center; gap:10px; padding:13px 18px;
+  border-bottom:1px solid var(--gold-border); background:var(--gold-dim);
+}
+.card-header-icon {
+  width:30px; height:30px; border-radius:7px; border:1px solid var(--gold-border);
+  background:var(--card); display:flex; align-items:center; justify-content:center;
+  color:var(--gold); flex-shrink:0;
+}
+.card-title {
+  font-family:'Barlow Condensed',sans-serif; font-size:0.92rem; font-weight:800;
+  letter-spacing:0.06em; text-transform:uppercase; color:var(--text); flex:1;
+}
+.card-badge {
+  font-family:'IBM Plex Mono',monospace; font-size:0.6rem; letter-spacing:0.12em;
+  color:var(--text-label); padding:3px 8px; border-radius:999px;
+  border:1px solid var(--gold-border); background:var(--card);
+}
+.card-body { padding:18px; }
+
+/* ============================================================
+   FORM FIELDS
+============================================================ */
+.field-group { display:flex; flex-direction:column; gap:12px; }
+.fields-2col { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.fields-3col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+
+.field { display:flex; flex-direction:column; gap:5px; }
+.field label {
+  font-family:'IBM Plex Mono',monospace; font-size:0.65rem; font-weight:500;
+  letter-spacing:0.12em; text-transform:uppercase; color:var(--text-label);
+}
+
+input, select, textarea {
+  width:100%; background:var(--input-bg); color:var(--text);
+  border:1px solid var(--gold-border); border-radius:var(--radius-sm);
+  padding:10px 13px; font-family:'Barlow',sans-serif; font-size:0.93rem;
+  outline:none; transition:border-color 0.2s,box-shadow 0.2s;
+  -webkit-appearance:none; -webkit-tap-highlight-color:transparent;
+}
+input:focus, select:focus, textarea:focus {
+  border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-dim);
+}
+input[readonly], input[readonly]:focus,
+textarea[readonly], textarea[readonly]:focus {
+  background:var(--input-ro); color:var(--text-muted);
+  border-color:rgba(0,0,0,0.06); box-shadow:none; cursor:default;
+}
+[data-theme="dark"] input[readonly],
+[data-theme="dark"] textarea[readonly] { border-color:rgba(255,255,255,0.05); }
+select { cursor:pointer; }
+textarea { resize:vertical; min-height:64px; }
+
+/* section label inside cards */
+.section-label {
+  font-family:'Barlow Condensed',sans-serif; font-size:0.78rem; font-weight:800;
+  letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted);
+  display:flex; align-items:center; gap:6px; padding:10px 0 2px;
+}
+.section-label::after { content:''; flex:1; height:1px; background:var(--gold-border); }
+
+/* ============================================================
+   FARM CARDS
+============================================================ */
+.farm-list { display:flex; flex-direction:column; gap:12px; }
+
+.farm-card {
+  border:1px solid var(--gold-border); border-radius:var(--radius-sm);
+  background:var(--surface); overflow:hidden; transition:border-color 0.2s;
+}
+.farm-card:hover { border-color:var(--gold); }
+
+.farm-card-header {
+  display:flex; align-items:center; gap:8px; padding:9px 14px;
+  background:var(--gold-dim); border-bottom:1px solid var(--gold-border);
+}
+.farm-card-num {
+  font-family:'IBM Plex Mono',monospace; font-size:0.6rem; font-weight:500;
+  letter-spacing:0.1em; color:var(--text-label);
+}
+.farm-card-title {
+  font-family:'Barlow Condensed',sans-serif; font-size:0.82rem; font-weight:700;
+  letter-spacing:0.05em; text-transform:uppercase; color:var(--text-muted); flex:1;
+}
+.farm-card-body { padding:14px; display:flex; flex-direction:column; gap:10px; }
+
+/* OS search */
+.os-search-row { display:flex; gap:8px; align-items:flex-end; }
+.os-search-row .field { flex:1; }
+.os-search-row input { font-family:'IBM Plex Mono',monospace !important; font-weight:500 !important; }
+
+.farm-lookup-msg {
+  font-family:'IBM Plex Mono',monospace; font-size:0.66rem; letter-spacing:0.04em;
+  min-height:16px; color:var(--text-label);
+}
+.farm-lookup-msg.ok   { color:var(--success); }
+.farm-lookup-msg.err  { color:var(--danger); }
+.farm-lookup-msg.load { color:var(--gold); }
+
+/* Manual mode banner */
+.manual-banner {
+  display:none; align-items:center; gap:8px; flex-wrap:wrap;
+  padding:8px 12px; border-radius:var(--radius-sm);
+  background:var(--warning-dim); border:1px solid var(--warning-bdr);
+}
+.manual-banner.show { display:flex; }
+.manual-banner-txt {
+  font-family:'IBM Plex Mono',monospace; font-size:0.66rem;
+  color:var(--warning); letter-spacing:0.04em; flex:1;
+}
+
+/* info cells */
+.info-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.info-cell { background:var(--card); border:1px solid var(--gold-border); border-radius:7px; padding:8px 10px; }
+.info-cell.full { grid-column:1/-1; }
+.i-label { font-family:'IBM Plex Mono',monospace; font-size:0.57rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-label); margin-bottom:3px; }
+.i-val { font-size:0.88rem; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.i-val.gold { font-family:'IBM Plex Mono',monospace; color:var(--gold); }
+.i-val-area { font-size:0.88rem; color:var(--text); line-height:1.5; word-break:break-word; white-space:pre-wrap; }
+
+/* info cell editable mode */
+.info-cell.editable { border-color:var(--warning-bdr); background:var(--warning-dim); }
+.info-cell.editable .i-val-edit { display:block; }
+.info-cell.editable .i-val-static { display:none; }
+.i-val-edit { display:none; }
+.i-val-static {}
+
+/* ============================================================
+   STATUS PILLS (per farm)
+============================================================ */
+.status-pills { display:flex; gap:8px; flex-wrap:wrap; }
+.st-pill { position:relative; cursor:pointer; }
+.st-pill input[type="radio"] { position:absolute; opacity:0; width:0; height:0; }
+.st-pill-label {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:7px 16px; border-radius:999px;
+  border:1px solid var(--gold-border); background:var(--surface);
+  font-family:'Barlow Condensed',sans-serif; font-size:0.82rem; font-weight:700;
+  letter-spacing:0.04em; text-transform:uppercase;
+  color:var(--text-muted); cursor:pointer; transition:all 0.2s; user-select:none;
+}
+.st-pill-label:hover { background:var(--gold-dim); color:var(--gold); }
+.st-pill.s-andamento input:checked ~ .st-pill-label {
+  background:var(--warning-dim); border-color:var(--warning-bdr); color:var(--warning);
+  box-shadow:0 0 0 2px rgba(217,119,6,0.08);
+}
+.st-pill.s-finalizado input:checked ~ .st-pill-label {
+  background:var(--success-dim); border-color:var(--success-bdr); color:var(--success);
+  box-shadow:0 0 0 2px rgba(22,163,74,0.08);
+}
+
+/* ============================================================
+   SOBROU PRODUTO
+============================================================ */
+.sobrou-row { display:flex; gap:8px; align-items:flex-end; }
+.sobrou-row .field:first-child { flex:0 0 auto; }
+.sobrou-row .field:last-child { flex:1; }
+.sobrou-qty-wrap { display:none; }
+.sobrou-qty-wrap.show { display:flex; flex-direction:column; gap:5px; }
+
+/* ============================================================
+   TALHÕES
+============================================================ */
+.talhoes-section { display:flex; flex-direction:column; gap:8px; }
+
+.talhao-row {
+  display:flex; align-items:flex-end; gap:8px;
+  padding:10px 12px; border-radius:var(--radius-sm);
+  background:var(--card); border:1px solid var(--gold-border);
+}
+.talhao-row .field { flex:1; }
+.talhao-row .field:first-child { flex:0 0 140px; }
+
+/* ============================================================
+   TOTALS BAR
+============================================================ */
+.totals-row {
+  display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+  padding:12px 18px; border-top:1px solid var(--gold-border); background:var(--gold-dim);
+}
+.total-chip {
+  display:inline-flex; align-items:center; gap:6px; padding:5px 12px;
+  border-radius:999px; border:1px solid var(--gold-border); background:var(--card);
+  font-family:'IBM Plex Mono',monospace; font-size:0.68rem; font-weight:500;
+  letter-spacing:0.06em; color:var(--gold);
+}
+
+/* ============================================================
+   PREVIEW STICKY
+============================================================ */
+.preview-sticky { position:sticky; top:74px; }
+.preview-box {
+  white-space:pre-wrap; background:var(--input-bg); border:1px solid var(--gold-border);
+  border-radius:var(--radius-sm); padding:16px; min-height:300px;
+  max-height:calc(100vh - 280px); font-family:'IBM Plex Mono',monospace;
+  font-size:0.78rem; line-height:1.75; overflow:auto; color:var(--text);
+}
+.action-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.action-grid .span2 { grid-column:1/-1; }
+.divider { height:1px; background:var(--gold-border); margin:4px 0; }
+.status-badge {
+  display:none; align-items:center; justify-content:center; gap:6px;
+  padding:5px 14px; border-radius:999px; font-family:'IBM Plex Mono',monospace;
+  font-size:0.65rem; font-weight:500; letter-spacing:0.08em;
+  border:1px solid var(--gold-border); background:var(--gold-dim); color:var(--text-label);
+}
+.status-badge.ok   { display:inline-flex; color:var(--success); border-color:var(--success-bdr); background:var(--success-dim); }
+.status-badge.warn { display:inline-flex; color:var(--danger);  border-color:var(--danger-bdr);  background:var(--danger-dim); }
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width:640px) {
+  .fields-3col { grid-template-columns:1fr 1fr; }
+  .fields-2col { grid-template-columns:1fr; }
+  .info-grid   { grid-template-columns:1fr; }
+  .action-grid { grid-template-columns:1fr; }
+  .action-grid .span2 { grid-column:1; }
+  .talhao-row  { flex-wrap:wrap; }
+  .talhao-row .field:first-child { flex:0 0 120px; }
+  .sobrou-row  { flex-direction:column; align-items:stretch; }
+}
+@media (max-width:400px) { .fields-3col { grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
-<div class="container py-4">
 
-  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <div class="d-flex align-items-center gap-2">
-      <i class="bi bi-calendar-check text-primary fs-4"></i>
-      <h1 class="h4 mb-0">Rendimento Aplicação — Top Gun</h1>
-      <span class="badge text-bg-light border">v3 (com rendimento)</span>
-    </div>
-    <a href="index.html" class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left"></i> Voltar para o Início
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <a class="btn btn-sm" href="./" title="Voltar">
+      <i data-lucide="arrow-left" width="14" height="14"></i>
+      Voltar
     </a>
+    <div class="header-title">
+      <i data-lucide="bar-chart-3" width="16" height="16"></i>
+      Rendimento de Aplicação
+    </div>
+    <button class="theme-toggle" id="themeToggle" title="Alternar tema">
+      <i data-lucide="moon" width="15" height="15" id="themeIcon"></i>
+    </button>
   </div>
+</header>
 
-  <div class="row g-3">
-    <!-- FORM PRINCIPAL -->
-    <div class="col-12 col-lg-8">
-      <div class="card">
-        <div class="card-body">
-          <div class="form-section-title mb-3"><i class="bi bi-ui-checks-grid"></i> Preenchimento</div>
+<!-- PAGE -->
+<div class="page-wrap">
 
-          <div class="row g-3">
-            <div class="col-12 col-md-4">
-              <label for="dataAplicacao" class="form-label">Data para aplicação</label>
-              <input type="date" id="dataAplicacao" class="form-control">
+  <!-- ── LEFT COLUMN ─────────────────────────────────────── -->
+  <div style="display:flex;flex-direction:column;gap:14px;">
+
+    <!-- Dados Gerais -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon"><i data-lucide="sliders-horizontal" width="15" height="15"></i></div>
+        <span class="card-title">Dados Gerais</span>
+        <span class="card-badge">Etapa 1</span>
+      </div>
+      <div class="card-body">
+        <div class="field-group">
+
+          <div class="fields-3col">
+            <div class="field">
+              <label>Data de Aplicação</label>
+              <input type="date" id="dataAplicacao">
             </div>
-            <div class="col-12 col-md-4">
-              <label for="estado" class="form-label">Estado</label>
-              <select id="estado" class="form-select">
-                <option value="">Selecione...</option>
+            <div class="field">
+              <label>Estado</label>
+              <select id="estado">
+                <option value="">Selecione…</option>
                 <option value="MG">Minas Gerais (MG)</option>
                 <option value="SP">São Paulo (SP)</option>
               </select>
             </div>
-            <div class="col-12 col-md-4">
-              <label for="unidade" class="form-label">Unidade</label>
-              <select id="unidade" class="form-select" disabled>
+            <div class="field">
+              <label>Unidade</label>
+              <select id="unidade" disabled>
                 <option value="">Selecione o Estado</option>
               </select>
             </div>
+          </div>
 
-            <div class="col-12 col-md-4">
-              <label for="frente" class="form-label">Frente</label>
-              <select id="frente" class="form-select">
-                <option value="">Selecione...</option>
-                <option value="Frente 1">Frente 1</option>
-                <option value="Frente 2">Frente 2</option>
-                <option value="Frente 3">Frente 3</option>
-                <option value="Frente 4">Frente 4</option>
-                <option value="Frente 5">Frente 5</option>
-                <option value="Frente 6">Frente 6</option>
-                <option value="Frente 7">Frente 7</option>
+          <div class="fields-3col">
+            <div class="field">
+              <label>Frente</label>
+              <select id="frente">
+                <option value="">Selecione…</option>
+                <option>Frente 1</option><option>Frente 2</option><option>Frente 3</option>
+                <option>Frente 4</option><option>Frente 5</option><option>Frente 6</option>
+                <option>Frente 7</option>
               </select>
             </div>
-            <div class="col-12 col-md-4">
-              <label for="piloto" class="form-label">Piloto</label>
-              <input id="piloto" class="form-control" placeholder="Preenchido pela Frente" readonly>
+            <div class="field">
+              <label>Piloto</label>
+              <input id="piloto" placeholder="Auto" readonly>
             </div>
-            <div class="col-12 col-md-4">
-              <label for="auxiliar" class="form-label">Auxiliar</label>
-              <select id="auxiliar" class="form-select">
-                <option value="">Selecione...</option>
+            <div class="field">
+              <label>Auxiliar</label>
+              <select id="auxiliar">
+                <option value="">Selecione…</option>
                 <option>Thiago Rodrigues</option>
-                <option>Yuri Joudran</option>
+                <option>Pedro Henrique</option>
+                <option>José Filho</option>
                 <option>Luiz Gustavo</option>
                 <option>Hilton Silva</option>
+                <option>Luis Miguel</option>
               </select>
             </div>
+          </div>
 
-            <div class="col-12 col-md-4">
-              <label for="drone" class="form-label">Drone</label>
-              <select id="drone" class="form-select">
-                <option value="">Selecione...</option>
+          <div class="fields-3col">
+            <div class="field">
+              <label>Drone</label>
+              <select id="drone">
+                <option value="">Selecione…</option>
                 <option>DJI AGRAS T20</option>
                 <option>DJI AGRAS T40</option>
-                <option>DJI AGRAS T70</option>F
+                <option>DJI AGRAS T70</option>
               </select>
             </div>
-            <div class="col-12 col-md-4">
-              <label for="objetivo" class="form-label">Objetivo</label>
-              <select id="objetivo" class="form-select">
-                <option value="">Selecione...</option>
-                <option>Área Total</option>
-                <option>Catação</option>
+            <div class="field">
+              <label>Objetivo</label>
+              <select id="objetivo">
+                <option value="">Selecione…</option>
+                <option>Área Total</option><option>Catação</option>
               </select>
             </div>
-            <div class="col-12 col-md-4">
-              <label for="tipoProduto" class="form-label">Tipo de Produto</label>
-              <select id="tipoProduto" class="form-select">
-                <option value="">Selecione...</option>
-                <option>Herbicida</option>
-                <option>Inseticida</option>
-                <option>Fungicida</option>
-                <option>Fertilizante</option>
+            <div class="field">
+              <label>Tipo de Produto</label>
+              <select id="tipoProduto">
+                <option value="">Selecione…</option>
+                <option>Herbicida</option><option>Inseticida</option>
+                <option>Fungicida</option><option>Fertilizante</option>
               </select>
             </div>
           </div>
 
-          <hr class="my-4">
-
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <div class="form-section-title mb-0"><i class="bi bi-building"></i> Fazendas</div>
-          </div>
-
-          <!-- Container dinâmico de fazendas -->
-          <div id="fazendasContainer"></div>
-
-          <div class="col-12 d-flex flex-wrap gap-2 mt-3">
-            <button id="btnGerar" class="btn btn-primary"><i class="bi bi-chat-left-text"></i> Gerar texto</button>
-            <button id="btnCopiar" class="btn btn-outline-secondary"><i class="bi bi-clipboard"></i> Copiar</button>
-            <a id="btnWhats" class="btn btn-success" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> WhatsApp</a>
-          </div>
         </div>
       </div>
     </div>
 
-    <!-- PRÉVIA -->
-    <div class="col-12 col-lg-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <div class="form-section-title mb-2"><i class="bi bi-file-earmark-text"></i> Prévia do texto</div>
-          <pre id="preview" class="border rounded p-3 bg-light">Preencha e adicione as fazendas. Depois clique em “Gerar texto”.</pre>
-          <div class="mt-2">
-            <span class="badge text-bg-light border me-1 badge-counter" id="badgeFaz">Fazendas: 0</span>
-            <span class="badge text-bg-light border badge-counter" id="badgeArea">Área: 0 ha</span>
-          </div>
+    <!-- Fazendas -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon"><i data-lucide="tractor" width="15" height="15"></i></div>
+        <span class="card-title">Fazendas por OS</span>
+        <span class="card-badge">Etapa 2</span>
+      </div>
+
+      <div class="card-body" style="padding-bottom:0;">
+        <div class="farm-list" id="fazendasContainer"></div>
+
+        <div style="padding:14px 0 4px;display:flex;align-items:center;gap:10px;">
+          <button class="btn btn-sm" id="btnAddFazenda">
+            <i data-lucide="plus" width="13" height="13"></i>
+            Adicionar fazenda
+          </button>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:0.63rem;color:var(--text-label);">
+            OS não encontrada? campos liberados para manual
+          </span>
         </div>
       </div>
+
+      <div class="totals-row">
+        <span class="total-chip">
+          <i data-lucide="layers" width="11" height="11"></i>
+          <span id="badgeFaz">Fazendas: 0</span>
+        </span>
+        <span class="total-chip">
+          <i data-lucide="maximize-2" width="11" height="11"></i>
+          <span id="badgeArea">Área OS: 0,00 ha</span>
+        </span>
+      </div>
     </div>
+
   </div>
 
-  <div class="text-center mt-4">
-    <a href="index.html" class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left"></i> Voltar para o Início
-    </a>
-  </div>
+  <!-- ── RIGHT COLUMN (PREVIEW sticky) ───────────────────── -->
+  <div class="preview-sticky">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon"><i data-lucide="eye" width="15" height="15"></i></div>
+        <span class="card-title">Prévia WhatsApp</span>
+        <span class="card-badge">Etapa 3</span>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
 
-  <div class="position-fixed bottom-0 end-0 p-3" style="z-index:11">
-    <div id="toastCopiado" class="toast align-items-center text-bg-success border-0" role="alert">
-      <div class="d-flex">
-        <div class="toast-body"><i class="bi bi-check-circle me-2"></i>Texto copiado!</div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        <div class="preview-box" id="preview">Preencha os dados e adicione as fazendas. Depois clique em "Gerar Prévia".</div>
+
+        <div class="divider"></div>
+
+        <div class="action-grid">
+          <button class="btn btn-primary span2" id="btnGerar">
+            <i data-lucide="refresh-cw" width="14" height="14"></i>
+            Gerar Prévia
+          </button>
+          <button class="btn btn-ghost" id="btnCopiar">
+            <i data-lucide="copy" width="14" height="14"></i>
+            Copiar
+          </button>
+          <a class="btn btn-success-soft" id="btnWhats" href="#" target="_blank" rel="noopener">
+            <i data-lucide="message-circle" width="14" height="14"></i>
+            WhatsApp
+          </a>
+        </div>
+
+        <div style="display:flex;justify-content:center;">
+          <span class="status-badge" id="lblInfo"></span>
+        </div>
+
       </div>
     </div>
   </div>
 
-</div>
+</div><!-- /page-wrap -->
 
 <script>
-  // ===== CONFIG =====
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0wYo2B8wXXv_SqVwVayNkDtG_UsroXNXfLk970sHff6cIXnayykA3DYqtrt0ldefP/exec';
+/* ============================================================
+   THEME
+============================================================ */
+const html = document.documentElement;
+function applyThemeToken(t){ html.setAttribute('data-theme',t); localStorage.setItem('pulvion_theme',t); }
+applyThemeToken(localStorage.getItem('pulvion_theme') || 'light');
 
-  const FRentesPilotos = {
-    'Frente 1':'Sem piloto cadastrado','Frente 2':'Gustavo Rodrigues','Frente 3':'Pedro Henrique',
-    'Frente 4':'Haleffe Silva','Frente 5':'Luiz Paulo Sousa','Frente 6':'Caio Brito','Frente 7':'Heitor Ferreira'}
-  const UnidadesPorEstado = {
-    'MG':['Delta - Delta','Delta - Volta Grande','Florestadora - Santa Cecília (João Pinheiro - MG)','Parque de Bioenergia Lagoa da Prata (Lagoa da Prata - MG)'],
-    'SP':['Usina Gasa (Andradina - SP)','Usina Rafard (Rafard - SP)','Usina São Francisco (Elias Fausto - SP)','Usina Barra Bonita (Barra Bonita - SP)','Usina Costa Pinto (Piracicaba - SP)','Usina Leme (Leme - SP)','Usina Destivale (Araçatuba - SP)','Usina Mundial (Mirandópolis - SP)','Usina Ipaussu (Ipaussu - SP)','Usina Diamante (Jaú - SP)','Usina Univalem (Valparaíso - SP)','Usina Benálcool (Bento de Abreu - SP)']
-  };
+function refreshIcons(){ if(window.lucide && typeof lucide.createIcons==='function') lucide.createIcons(); }
 
-  // Estado → Unidade
-  const estadoSel = document.getElementById('estado');
-  const unidadeSel = document.getElementById('unidade');
-  estadoSel.addEventListener('change', function() {
-    unidadeSel.innerHTML = '';
-    const uf = this.value;
-    if (!uf) {
-      unidadeSel.disabled = true;
-      unidadeSel.innerHTML = '<option>Selecione o Estado</option>';
-      return;
-    }
-    unidadeSel.disabled = false;
-    unidadeSel.insertAdjacentHTML('beforeend', '<option value="">Selecione...</option>');
-    (UnidadesPorEstado[uf] || []).forEach(u => {
-      const o = document.createElement('option'); o.value = u; o.textContent = u; unidadeSel.appendChild(o);
-    });
+function applyTheme(t){
+  applyThemeToken(t);
+  const icon = document.getElementById('themeIcon');
+  const btn  = document.getElementById('themeToggle');
+  if(icon) icon.setAttribute('data-lucide', t==='dark'?'sun':'moon');
+  if(btn)  btn.title = t==='dark'?'Modo claro':'Modo escuro';
+  refreshIcons();
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  applyTheme(html.getAttribute('data-theme') || 'light');
+  document.getElementById('themeToggle').addEventListener('click', ()=>
+    applyTheme(html.getAttribute('data-theme')==='dark' ? 'light' : 'dark')
+  );
+});
+
+/* ============================================================
+   CONFIG
+============================================================ */
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0wYo2B8wXXv_SqVwVayNkDtG_UsroXNXfLk970sHff6cIXnayykA3DYqtrt0ldefP/exec';
+
+const FRENTES_PILOTOS = {
+  'Frente 1': 'Sem piloto cadastrado',
+  'Frente 2': 'Gustavo Rodrigues',
+  'Frente 3': 'Gustavo Vieira',
+  'Frente 4': 'Haleffe Silva',
+  'Frente 5': 'Luiz Paulo Sousa',
+  'Frente 6': 'Caio Brito',
+  'Frente 7': 'Heitor Ferreira'
+};
+
+const UNIDADES_POR_ESTADO = {
+  'MG':['Delta - Delta','Delta - Volta Grande','Florestadora - Santa Cecília (João Pinheiro - MG)','Parque de Bioenergia Lagoa da Prata (Lagoa da Prata - MG)'],
+  'SP':['Usina Gasa (Andradina - SP)','Usina Rafard (Rafard - SP)','Usina São Francisco (Elias Fausto - SP)','Usina Barra Bonita (Barra Bonita - SP)','Usina Costa Pinto (Piracicaba - SP)','Usina Leme (Leme - SP)','Usina Destivale (Araçatuba - SP)','Usina Mundial (Mirandópolis - SP)','Usina Ipaussu (Ipaussu - SP)','Usina Diamante (Jaú - SP)','Usina Univalem (Valparaíso - SP)','Usina Benálcool (Bento de Abreu - SP)']
+};
+
+/* ============================================================
+   CASCADE + LIVE UPDATES
+============================================================ */
+document.getElementById('estado').addEventListener('change', function(){
+  const sel = document.getElementById('unidade');
+  sel.innerHTML = '';
+  const uf = this.value;
+  if(!uf){ sel.disabled=true; sel.innerHTML='<option>Selecione o Estado</option>'; return; }
+  sel.disabled = false;
+  sel.insertAdjacentHTML('beforeend','<option value="">Selecione…</option>');
+  (UNIDADES_POR_ESTADO[uf]||[]).forEach(u=>{
+    const o=document.createElement('option'); o.value=u; o.textContent=u; sel.appendChild(o);
   });
+  gerarTexto();
+});
 
-  // Frente → Piloto
-  document.getElementById('frente').addEventListener('change',function(){
-    document.getElementById('piloto').value = this.value ? (FRentesPilotos[this.value]||'') : '';
+document.getElementById('frente').addEventListener('change', function(){
+  document.getElementById('piloto').value = this.value?(FRENTES_PILOTOS[this.value]||''):'';
+  gerarTexto();
+});
+
+['dataAplicacao','unidade','auxiliar','drone','objetivo','tipoProduto'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.addEventListener(el.tagName==='SELECT'?'change':'input', ()=>gerarTexto());
+});
+
+/* ============================================================
+   JSONP
+============================================================ */
+function jsonp(urlString){
+  const url=new URL(urlString);
+  const cb='__jsonp_'+Math.random().toString(36).slice(2);
+  url.searchParams.set('callback',cb);
+  return new Promise((resolve,reject)=>{
+    const s=document.createElement('script');
+    s.src=url.toString();
+    window[cb]=(data)=>{ resolve(data); cleanup(); };
+    s.onerror=()=>{ reject(new Error('Falha no JSONP')); cleanup(); };
+    function cleanup(){ delete window[cb]; s.remove(); }
+    document.body.appendChild(s);
   });
+}
 
-  // ===== JSONP =====
-  function jsonp(urlString){
-    const url = new URL(urlString);
-    const cb  = '__jsonp_' + Math.random().toString(36).slice(2);
-    url.searchParams.set('callback', cb);
-    const src = url.toString();
-    return new Promise((resolve, reject)=>{
-      const s = document.createElement('script');
-      s.src = src;
-      window[cb] = (data)=>{ resolve(data); cleanup(); };
-      s.onerror = ()=>{ reject(new Error('Falha no JSONP')); cleanup(); };
-      function cleanup(){ delete window[cb]; s.remove(); }
-      document.body.appendChild(s);
-    });
-  }
+/* ============================================================
+   FARM CARD FACTORY
+============================================================ */
+const fazendasContainer = document.getElementById('fazendasContainer');
+let farmSeq = 0;
+let debTimer;
+const debounce = (fn,t)=>{ clearTimeout(debTimer); debTimer=setTimeout(fn,t); };
 
-  // ===== FAZENDAS DINÂMICAS =====
-  const fazendasContainer = document.getElementById('fazendasContainer');
+function addFazenda(prefillOS=''){
+  farmSeq++;
+  const seq = farmSeq;
+  const idx = Date.now().toString(36)+seq;
+  const stName = `st_${idx}`;
 
-  // cria 1 bloco inicial
-  addFazenda();
+  const el = document.createElement('div');
+  el.className = 'farm-card';
+  el.dataset.idx = idx;
 
-  function addFazenda(prefillOS=''){
-    const idx = Date.now().toString(36);
-    const el = document.createElement('div');
-    el.className = 'fazenda-card';
-    el.dataset.idx = idx;
-    el.innerHTML = `
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <div class="fw-semibold text-secondary"><i class="bi bi-geo-alt"></i> Fazenda</div>
-        <div class="d-flex gap-2">
-          <button type="button" class="btn btn-sm btn-outline-secondary" data-add="${idx}">
-            <i class="bi bi-plus-circle"></i> Adicionar
-          </button>
-          <button type="button" class="btn btn-sm btn-outline-danger" data-remove="${idx}">
-            <i class="bi bi-x-lg"></i> Remover
-          </button>
+  el.innerHTML = `
+    <!-- HEADER -->
+    <div class="farm-card-header">
+      <span class="farm-card-num">#${String(seq).padStart(2,'0')}</span>
+      <span class="farm-card-title">Fazenda</span>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-xs" data-add="${idx}">
+          <i data-lucide="plus" width="12" height="12"></i> Adicionar
+        </button>
+        <button class="btn btn-xs btn-danger-soft" data-remove="${idx}">
+          <i data-lucide="trash-2" width="12" height="12"></i> Remover
+        </button>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="farm-card-body">
+
+      <!-- OS search -->
+      <div class="os-search-row">
+        <div class="field">
+          <label>Nº OS</label>
+          <input id="os_${idx}" placeholder="Digite a OS…" autocomplete="off">
+        </div>
+        <button class="btn btn-sm" data-buscar="${idx}">
+          <i data-lucide="search" width="13" height="13"></i>
+          Buscar
+        </button>
+      </div>
+      <div class="farm-lookup-msg" id="lmsg_${idx}"></div>
+
+      <!-- Manual mode banner -->
+      <div class="manual-banner" id="manual_${idx}">
+        <span class="manual-banner-txt">⚠️ OS não encontrada — campos liberados para preenchimento manual.</span>
+        <button class="btn btn-xs btn-warning-soft" data-manual-cancel="${idx}">
+          <i data-lucide="x" width="11" height="11"></i> Cancelar
+        </button>
+      </div>
+
+      <!-- Info cells (OS → auto-fill) -->
+      <div class="section-label"><i data-lucide="clipboard-list" width="12" height="12"></i> Dados da OS</div>
+      <div class="info-grid">
+        <div class="info-cell" id="cell_cod_${idx}">
+          <div class="i-label">Código</div>
+          <div class="i-val i-val-static" id="dCod_${idx}">—</div>
+          <input class="i-val-edit" type="text" id="codigo_${idx}" placeholder="Código" style="display:none;padding:4px 6px;font-size:0.88rem;">
+        </div>
+        <div class="info-cell" id="cell_faz_${idx}">
+          <div class="i-label">Fazenda</div>
+          <div class="i-val i-val-static" id="dFaz_${idx}">—</div>
+          <input class="i-val-edit" type="text" id="fazenda_${idx}" placeholder="Fazenda" style="display:none;padding:4px 6px;font-size:0.88rem;">
+        </div>
+        <div class="info-cell" id="cell_area_${idx}">
+          <div class="i-label">Área (ha)</div>
+          <div class="i-val gold i-val-static" id="dArea_${idx}">—</div>
+          <input class="i-val-edit" type="text" id="area_${idx}" placeholder="ha" style="display:none;padding:4px 6px;font-size:0.88rem;">
+        </div>
+        <div class="info-cell" id="cell_op_${idx}">
+          <div class="i-label">Operação</div>
+          <div class="i-val i-val-static" id="dOp_${idx}">—</div>
+          <input class="i-val-edit" type="text" id="operacao_${idx}" placeholder="Operação" style="display:none;padding:4px 6px;font-size:0.88rem;">
+        </div>
+        <div class="info-cell full" id="cell_ins_${idx}">
+          <div class="i-label">Insumos</div>
+          <div class="i-val-area i-val-static" id="dIns_${idx}">—</div>
+          <textarea class="i-val-edit" id="insumos_${idx}" placeholder="Insumos" rows="2" style="display:none;padding:4px 6px;font-size:0.88rem;"></textarea>
         </div>
       </div>
 
-      <!-- PROGRAMAÇÃO (OS / Código / etc.) -->
-      <div class="row g-3 align-items-end">
-        <div class="col-12 col-md-6">
-          <label class="form-label" for="os_${idx}">OS</label>
-          <div class="input-group">
-            <input id="os_${idx}" class="form-control" placeholder="Digite a OS">
-            <button class="btn btn-outline-primary" data-buscar="${idx}" title="Buscar OS"><i class="bi bi-search"></i></button>
-          </div>
-          <div class="form-text">Busca automática na planilha.</div>
-          <div id="manual_${idx}" class="form-text text-danger" style="display:none;">
-            <strong>OS não encontrada.</strong> Campos liberados para preenchimento manual. <button class="btn btn-sm btn-link p-0" data-manual-cancel="${idx}">Cancelar</button>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <label class="form-label" for="codigo_${idx}">Código</label>
-          <input id="codigo_${idx}" class="form-control" readonly>
-        </div>
-        <div class="col-6 col-md-3">
-          <label class="form-label" for="fazenda_${idx}">Fazenda</label>
-          <input id="fazenda_${idx}" class="form-control" readonly>
-        </div>
-        <div class="col-6 col-md-4">
-          <label class="form-label" for="area_${idx}">Área (ha)</label>
-          <input id="area_${idx}" class="form-control" readonly>
-        </div>
-        <div class="col-6 col-md-4">
-          <label class="form-label" for="operacao_${idx}">Operação</label>
-          <input id="operacao_${idx}" class="form-control" readonly>
-        </div>
-        <div class="col-12">
-          <label class="form-label" for="insumos_${idx}">Insumos</label>
-          <textarea id="insumos_${idx}" class="form-control" rows="2" readonly></textarea>
-        </div>
-        <div class="col-12 col-md-6">
-          <label class="form-label" for="motivo_${idx}">Motivo de observação (se não aplicou)</label>
-          <div class="input-group">
-            <select id="motivo_${idx}" class="form-select">
-              <option value="">Nenhum</option>
-              <option>Árvore</option>
-              <option>Rede Elétrica</option>
-              <option>Mata</option>
-              <option>Poste</option>
-              <option>Outro</option>
-            </select>
-            <input id="motivo_outro_${idx}" class="form-control" placeholder="Descrever outro motivo" style="display:none;">
-          </div>
-          <div class="form-text">Marque o motivo caso não tenha sido possível aplicar o talhão inteiro.</div>
-        </div>
-      </div>
-
-      <!-- RENDIMENTO -->
-      <hr>
-      <div class="form-section-title mb-2"><i class="bi bi-speedometer2"></i> Rendimento</div>
-      <div class="row g-3">
-        <div class="col-12 col-md-4">
-          <label class="form-label" for="status_${idx}">Status</label>
-          <select id="status_${idx}" class="form-select">
-            <option value="">Selecione...</option>
-            <option>Em andamento</option>
-            <option>Finalizado</option>
+      <!-- Motivo de observação -->
+      <div class="section-label"><i data-lucide="alert-circle" width="12" height="12"></i> Motivo de Observação</div>
+      <div class="fields-2col">
+        <div class="field">
+          <label>Motivo (se não aplicou totalmente)</label>
+          <select id="motivo_${idx}">
+            <option value="">Nenhum</option>
+            <option>Árvore</option>
+            <option>Rede Elétrica</option>
+            <option>Mata</option>
+            <option>Poste</option>
+            <option>Outro</option>
           </select>
         </div>
-        <div class="col-12 col-md-4">
-          <label class="form-label">Sobrou produto?</label>
-          <div class="input-group">
-            <select id="sobrou_${idx}" class="form-select">
-              <option>Não</option>
-              <option>Sim</option>
-            </select>
-            <input id="sobrou_qtd_${idx}" class="form-control" placeholder="Quantidade (ex: 5 L)" style="display:none;">
-          </div>
-          <div class="form-text">Se marcar "Sim", informe a quantidade.</div>
+        <div class="field" id="motivoOutroWrap_${idx}" style="display:none;">
+          <label>Descrever</label>
+          <input id="motivo_outro_${idx}" placeholder="Descrever o motivo…">
         </div>
       </div>
 
-      <!-- TALHÕES -->
-      <div class="d-flex justify-content-between align-items-center mt-3">
-        <div class="form-section-title mb-0"><i class="bi bi-diagram-3"></i> Talhões</div>
-        <button type="button" class="btn btn-sm btn-outline-primary" data-add-talhao="${idx}">
-          <i class="bi bi-plus"></i> Adicionar talhão
+      <!-- Rendimento -->
+      <div class="section-label"><i data-lucide="gauge" width="12" height="12"></i> Rendimento</div>
+
+      <!-- Status pills -->
+      <div class="field">
+        <label>Status</label>
+        <div class="status-pills" id="stpills_${idx}">
+          <label class="st-pill s-andamento">
+            <input type="radio" name="${stName}" value="Em andamento" onchange="gerarTexto()">
+            <span class="st-pill-label">🟡 Em andamento</span>
+          </label>
+          <label class="st-pill s-finalizado">
+            <input type="radio" name="${stName}" value="Finalizado" onchange="gerarTexto()">
+            <span class="st-pill-label">✅ Finalizado</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Sobrou produto -->
+      <div class="fields-2col">
+        <div class="field">
+          <label>Sobrou produto?</label>
+          <select id="sobrou_${idx}">
+            <option value="Não">Não</option>
+            <option value="Sim">Sim</option>
+          </select>
+        </div>
+        <div class="field sobrou-qty-wrap" id="sobrouQtyWrap_${idx}">
+          <label>Quantidade</label>
+          <input id="sobrou_qtd_${idx}" placeholder="ex: 5 Litros">
+        </div>
+      </div>
+
+      <!-- Talhões -->
+      <div class="section-label">
+        <i data-lucide="grid-2x2" width="12" height="12"></i> Talhões
+        <button class="btn btn-xs" data-add-talhao="${idx}" style="margin-left:4px;">
+          <i data-lucide="plus" width="11" height="11"></i> Adicionar talhão
         </button>
       </div>
-      <div class="talhoes-wrap" id="talhoes_${idx}">
-        <!-- linhas de talhão entram aqui -->
-      </div>
-    `;
-    fazendasContainer.appendChild(el);
+      <div class="talhoes-section" id="talhoes_${idx}"></div>
 
-    // eventos do bloco
-    el.querySelector(`[data-remove="${idx}"]`).addEventListener('click', ()=>{ el.remove(); updateResumo(); gerarTexto(); });
-    el.querySelector(`[data-add="${idx}"]`).addEventListener('click', ()=>{ addFazenda(); });
-    el.querySelector(`[data-buscar="${idx}"]`).addEventListener('click', ()=> buscarOS(idx));
-    el.querySelector(`[data-add-talhao="${idx}"]`).addEventListener('click', ()=> addTalhao(idx));
+    </div><!-- /farm-card-body -->
+  `;
 
-    // motivo select: mostrar campo outro quando selecionado
-    const motivoSel = el.querySelector(`#motivo_${idx}`);
-    const motivoOutro = el.querySelector(`#motivo_outro_${idx}`);
-    if (motivoSel){
-      motivoSel.addEventListener('change', ()=>{
-        const show = motivoSel.value === 'Outro';
-        if(motivoOutro) motivoOutro.style.display = show ? '' : 'none';
-        if(!show && motivoOutro) motivoOutro.value = '';
-        gerarTexto();
-      });
-    }
-    if (motivoOutro){ motivoOutro.addEventListener('input', gerarTexto); }
+  fazendasContainer.appendChild(el);
+  refreshIcons();
 
-    // manual mode cancel button (in case manual was activated)
-    const manualCancel = el.querySelector(`[data-manual-cancel="${idx}"]`);
-    if (manualCancel) {
-      manualCancel.addEventListener('click', (e)=>{
-        e.preventDefault();
-        setManualMode(idx, false);
-        clearOne(idx);
-        updateResumo();
-        gerarTexto();
-      });
-    }
+  /* — Events — */
+  el.querySelector(`[data-remove="${idx}"]`).addEventListener('click', ()=>{ el.remove(); updateResumo(); gerarTexto(); });
+  el.querySelector(`[data-add="${idx}"]`).addEventListener('click', ()=> addFazenda());
+  el.querySelector(`[data-buscar="${idx}"]`).addEventListener('click', ()=> buscarOS(idx));
+  el.querySelector(`[data-add-talhao="${idx}"]`).addEventListener('click', ()=> addTalhao(idx));
 
-    const osInput = el.querySelector(`#os_${idx}`);
-    osInput.addEventListener('input', ()=>{
-      clearOne(idx);
-      const v = osInput.value.trim();
-      if (!v) return;
-      debounce(()=> buscarOS(idx), 350);
-    });
-
-    // mostrar/ocultar quantidade de sobra
-    const sobrouSel = el.querySelector(`#sobrou_${idx}`);
-    const sobrouQtd = el.querySelector(`#sobrou_qtd_${idx}`);
-    sobrouSel.addEventListener('change', ()=>{
-      const show = sobrouSel.value === 'Sim';
-      sobrouQtd.style.display = show ? '' : 'none';
-      if (!show) sobrouQtd.value = '';
-      gerarTexto();
-    });
-
-    if (prefillOS) { osInput.value = prefillOS; buscarOS(idx); }
-  }
-
-  // ativa/desativa modo manual para um bloco (permite edição dos campos que são readonly)
-  function setManualMode(idx, enabled){
-    const sel = (s) => document.querySelector(s);
-    const fields = ['#codigo_', '#fazenda_', '#area_', '#operacao_', '#insumos_'];
-    fields.forEach(pref=>{
-      const el = sel(`${pref}${idx}`);
-      if(!el) return;
-      if(enabled){ el.removeAttribute('readonly'); }
-      else { el.setAttribute('readonly',''); }
-    });
-    const manualDiv = sel(`#manual_${idx}`);
-    if(manualDiv) manualDiv.style.display = enabled ? '' : 'none';
-  }
-
-  function addTalhao(idx){
-    const wrap = document.getElementById(`talhoes_${idx}`);
-    const rowId = Date.now().toString(36);
-    const row = document.createElement('div');
-    row.className = 'row g-2 align-items-end';
-    row.dataset.row = rowId;
-    row.innerHTML = `
-      <div class="col-6 col-md-3">
-        <label class="form-label" for="talhao_${idx}_${rowId}">Talhão</label>
-        <input id="talhao_${idx}_${rowId}" class="form-control" placeholder="Nº">
-      </div>
-      <div class="col-6 col-md-3">
-        <label class="form-label" for="qtd_${idx}_${rowId}">Qtd. aplicada (ha)</label>
-        <input id="qtd_${idx}_${rowId}" class="form-control" placeholder="ex: 3.50">
-      </div>
-      <div class="col-12 col-md-3">
-        <button type="button" class="btn btn-outline-danger mt-4" data-del="${rowId}">
-          <i class="bi bi-trash"></i>
-        </button>
-      </div>
-    `;
-    wrap.appendChild(row);
-
-    row.querySelector(`[data-del="${rowId}"]`).addEventListener('click', ()=>{
-      row.remove(); gerarTexto();
-    });
-
-    // atualizar preview quando digitar
-    row.querySelector(`#talhao_${idx}_${rowId}`).addEventListener('input', gerarTexto);
-    row.querySelector(`#qtd_${idx}_${rowId}`).addEventListener('input', gerarTexto);
-  }
-
-  function clearOne(idx){
-    getEl(`#codigo_${idx}`).value='';
-    getEl(`#fazenda_${idx}`).value='';
-    getEl(`#area_${idx}`).value='';
-    getEl(`#operacao_${idx}`).value='';
-    getEl(`#insumos_${idx}`).value='';
-    // limpar motivo de observação
-    const msel = getEl(`#motivo_${idx}`);
-    if(msel) msel.value = '';
-    const mout = getEl(`#motivo_outro_${idx}`);
-    if(mout) { mout.value = ''; mout.style.display = 'none'; }
-  }
-
-  function getEl(sel){ return document.querySelector(sel); }
-
-  let debTimer;
-  function debounce(fn, t){ clearTimeout(debTimer); debTimer=setTimeout(fn, t); }
-
-  async function buscarOS(idx){
-    try{
-      const osVal = getEl(`#os_${idx}`).value.trim();
-      if(!osVal){ clearOne(idx); updateResumo(); return; }
-      const js = await jsonp(APPS_SCRIPT_URL + '?os=' + encodeURIComponent(osVal));
-      if(!js.ok || !js.rows || !js.rows.length){
-        // não encontrou: limpar campos e ativar preenchimento manual
-        clearOne(idx);
-        setManualMode(idx, true);
-        updateResumo();
-        return;
-      }
-
-      const row = js.rows.find(x => String(x.OS)===String(osVal)) || js.rows[0];
-      const get = k => row[k] ?? row[k?.toUpperCase()] ?? '';
-
-      getEl(`#codigo_${idx}`).value   = get('CODIGO');
-      getEl(`#fazenda_${idx}`).value  = get('FAZENDA');
-      getEl(`#area_${idx}`).value     = (get('AREA (HA)') || '').toString().replace(',','.');
-      getEl(`#operacao_${idx}`).value = get('OPERACAO');
-      getEl(`#insumos_${idx}`).value  = get('INSUMOS');
-
-  // dados encontrados -> garantir modo automático (readonly)
-  setManualMode(idx, false);
-
-      const objetivoSel = document.getElementById('objetivo');
-      const objetivoStr = get('OBJETIVO');
-      if (objetivoStr) {
-        [...objetivoSel.options].forEach(o=>{
-          if (o.value.toUpperCase() === String(objetivoStr).toUpperCase())
-            objetivoSel.value = o.value;
-        });
-      }
-
-      updateResumo();
-      gerarTexto();
-    }catch(e){
-      console.error(e);
-      // em caso de erro na busca, permitir preenchimento manual
-      clearOne(idx);
-      setManualMode(idx, true);
-      updateResumo();
-    }
-  }
-
-  function updateResumo(){
-    const cards = [...fazendasContainer.querySelectorAll('.fazenda-card')];
-    let totalFaz = 0, totalArea = 0;
-    cards.forEach(c=>{
-      const faz = c.querySelector('[id^="fazenda_"]').value.trim();
-      const areaStr = c.querySelector('[id^="area_"]').value.trim();
-      if (faz) totalFaz++;
-      const v = parseFloat((areaStr||'').toString().replace(',','.'));
-      if (!isNaN(v)) totalArea += v;
-    });
-    document.getElementById('badgeFaz').textContent  = `Fazendas: ${totalFaz}`;
-    const totalAreaFixed = Number(totalArea.toFixed(2));
-    const totalAreaFmt = totalAreaFixed.toFixed(2).replace('.',',') + ' ha';
-    document.getElementById('badgeArea').textContent = `Área: ${totalAreaFmt}`;
-  }
-
-  // ===== GERAÇÃO DO TEXTO/WHATS/COPIAR =====
-  const preview=document.getElementById('preview');
-  document.getElementById('btnGerar').addEventListener('click', gerarTexto);
-  document.getElementById('btnCopiar').addEventListener('click', ()=>{
-    navigator.clipboard.writeText(preview.textContent||'').then(()=>{
-      new bootstrap.Toast(document.getElementById('toastCopiado')).show();
-    });
+  const manualCancel = el.querySelector(`[data-manual-cancel="${idx}"]`);
+  if(manualCancel) manualCancel.addEventListener('click', e=>{
+    e.preventDefault();
+    setManualMode(idx, false);
+    clearFarmDisplay(idx);
+    updateResumo(); gerarTexto();
   });
 
-  function gerarTexto(){
-    const data=(document.getElementById('dataAplicacao').value||'').split('-').reverse().join('/');
-    const unidade=document.getElementById('unidade').value;
-    const frente =document.getElementById('frente').value;
-    const piloto =document.getElementById('piloto').value;
-    const auxiliar=document.getElementById('auxiliar').value;
-    const drone  =document.getElementById('drone').value;
-    const objetivo=document.getElementById('objetivo').value;
-    const tipoProduto=document.getElementById('tipoProduto').value;
+  const osInput = el.querySelector(`#os_${idx}`);
+  osInput.addEventListener('input', ()=>{
+    clearFarmDisplay(idx);
+    const v = osInput.value.trim();
+    if(!v) return;
+    debounce(()=>buscarOS(idx), 350);
+  });
+  osInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ clearTimeout(debTimer); buscarOS(idx); } });
 
-    const cards = [...fazendasContainer.querySelectorAll('.fazenda-card')];
-    let blocos = [];
-    let totalFaz = 0, totalAreaProg = 0, totalAreaApl = 0;
+  // motivo
+  const motivoSel = el.querySelector(`#motivo_${idx}`);
+  const motivoOutroWrap = el.querySelector(`#motivoOutroWrap_${idx}`);
+  const motivoOutroInp  = el.querySelector(`#motivo_outro_${idx}`);
+  motivoSel.addEventListener('change', ()=>{
+    const show = motivoSel.value==='Outro';
+    motivoOutroWrap.style.display = show ? '' : 'none';
+    if(!show && motivoOutroInp) motivoOutroInp.value = '';
+    gerarTexto();
+  });
+  if(motivoOutroInp) motivoOutroInp.addEventListener('input', gerarTexto);
 
-    cards.forEach(c=>{
-      const idx = c.dataset.idx;
-      const os       = c.querySelector(`[id^="os_"]`).value.trim();
-      const codigo   = c.querySelector(`[id^="codigo_"]`).value.trim();
-      const fazenda  = c.querySelector(`[id^="fazenda_"]`).value.trim();
-      const areaStr  = c.querySelector(`[id^="area_"]`).value.trim();
-      const operacao = c.querySelector(`[id^="operacao_"]`).value.trim();
-      const insumos  = c.querySelector(`[id^="insumos_"]`).value.trim();
-      const motivo   = (c.querySelector(`#motivo_${idx}`)?.value || '').trim();
-      const motivoOutro = (c.querySelector(`#motivo_outro_${idx}`)?.value || '').trim();
-      const status   = c.querySelector('[id^="status_"]').value.trim();
-      const sobrou   = c.querySelector('[id^="sobrou_"]').value.trim();
-      const sobrouQtd= c.querySelector('[id^="sobrou_qtd_"]').value.trim();
+  // sobrou
+  const sobrouSel     = el.querySelector(`#sobrou_${idx}`);
+  const sobrouQtyWrap = el.querySelector(`#sobrouQtyWrap_${idx}`);
+  const sobrouQtdInp  = el.querySelector(`#sobrou_qtd_${idx}`);
+  sobrouSel.addEventListener('change', ()=>{
+    const show = sobrouSel.value==='Sim';
+    sobrouQtyWrap.classList.toggle('show', show);
+    if(!show && sobrouQtdInp) sobrouQtdInp.value = '';
+    gerarTexto();
+  });
+  if(sobrouQtdInp) sobrouQtdInp.addEventListener('input', gerarTexto);
 
-      if (fazenda) totalFaz++;
-      const vProg = parseFloat((areaStr||'').toString().replace(',','.'));
-      if (!isNaN(vProg)) totalAreaProg += vProg;
+  // status change
+  el.querySelectorAll(`input[name="${stName}"]`).forEach(r=>r.addEventListener('change', gerarTexto));
 
-      // talhões
-      const talhoesWrap = c.querySelector('.talhoes-wrap');
-      const linhas = [...talhoesWrap.querySelectorAll('.row')];
-      let talhoesTxt = [];
-      let somaApl = 0;
-      linhas.forEach(r=>{
+  if(prefillOS){ osInput.value=prefillOS; buscarOS(idx); }
+}
+
+/* ============================================================
+   MANUAL MODE
+============================================================ */
+function setManualMode(idx, enabled){
+  const cells = ['cod','faz','area','op'];
+  const fieldIds = ['codigo','fazenda','area','operacao'];
+
+  cells.forEach((k,i)=>{
+    const cell   = document.getElementById(`cell_${k}_${idx}`);
+    const stat   = document.getElementById(`d${k.charAt(0).toUpperCase()+k.slice(1)}_${idx}`) ||
+                   document.getElementById(`dArea_${idx}`) || null;
+    const editEl = document.getElementById(`${fieldIds[i]}_${idx}`);
+    if(cell) cell.classList.toggle('editable', enabled);
+    if(stat) stat.style.display = enabled ? 'none' : '';
+    if(editEl){ editEl.style.display = enabled ? '' : 'none'; if(!enabled) editEl.removeAttribute('disabled'); }
+  });
+
+  // insumos
+  const cellIns  = document.getElementById(`cell_ins_${idx}`);
+  const dIns     = document.getElementById(`dIns_${idx}`);
+  const insInput = document.getElementById(`insumos_${idx}`);
+  if(cellIns) cellIns.classList.toggle('editable', enabled);
+  if(dIns)   dIns.style.display    = enabled ? 'none' : '';
+  if(insInput){ insInput.style.display = enabled ? '' : 'none'; }
+
+  const banner = document.getElementById(`manual_${idx}`);
+  if(banner) banner.classList.toggle('show', enabled);
+}
+
+/* ============================================================
+   CLEAR / SET DISPLAY
+============================================================ */
+function clearFarmDisplay(idx){
+  [['dCod','—'],['dFaz','—'],['dArea','—'],['dOp','—'],['dIns','—']].forEach(([id,v])=>{
+    const el = document.getElementById(`${id}_${idx}`); if(el) el.textContent=v;
+  });
+  ['codigo','fazenda','area','operacao','insumos'].forEach(k=>{
+    const el = document.getElementById(`${k}_${idx}`); if(el) el.value='';
+  });
+  setFarmMsg(idx,'');
+  setManualMode(idx, false);
+}
+
+function setFarmDisplay(idx, cod, faz, area, op, ins){
+  const sd = (id,val)=>{ const e=document.getElementById(id); if(e) e.textContent=val||'—'; };
+  const sv = (id,val)=>{ const e=document.getElementById(id); if(e) e.value=val||''; };
+
+  sd(`dCod_${idx}`, cod);
+  sd(`dFaz_${idx}`, faz);
+  sd(`dArea_${idx}`, area ? area+' ha' : '—');
+  sd(`dOp_${idx}`,  op);
+  sd(`dIns_${idx}`, ins);
+
+  sv(`codigo_${idx}`,   cod);
+  sv(`fazenda_${idx}`,  faz);
+  sv(`area_${idx}`,     area);
+  sv(`operacao_${idx}`, op);
+  sv(`insumos_${idx}`,  ins);
+}
+
+function setFarmMsg(idx, msg, type=''){
+  const el = document.getElementById(`lmsg_${idx}`);
+  if(!el) return;
+  el.textContent = msg;
+  el.className   = 'farm-lookup-msg'+(type?' '+type:'');
+}
+
+/* ============================================================
+   OS LOOKUP
+============================================================ */
+async function buscarOS(idx){
+  const osInput = document.getElementById(`os_${idx}`);
+  const osVal   = (osInput?.value||'').trim();
+  if(!osVal){ clearFarmDisplay(idx); updateResumo(); return; }
+
+  setFarmMsg(idx,'Buscando…','load');
+
+  try{
+    const js = await jsonp(APPS_SCRIPT_URL+'?os='+encodeURIComponent(osVal));
+
+    if(!js.ok || !js.rows || !js.rows.length){
+      clearFarmDisplay(idx);
+      setManualMode(idx, true);
+      setFarmMsg(idx,'OS não encontrada. Preencha manualmente.','err');
+      updateResumo(); return;
+    }
+
+    const row = js.rows.find(x=>String(x.OS)===String(osVal)) || js.rows[0];
+    const get = k=>(row[k]??row[k?.toUpperCase()]??'').toString().trim();
+
+    const area = (get('AREA (HA)')||'').replace(',','.');
+    setFarmDisplay(idx, get('CODIGO'), get('FAZENDA'), area, get('OPERACAO'), get('INSUMOS'));
+    setManualMode(idx, false);
+
+    // sync objetivo
+    const objSel = document.getElementById('objetivo');
+    const objStr = get('OBJETIVO');
+    if(objStr) [...objSel.options].forEach(o=>{ if(o.value.toUpperCase()===objStr.toUpperCase()) objSel.value=o.value; });
+
+    setFarmMsg(idx,'✓ OS carregada com sucesso','ok');
+    updateResumo(); gerarTexto();
+
+  }catch(e){
+    console.error(e);
+    setManualMode(idx, true);
+    setFarmMsg(idx,'Falha ao buscar OS — modo manual ativado.','err');
+    updateResumo();
+  }
+}
+
+/* ============================================================
+   ADD TALHÃO
+============================================================ */
+function addTalhao(idx){
+  const wrap  = document.getElementById(`talhoes_${idx}`);
+  const rowId = Date.now().toString(36);
+  const row   = document.createElement('div');
+  row.className = 'talhao-row';
+  row.dataset.row = rowId;
+  row.innerHTML = `
+    <div class="field" style="flex:0 0 140px;">
+      <label>Talhão</label>
+      <input id="talhao_${idx}_${rowId}" placeholder="Nº">
+    </div>
+    <div class="field">
+      <label>Qtd. aplicada (ha)</label>
+      <input id="qtd_${idx}_${rowId}" placeholder="ex: 3.50" inputmode="decimal">
+    </div>
+    <button class="btn btn-xs btn-danger-soft" data-del="${rowId}" style="margin-bottom:0;flex-shrink:0;" title="Remover talhão">
+      <i data-lucide="trash-2" width="12" height="12"></i>
+    </button>
+  `;
+  wrap.appendChild(row);
+  refreshIcons();
+
+  row.querySelector(`[data-del="${rowId}"]`).addEventListener('click', ()=>{ row.remove(); gerarTexto(); });
+  row.querySelector(`#talhao_${idx}_${rowId}`).addEventListener('input', gerarTexto);
+  row.querySelector(`#qtd_${idx}_${rowId}`).addEventListener('input', gerarTexto);
+}
+
+/* ============================================================
+   RESUMO BADGES
+============================================================ */
+function updateResumo(){
+  const cards = [...fazendasContainer.querySelectorAll('.farm-card')];
+  let totalFaz=0, totalArea=0;
+  cards.forEach(c=>{
+    // check display value or hidden input
+    const fazEl  = c.querySelector('[id^="fazenda_"]');
+    const areaEl = c.querySelector('[id^="area_"]');
+    const faz  = (fazEl?.value||'').trim() || (c.querySelector('[id^="dFaz_"]')?.textContent||'').replace('—','').trim();
+    const aStr = (areaEl?.value||'').trim();
+    if(faz) totalFaz++;
+    const v = parseFloat(aStr.replace(',','.'));
+    if(!isNaN(v)) totalArea+=v;
+  });
+  document.getElementById('badgeFaz').textContent  = `Fazendas: ${totalFaz}`;
+  document.getElementById('badgeArea').textContent = `Área OS: ${totalArea.toFixed(2).replace('.',',')} ha`;
+}
+
+/* ============================================================
+   STATUS HELPER
+============================================================ */
+function getFarmStatus(idx){
+  const el = document.getElementById(`stpills_${idx}`);
+  if(!el) return '';
+  const ch = el.querySelector('input[type="radio"]:checked');
+  return ch ? ch.value : '';
+}
+
+/* ============================================================
+   GERAR TEXTO
+============================================================ */
+function gerarTexto(){
+  const data       = (document.getElementById('dataAplicacao').value||'').split('-').reverse().join('/');
+  const unidade    = document.getElementById('unidade').value     || '-';
+  const frente     = document.getElementById('frente').value      || '-';
+  const piloto     = document.getElementById('piloto').value      || '-';
+  const auxiliar   = document.getElementById('auxiliar').value    || '-';
+  const drone      = document.getElementById('drone').value       || '-';
+  const objetivo   = document.getElementById('objetivo').value    || '-';
+  const tipoProd   = document.getElementById('tipoProduto').value || '-';
+
+  const cards = [...fazendasContainer.querySelectorAll('.farm-card')];
+  let blocos=[], totalFaz=0, totalAreaProg=0, totalAreaApl=0;
+
+  cards.forEach(c=>{
+    const idx      = c.dataset.idx;
+    const os       = (c.querySelector('[id^="os_"]')?.value       ||'').trim();
+    const codigo   = (c.querySelector('[id^="codigo_"]')?.value   ||'').trim();
+    const fazenda  = (c.querySelector('[id^="fazenda_"]')?.value  ||'').trim();
+    const aStr     = (c.querySelector('[id^="area_"]')?.value     ||'').trim();
+    const operacao = (c.querySelector('[id^="operacao_"]')?.value ||'').trim();
+    const insumos  = (c.querySelector('[id^="insumos_"]')?.value  ||'').trim();
+    const motivo   = (c.querySelector(`#motivo_${idx}`)?.value    ||'').trim();
+    const motivoOutro = (c.querySelector(`#motivo_outro_${idx}`)?.value||'').trim();
+    const status   = getFarmStatus(idx);
+    const sobrou   = (c.querySelector('[id^="sobrou_"]')?.value   ||'').trim();
+    const sobrouQtd= (c.querySelector('[id^="sobrou_qtd_"]')?.value||'').trim();
+
+    if(fazenda) totalFaz++;
+    const vProg = parseFloat(aStr.replace(',','.'));
+    if(!isNaN(vProg)) totalAreaProg+=vProg;
+
+    // talhões
+    const talhWrap = c.querySelector('.talhoes-section');
+    let talhoesTxt=[], somaApl=0;
+    if(talhWrap){
+      [...talhWrap.querySelectorAll('.talhao-row')].forEach(r=>{
         const t = r.querySelector('[id^="talhao_"]')?.value.trim();
         const q = r.querySelector('[id^="qtd_"]')?.value.trim();
-        if (t || q){
-          const qNum = parseFloat((q||'').toString().replace(',','.'));
-          if (!isNaN(qNum)) somaApl += qNum;
-          const qFmt = q ? `${q} ha` : '-';
-          talhoesTxt.push(`- Talhão ${t||'-'}: ${qFmt}`);
+        if(t||q){
+          const qNum = parseFloat((q||'').replace(',','.'));
+          if(!isNaN(qNum)) somaApl+=qNum;
+          talhoesTxt.push(`- Talhão ${t||'-'}: ${q?q+' ha':'-'}`);
         }
       });
-      totalAreaApl += somaApl;
+    }
+    totalAreaApl += somaApl;
 
-      const areaClean = (areaStr || '').toString().replace(/\s*ha$/i, '').trim();
-      const areaFmt = areaClean ? `${areaClean} ha` : '-';
+    const areaClean = aStr.replace(/\s*ha$/i,'').trim();
+    const areaFmt   = areaClean ? areaClean+' ha' : '-';
 
-      // Ícones para status
-      let statusIcon = '';
-      if (status === 'Finalizado') {
-        statusIcon = '✅'; // Check
-      } else if (status === 'Em andamento') {
-        statusIcon = '🟡'; // Bolinha amarela
-      }
+    let statusIcon = status==='Finalizado'?'✅':status==='Em andamento'?'🟡':'';
+    const motivoTxt = motivo ? (motivo==='Outro'?(motivoOutro||'Outro'):motivo) : '-';
 
-  const motivoTxt = motivo ? (motivo === 'Outro' ? (motivoOutro || 'Outro') : motivo) : '-';
+    let sobrouFmt = 'Não';
+    if(sobrou==='Sim'){
+      if(sobrouQtd){
+        let sq = sobrouQtd.trim();
+        if(!/litro|litros|\bL\b|l$/i.test(sq)) sq = sq+' Litros';
+        sobrouFmt = sq;
+      } else { sobrouFmt = '-'; }
+    }
 
-      // formatar quantidade de sobra com unidade (ex: "20 Litros")
-      let sobrouFmt = 'Não';
-      if (sobrou === 'Sim') {
-        if (sobrouQtd) {
-          let sq = sobrouQtd.toString().trim();
-          // se já contiver indicação de litro/ L / litros, usa como está, caso contrário adiciona ' Litros'
-          if (!/litro|litros|\bL\b|l$/i.test(sq)) sq = sq + ' Litros';
-          sobrouFmt = sq;
-        } else {
-          sobrouFmt = '-';
-        }
-      }
-
-      const bloco =
-`*📋 OS:* ${os || '-'}
-*Código:* ${codigo || '-'}
-*Fazenda:* ${fazenda || '-'}
+    blocos.push(
+`*📋 OS:* ${os||'-'}
+*Código:* ${codigo||'-'}
+*Fazenda:* ${fazenda||'-'}
 *Área (ha):* ${areaFmt}
-*Operação:* ${operacao || '-'}
-*Insumos:* ${insumos || '-'}
-*Status:* ${statusIcon ? statusIcon + ' ' : ''}${status || '-'}
+*Operação:* ${operacao||'-'}
+*Insumos:* ${insumos||'-'}
+*Status:* ${statusIcon?statusIcon+' ':''}${status||'-'}
 
 *Motivo Observação:* ${motivoTxt}
 
 *Talhões:*
-${talhoesTxt.length ? talhoesTxt.join('\n') : '-'}
-*Subtotal aplicado (ha):* ${somaApl ? somaApl.toFixed(2).replace('.',',') + ' ha' : '0,00 ha'}
-*Sobrou produto:* ${sobrouFmt}`;
-      
-  blocos.push(bloco);
-    });
+${talhoesTxt.length?talhoesTxt.join('\n'):'-'}
+*Subtotal aplicado (ha):* ${somaApl?somaApl.toFixed(2).replace('.',',')+' ha':'0,00 ha'}
+*Sobrou produto:* ${sobrouFmt}`
+    );
+  });
 
-    const header =
-`📅 *Rendimento Aplicação* ✅ ${data}
+  const header =
+`📅 *Rendimento Aplicação* ✅ ${data||'-'}
 
-*Unidade:* ${unidade||'-'}
-*Frente:* ${frente||'-'}
-*Piloto:* ${piloto||'-'}
-*Auxiliar:* ${auxiliar||'-'}
-*Drone:* ${drone||'-'}
-*Objetivo:* ${objetivo||'-'}
-*Tipo de Produto:* ${tipoProduto||'-'}`;
+*Unidade:* ${unidade}
+*Frente:* ${frente}
+*Piloto:* ${piloto}
+*Auxiliar:* ${auxiliar}
+*Drone:* ${drone}
+*Objetivo:* ${objetivo}
+*Tipo de Produto:* ${tipoProd}`;
 
   const resumo =
 `\n*Resumo Geral:*
@@ -631,20 +1162,51 @@ ${talhoesTxt.length ? talhoesTxt.join('\n') : '-'}
 *Área O.S:* ${totalAreaProg.toFixed(2).replace('.',',')} ha
 *Área aplicada:* ${totalAreaApl.toFixed(2).replace('.',',')} ha`;
 
-    const sepLine = '_______';
-    const blocosTexto = blocos.length ? blocos.map(b => b + '\n' + sepLine).join('\n\n') : '';
+  const sep = '_______';
+  const blocosTexto = blocos.length ? blocos.map(b=>b+'\n'+sep).join('\n\n') : '';
 
-    const textoFinal = header + (blocosTexto ? ('\n\n' + blocosTexto + '\n\n') : '\n\n') + resumo;
+  const textoFinal = header+(blocosTexto?'\n\n'+blocosTexto+'\n\n':'\n\n')+resumo;
+  document.getElementById('preview').textContent = textoFinal;
+  document.getElementById('btnWhats').href = 'https://wa.me/?text='+encodeURIComponent(textoFinal);
+  updateResumo();
+}
 
-    preview.textContent = textoFinal;
-    document.getElementById('btnWhats').href = 'https://wa.me/?text=' + encodeURIComponent(textoFinal);
-    updateResumo();
-  }
+/* ============================================================
+   STATUS BADGE
+============================================================ */
+function showStatus(msg, type){
+  const badge = document.getElementById('lblInfo');
+  badge.textContent = msg; badge.className = 'status-badge '+type;
+  setTimeout(()=>{ badge.className='status-badge'; }, 2200);
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+document.addEventListener('DOMContentLoaded', ()=>{
+  refreshIcons();
+
+  const today = new Date(); const pad=n=>String(n).padStart(2,'0');
+  document.getElementById('dataAplicacao').value =
+    `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
+
+  addFazenda();
+
+  document.getElementById('btnAddFazenda').addEventListener('click', ()=>addFazenda());
+
+  document.getElementById('btnGerar').addEventListener('click', ()=>{
+    gerarTexto(); showStatus('✓ Prévia atualizada','ok');
+  });
+
+  document.getElementById('btnCopiar').addEventListener('click', async ()=>{
+    try{
+      await navigator.clipboard.writeText(document.getElementById('preview').textContent||'');
+      showStatus('✓ Copiado!','ok');
+    }catch(_){ showStatus('Falha ao copiar','warn'); }
+  });
+
+  gerarTexto();
+});
 </script>
 </body>
 </html>
-
-
-
-
-
