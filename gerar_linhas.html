@@ -1,245 +1,654 @@
-<!doctype html>
-<html lang="pt-BR">
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Criar Linhas Paralelas dentro de Polígono (KML)</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <style>
-    :root{
-      --bg:#f9fbff;
-      --panel:#ffffff;
-      --soft:#f7fafc;
-      --text:#0f172a;
-      --muted:#64748b;
-      --accent:#c62828;
-      --accent-2:#168f4b;
-      --border:#e2e8f0;
-    }
-    *{box-sizing:border-box;}
-    html,body{margin:0;padding:0;height:100%;}
-    body{
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-      background:#ffffff;
-      color:var(--text);
-    }
-    .wrap{max-width:1400px;margin:24px auto;padding:0 16px;}
-    .top-nav{display:flex;justify-content:flex-end;gap:10px;margin-bottom:12px;}
-    .nav-btn{
-      display:inline-flex;align-items:center;gap:8px;
-      background:#fff;color:var(--text);
-      border:1px solid var(--border);
-      padding:8px 12px;border-radius:999px;font-weight:600;
-      text-decoration:none;box-shadow:0 10px 20px rgba(15,23,42,0.06);
-      transition:.15s ease;
-    }
-    .nav-btn:hover{border-color:var(--accent);transform:translateY(-1px);}
-    .card{
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:20px;
-      box-shadow:0 18px 40px rgba(15,23,42,0.12);
-      overflow:hidden;
-    }
-    h1{margin:0 0 6px;font-size:1.4rem;color:#ba9942;}
-    p.helper{margin:0 0 12px;color:#0f172a;}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
-    .row.single{grid-template-columns:1fr;}
-    .field{display:flex;flex-direction:column;gap:6px;}
-    label{color:#0f172a;font-size:.9rem;}
-    input[type="number"],input[type="text"],input[type="file"],input[type="range"],select{
-      border:1px solid var(--border);background:#fff;color:var(--text);
-      border-radius:10px;padding:10px;font-size:1rem;
-    }
-    input[type="range"]{padding:6px 0;}
-    button{
-      background:linear-gradient(135deg,var(--accent),#ef5350);
-      color:#fff;border:none;padding:10px 14px;border-radius:10px;
-      font-weight:700;cursor:pointer;box-shadow:0 12px 24px rgba(198,40,40,0.25);
-    }
-    button.secondary{
-      background:#fff;color:var(--text);
-      border:1px solid var(--border);box-shadow:0 8px 18px rgba(15,23,42,0.06);
-    }
-    button:disabled{opacity:.6;cursor:not-allowed;}
-    .actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:center;margin-top:16px;}
-    .actions button,
-    .actions a{min-width:0; text-align:center;}
-    .log{
-      margin-top:16px;background:var(--soft);border:1px solid var(--border);
-      padding:12px;border-radius:10px;white-space:pre-wrap;
-      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-      font-size:.9rem;color:var(--text);box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);
-    }
-    .success{color:var(--accent-2);}
-    .error{color:var(--accent);}
-    .hint{color:var(--muted);}
-    .footer{margin-top:18px;color:var(--muted);font-size:.85rem;text-align:center;}
-    .layout-grid{display:grid;grid-template-columns:minmax(360px,460px) 1fr;gap:16px;align-items:start;}
-    .map-card{padding:18px;}
-    .map-wrap{position:relative;margin-top:0;height:78vh;}
-    #map{
-      position:relative;
-      z-index:1;
-      height:100%;width:100%;border-radius:12px;
-      border:1px solid var(--border);box-shadow:0 14px 30px rgba(15,23,42,0.08);
-      overflow:hidden;
-    }
-    .angle-overlay{
-      position:absolute;top:16px;right:62px;
-      background:rgba(255,255,255,0.95);border:1px solid var(--border);
-      border-radius:12px;box-shadow:0 12px 26px rgba(15,23,42,0.12);
-      padding:12px;display:flex;align-items:center;gap:12px;min-width:220px;
-      z-index:1100;
-    }
-    .map-floating-actions{
-      position:absolute;top:16px;left:88px;
-      display:flex;gap:8px;z-index:1100;flex-wrap:wrap;
-    }
-    .export-btn{
-      display:inline-flex;align-items:center;gap:10px;
-      background:linear-gradient(135deg,var(--accent),#ef5350);
-      color:#fff;text-decoration:none;
-      padding:12px 16px;border-radius:12px;font-weight:800;
-      border:1px solid rgba(0,0,0,0.06);box-shadow:0 12px 26px rgba(198,40,40,0.25);
-      letter-spacing:0.2px;
-      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
-    }
-    .export-btn:hover{transform:translateY(-1px);box-shadow:0 14px 30px rgba(198,40,40,0.3);filter:saturate(1.05);}
-    .export-btn:active{transform:translateY(0);box-shadow:0 10px 20px rgba(198,40,40,0.22);}
-    .drop-target{position:relative;}
-    .drop-target.dropping::after{
-      content:'Solte o KML aqui';
-      position:absolute;inset:0;
-      background:rgba(22,143,75,0.1);
-      border:2px dashed var(--accent-2);
-      border-radius:12px;
-      color:var(--accent-2);
-      display:flex;align-items:center;justify-content:center;
-      font-weight:700;font-size:1.05rem;
-      z-index:1200;
-      pointer-events:none;
-    }
-    .angle-dial{
-      width:68px;height:68px;border-radius:50%;
-      border:1px solid var(--border);
-      background:radial-gradient(circle at 30% 30%,rgba(198,40,40,0.1),#fff);
-      position:relative;
-      --needle-rot: 0deg;
-    }
-    .angle-dial::after{
-      content:'';position:absolute;top:50%;left:50%;
-      width:2px;height:26px;background:var(--accent);
-      transform-origin:bottom center;
-      transform:translate(-50%,-100%) rotate(var(--needle-rot,0deg));
-    }
-    .angle-dial .angle-value{
-      position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-      font-weight:700;font-size:.95rem;color:var(--text);
-    }
-    .angle-controls{flex:1;display:flex;flex-direction:column;gap:6px;}
-    .angle-label{font-weight:700;}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Criar Linhas Paralelas · Top Gun</title>
 
-    @media (max-width: 1200px){
-      .layout-grid{grid-template-columns:1fr;}
-      .map-wrap{height:72vh;}
-    }
-    @media (max-width: 800px){
-      .map-wrap{height:64vh;}
-    }
-  </style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   THEME TOKENS
+============================================================ */
+:root, [data-theme="light"] {
+  --gold:        #b8942e;
+  --gold-light:  #d9b24c;
+  --gold-dim:    rgba(184,148,46,0.10);
+  --gold-border: rgba(184,148,46,0.28);
+
+  --bg:          #f0ede6;
+  --card:        #ffffff;
+  --surface:     #f5f2eb;
+  --surface-2:   #ebe7dd;
+  --input-bg:    #f8f6f1;
+
+  --header-bg:   rgba(240,237,230,0.97);
+  --header-bdr:  rgba(184,148,46,0.22);
+
+  --text:        #0d1117;
+  --text-muted:  #4b5563;
+  --text-label:  #94a3b8;
+
+  --success:     #16a34a;
+  --success-dim: rgba(22,163,74,0.10);
+  --success-bdr: rgba(22,163,74,0.28);
+  --warning:     #d97706;
+  --warning-dim: rgba(217,119,6,0.10);
+  --warning-bdr: rgba(217,119,6,0.32);
+  --danger:      #dc2626;
+  --danger-dim:  rgba(220,38,38,0.08);
+  --danger-bdr:  rgba(220,38,38,0.28);
+
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md:   0 4px 20px rgba(0,0,0,0.08);
+  --radius:      12px;
+  --radius-sm:   8px;
+}
+[data-theme="dark"] {
+  --gold:        #d9b24c;
+  --gold-light:  #f0d078;
+  --gold-dim:    rgba(217,178,76,0.10);
+  --gold-border: rgba(217,178,76,0.28);
+
+  --bg:          #060912;
+  --card:        #0c1224;
+  --surface:     #0f1628;
+  --surface-2:   rgba(255,255,255,0.04);
+  --input-bg:    #0b1425;
+
+  --header-bg:   rgba(10,15,31,0.97);
+  --header-bdr:  rgba(217,178,76,0.22);
+
+  --text:        #f0ece4;
+  --text-muted:  #9ca3af;
+  --text-label:  #6b7280;
+
+  --success:     #22c55e;
+  --success-dim: rgba(34,197,94,0.10);
+  --success-bdr: rgba(34,197,94,0.28);
+  --warning:     #f59e0b;
+  --warning-dim: rgba(245,158,11,0.12);
+  --warning-bdr: rgba(245,158,11,0.35);
+  --danger:      #ef4444;
+  --danger-dim:  rgba(239,68,68,0.10);
+  --danger-bdr:  rgba(239,68,68,0.30);
+
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.25);
+  --shadow-md:   0 8px 28px rgba(0,0,0,0.35);
+  --radius:      12px;
+  --radius-sm:   8px;
+}
+
+/* ============================================================
+   BASE
+============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Barlow', sans-serif; font-size: 15px; line-height: 1.6;
+  color: var(--text); background: var(--bg); min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+[data-theme="light"] body {
+  background-image: radial-gradient(ellipse 70% 40% at 5% 0%, rgba(184,148,46,0.06) 0%, transparent 55%);
+}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--gold-border); border-radius: 4px; }
+
+/* ============================================================
+   HEADER
+============================================================ */
+.site-header {
+  position: sticky; top: 0; z-index: 500;
+  background: var(--header-bg); border-bottom: 1px solid var(--header-bdr);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-sm);
+}
+.header-inner {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 16px; height: 58px; max-width: 1500px; margin: 0 auto;
+}
+.header-title {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 1.05rem; font-weight: 800;
+  letter-spacing: 0.05em; text-transform: uppercase; color: var(--gold);
+}
+.header-title svg { color: var(--gold); flex-shrink: 0; }
+.header-grow { flex: 1; }
+
+/* ============================================================
+   BUTTONS
+============================================================ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase;
+  text-decoration: none; border-radius: var(--radius-sm); padding: 9px 14px;
+  border: 1px solid var(--gold-border); background: var(--gold-dim); color: var(--gold);
+  transition: all 0.18s ease; -webkit-tap-highlight-color: transparent; white-space: nowrap;
+}
+.btn svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.8; fill: none; flex-shrink: 0; }
+.btn:hover:not(:disabled) { background: rgba(184,148,46,0.18); border-color: var(--gold); }
+.btn:disabled { opacity: 0.38; cursor: not-allowed; }
+
+.btn-primary { background: var(--gold); border-color: var(--gold); color: #fff; box-shadow: 0 4px 14px rgba(184,148,46,0.3); }
+[data-theme="dark"] .btn-primary { color: #0b0f1f; }
+.btn-primary:hover:not(:disabled) { background: var(--gold-light); border-color: var(--gold-light); }
+
+.btn-ghost { background: var(--surface); border-color: rgba(0,0,0,0.08); color: var(--text-muted); }
+[data-theme="dark"] .btn-ghost { border-color: rgba(255,255,255,0.08); }
+.btn-ghost:hover:not(:disabled) { background: var(--surface-2); color: var(--text); border-color: var(--gold-border); }
+
+.btn-danger { background: var(--danger-dim); border-color: var(--danger-bdr); color: var(--danger); }
+.btn-danger:hover:not(:disabled) { background: rgba(220,38,38,0.14); }
+
+.btn-sm { padding: 7px 11px; font-size: 0.78rem; }
+
+.theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: var(--radius-sm);
+  border: 1px solid var(--gold-border); background: var(--gold-dim);
+  color: var(--gold); cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+}
+.theme-toggle:hover { background: rgba(184,148,46,0.2); border-color: var(--gold); transform: rotate(20deg); }
+.theme-toggle svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+
+/* Export link  */
+a.export-btn-link {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase;
+  text-decoration: none; border-radius: var(--radius-sm); padding: 9px 14px;
+  background: var(--gold); border: 1px solid var(--gold); color: #fff;
+  box-shadow: 0 4px 14px rgba(184,148,46,0.3); transition: all 0.18s ease; white-space: nowrap;
+}
+[data-theme="dark"] a.export-btn-link { color: #0b0f1f; }
+a.export-btn-link:hover { background: var(--gold-light); border-color: var(--gold-light); }
+a.export-btn-link svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.8; fill: none; flex-shrink: 0; }
+
+/* ============================================================
+   PAGE LAYOUT
+============================================================ */
+.page-wrap {
+  max-width: 1500px; margin: 0 auto; padding: 16px;
+  display: grid; grid-template-columns: minmax(340px, 400px) 1fr;
+  gap: 14px; align-items: start;
+}
+@media (max-width: 1100px) { .page-wrap { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   CARDS
+============================================================ */
+.card {
+  background: var(--card); border: 1px solid var(--gold-border);
+  border-radius: var(--radius); box-shadow: var(--shadow-md); overflow: hidden;
+  transition: background 0.3s, border-color 0.3s;
+}
+.card-header {
+  display: flex; align-items: center; gap: 10px; padding: 12px 18px;
+  border-bottom: 1px solid var(--gold-border); background: var(--gold-dim);
+}
+.card-header-icon {
+  width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--gold-border);
+  background: var(--card); display: flex; align-items: center; justify-content: center;
+  color: var(--gold); flex-shrink: 0;
+}
+.card-header-icon svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+.card-title {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 800;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--text); flex: 1;
+}
+.card-badge {
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em;
+  color: var(--text-label); padding: 3px 8px; border-radius: 999px;
+  border: 1px solid var(--gold-border); background: var(--card);
+}
+.card-body { padding: 18px; }
+
+/* ============================================================
+   FORM FIELDS
+============================================================ */
+.field-group { display: flex; flex-direction: column; gap: 12px; }
+.fields-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.63rem; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-label);
+}
+input[type="number"], input[type="text"], select {
+  width: 100%; background: var(--input-bg); color: var(--text);
+  border: 1px solid var(--gold-border); border-radius: var(--radius-sm);
+  padding: 9px 12px; font-family: 'Barlow', sans-serif; font-size: 0.92rem;
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none;
+}
+input[type="number"]:focus, input[type="text"]:focus, select:focus {
+  border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim);
+}
+select { cursor: pointer; }
+
+/* Section label */
+.section-label {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 800;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted);
+  display: flex; align-items: center; gap: 6px; padding: 4px 0 0;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--gold-border); }
+.section-label svg { width: 12px; height: 12px; stroke: currentColor; stroke-width: 1.8; fill: none; flex-shrink: 0; }
+
+/* ============================================================
+   FILE DROP ZONE
+============================================================ */
+#kmlFile { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+.file-drop-zone {
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  padding: 20px 16px; border: 2px dashed var(--gold-border);
+  border-radius: var(--radius-sm); background: var(--surface);
+  cursor: pointer; transition: all 0.2s; text-align: center; position: relative;
+}
+.file-drop-zone:hover { border-color: var(--gold); background: var(--gold-dim); }
+.file-drop-zone.dropping { border-color: var(--gold); background: var(--gold-dim); }
+.file-drop-zone.has-file { border-style: solid; border-color: var(--success-bdr); background: var(--success-dim); }
+.file-drop-icon { color: var(--gold); }
+.file-drop-icon svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 1.5; fill: none; }
+.file-drop-zone.has-file .file-drop-icon { color: var(--success); }
+.file-drop-text {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--gold);
+}
+.file-drop-zone.has-file .file-drop-text { color: var(--success); }
+.file-drop-hint {
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem;
+  letter-spacing: 0.05em; color: var(--text-label);
+}
+.file-name-display {
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem;
+  color: var(--success); letter-spacing: 0.04em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
+
+/* ============================================================
+   RANGE SLIDER (angle)
+============================================================ */
+input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 4px; background: var(--gold-border);
+  border-radius: 999px; outline: none; padding: 0;
+  border: none !important; cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px;
+  border-radius: 50%; background: var(--gold);
+  border: 2px solid var(--card); box-shadow: 0 0 0 2px var(--gold-border);
+  cursor: pointer; transition: box-shadow 0.15s;
+}
+input[type="range"]:focus::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--gold-dim); }
+input[type="range"]::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--gold); border: 2px solid var(--card); cursor: pointer;
+}
+
+/* ============================================================
+   ACTIONS GRID
+============================================================ */
+.actions-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.actions-grid .span2 { grid-column: 1 / -1; }
+.actions-grid .btn,
+.actions-grid .export-btn-link { width: 100%; justify-content: center; }
+
+/* ============================================================
+   LOG AREA
+============================================================ */
+.log-box {
+  background: var(--input-bg); border: 1px solid var(--gold-border);
+  border-radius: var(--radius-sm); padding: 11px 14px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem;
+  line-height: 1.65; color: var(--text-muted); letter-spacing: 0.02em;
+  min-height: 42px; transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.log-box.success { color: var(--success); border-color: var(--success-bdr); background: var(--success-dim); }
+.log-box.error   { color: var(--danger);  border-color: var(--danger-bdr);  background: var(--danger-dim); }
+
+/* ============================================================
+   MAP CARD (sticky right column)
+============================================================ */
+.map-card-wrap { position: sticky; top: 74px; }
+.map-wrap {
+  position: relative; overflow: hidden;
+  height: calc(100vh - 180px); min-height: 420px;
+}
+#map { height: 100%; width: 100%; }
+
+/* drag-over overlay */
+.drop-target.dropping::after {
+  content: 'Solte o arquivo aqui';
+  position: absolute; inset: 0;
+  background: rgba(184,148,46,0.10);
+  border: 2px dashed var(--gold);
+  border-radius: var(--radius-sm);
+  color: var(--gold); font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; pointer-events: none;
+}
+
+/* ── Floating generate button ── */
+.map-floating-actions {
+  position: absolute; top: 12px; left: 52px;
+  display: flex; gap: 8px; z-index: 1100; align-items: center;
+}
+.map-floating-actions .btn { box-shadow: var(--shadow-md); }
+
+/* ── Angle overlay ── */
+.angle-overlay {
+  position: absolute; top: 12px; right: 52px;
+  background: var(--card); border: 1px solid var(--gold-border);
+  border-radius: var(--radius-sm); box-shadow: var(--shadow-md);
+  padding: 12px 14px; display: flex; align-items: center; gap: 12px;
+  z-index: 1100; min-width: 196px;
+}
+
+/* Dial */
+.angle-dial {
+  width: 58px; height: 58px; border-radius: 50%; flex-shrink: 0;
+  border: 1px solid var(--gold-border); background: var(--card);
+  position: relative; --needle-rot: 0deg;
+}
+.angle-dial::before {
+  content: ''; position: absolute; inset: 4px;
+  border-radius: 50%; background: var(--gold-dim);
+}
+.angle-dial::after {
+  content: ''; position: absolute; top: 50%; left: 50%;
+  width: 2px; height: 18px; background: var(--gold);
+  transform-origin: bottom center;
+  transform: translate(-50%, -100%) rotate(var(--needle-rot, 0deg));
+  border-radius: 2px 2px 0 0; z-index: 2;
+}
+.angle-value {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; font-weight: 500;
+  color: var(--gold); letter-spacing: 0.04em; z-index: 3;
+}
+.angle-controls { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.angle-ctrl-label {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; font-weight: 800;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted);
+}
+.angle-num-row { display: flex; align-items: center; gap: 6px; }
+.angle-num-row input[type="number"] {
+  width: 62px !important; padding: 5px 8px; font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem; text-align: center; flex-shrink: 0;
+}
+.angle-num-row span {
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.63rem;
+  color: var(--text-label); letter-spacing: 0.04em; white-space: nowrap;
+}
+
+/* ============================================================
+   LEAFLET OVERRIDES
+============================================================ */
+.leaflet-bar a {
+  background: var(--card) !important; color: var(--text-muted) !important;
+  border-color: var(--gold-border) !important;
+}
+.leaflet-bar a:hover { background: var(--surface) !important; color: var(--gold) !important; }
+.leaflet-control-layers {
+  background: var(--card) !important; border-color: var(--gold-border) !important;
+  color: var(--text) !important; border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+.leaflet-control-layers label { color: var(--text) !important; font-family: 'Barlow', sans-serif; font-size: 0.82rem; }
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 1100px) {
+  .map-card-wrap { position: static; }
+  .map-wrap { height: 62vh; }
+}
+@media (max-width: 640px) {
+  .fields-2col { grid-template-columns: 1fr; }
+  .actions-grid { grid-template-columns: 1fr; }
+  .actions-grid .span2 { grid-column: 1; }
+  .angle-overlay { min-width: 170px; right: 44px; }
+  .map-floating-actions { left: 44px; }
+}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="top-nav">
-      <!-- <a href="index.html" class="nav-btn">Home</a> -->
-      <a href="gerar_pontos.html" class="nav-btn">Gerar Pontos</a>
+
+<!-- ── HEADER ───────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="header-inner">
+    <a class="btn btn-ghost btn-sm" href="./" title="Voltar">
+      <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+      Voltar
+    </a>
+    <div class="header-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+      Criar Linhas Paralelas
     </div>
-    <div class="layout-grid">
-      <div class="card drop-target" id="formCard">
-        <h1>Criar Linhas Paralelas dentro de Polígono (KML)</h1>
-        <p class="helper">Carregue um KML com a área demarcada.</p>
-        <p class="helper" style="margin-top:-4px;color:var(--muted);">
-        </p>
+    <div class="header-grow"></div>
+    <a id="downloadLinkFloat" class="export-btn-link" href="#" download style="display:none;">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Exportar KML
+    </a>
+    <button class="theme-toggle" id="themeToggle" title="Alternar tema">
+      <svg id="themeIcon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</header>
 
-        <div class="row single">
-          <div class="field">
-            <label for="kmlFile">Arquivo KML com Talhões</label>
-            <input id="kmlFile" type="file" accept=".kml,application/vnd.google-earth.kml+xml">
-            <div class="hint">Clique no talhão desejado no mapa para selecionar.</div>
-          </div>
+<!-- ── PAGE ─────────────────────────────────────────────── -->
+<div class="page-wrap">
+
+  <!-- LEFT: Form panels -->
+  <div style="display:flex;flex-direction:column;gap:12px;">
+
+    <!-- 1. Arquivo -->
+    <div class="card drop-target" id="formCard">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </div>
-
-        <div class="row">
-          <div class="field">
-            <label for="espacamento">Espaçamento entre linhas (m)</label>
-            <input id="espacamento" type="number" min="1" step="1" value="40">
-          </div>
-          <div class="field">
-            <label for="bordadura">Bordadura interna (m)</label>
-            <input id="bordadura" type="number" min="0" step="1" value="10">
-          </div>
+        <span class="card-title">Arquivo de Entrada</span>
+        <span class="card-badge">Etapa 1</span>
+      </div>
+      <div class="card-body">
+        <input id="kmlFile" type="file" accept=".kml,.zip,.shp,application/vnd.google-earth.kml+xml">
+        <label for="kmlFile" class="file-drop-zone" id="fileDropZone">
+          <span class="file-drop-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </span>
+          <span class="file-drop-text">Clique ou arraste o arquivo</span>
+          <span class="file-drop-hint">KML ou Shapefile (.zip) com os talhões</span>
+          <span class="file-name-display" id="fileNameDisplay" style="display:none;"></span>
+        </label>
+        <div style="margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:0.62rem;color:var(--text-label);letter-spacing:0.04em;">
+          Clique no talhão desejado no mapa para selecionar.
         </div>
+      </div>
+    </div>
 
-        <div class="row single">
+    <!-- 2. Parâmetros -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+        </div>
+        <span class="card-title">Parâmetros</span>
+        <span class="card-badge">Etapa 2</span>
+      </div>
+      <div class="card-body">
+        <div class="field-group">
+
+          <div class="fields-2col">
+            <div class="field">
+              <label for="espacamento">Espaçamento (m)</label>
+              <input id="espacamento" type="number" min="1" step="1" value="40">
+            </div>
+            <div class="field">
+              <label for="bordadura">Bordadura interna (m)</label>
+              <input id="bordadura" type="number" min="0" step="1" value="10">
+            </div>
+          </div>
+
           <div class="field">
             <label for="altura">Altitude das linhas (m)</label>
             <input id="altura" type="number" min="0" step="1" value="30">
           </div>
-        </div>
 
-        <div class="row">
-          <div class="field">
-            <label for="modoLinha">Modo das linhas</label>
-            <select id="modoLinha">
-              <option value="normal">Normal (reto) </option>
-              <option value="suavizado">Suavizado (curvas)</option>
-            </select>
+          <div class="section-label">
+            <svg viewBox="0 0 24 24"><path d="M8 3 4 7l4 4"/><path d="M16 3l4 4-4 4"/><path d="M4 7h8a4 4 0 0 1 4 4v10"/></svg>
+            Modo das Linhas
           </div>
-          <div class="field">
-            <label for="iterSuavizar">Interações para suavizar</label>
-            <input id="iterSuavizar" type="number" min="1" max="6" step="1" value="3">
-          </div>
-        </div>
 
-        <div class="actions">
-          <a id="downloadLink" class="export-btn" href="#" download style="display:none;">Exportar Projeto (KML)</a>
-          <button id="btnLimpar" class="secondary">Limpar Linhas</button>
-          <button id="btnProximo" class="secondary" disabled>Próximo Talhão</button>
-          <button id="btnLimparProjeto" class="secondary" disabled>Limpar Projeto</button>
+          <div class="fields-2col">
+            <div class="field">
+              <label for="modoLinha">Modo</label>
+              <select id="modoLinha">
+                <option value="normal">Normal (reto)</option>
+                <option value="suavizado">Suavizado (curvas)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="iterSuavizar">Iterações suavização</label>
+              <input id="iterSuavizar" type="number" min="1" max="6" step="1" value="3">
+            </div>
+          </div>
+
         </div>
       </div>
+    </div>
 
-      <div class="card map-card">
-        <div class="map-wrap drop-target">
-          <div class="map-floating-actions">
-            <button id="btnGerar" aria-label="Gerar linhas paralelas" disabled>Gerar Linhas</button>
-            <a id="downloadLinkFloat" class="export-btn" href="#" download style="display:none;padding:10px 12px;border-radius:10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            </a>
-          </div>
+    <!-- 3. Ações -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <span class="card-title">Ações</span>
+        <span class="card-badge">Etapa 3</span>
+      </div>
+      <div class="card-body">
+        <div class="actions-grid">
+          <a id="downloadLink" class="export-btn-link span2" href="#" download style="display:none;">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Exportar Projeto (KML)
+          </a>
+          <button id="btnLimpar" class="btn btn-ghost">
+            <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Limpar Linhas
+          </button>
+          <button id="btnProximo" class="btn" disabled>
+            <svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+            Próximo Talhão
+          </button>
+          <button id="btnLimparProjeto" class="btn btn-danger span2" disabled>
+            <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+            Limpar Projeto
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: Map -->
+  <div class="map-card-wrap">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        </div>
+        <span class="card-title">Visualização do Mapa</span>
+      </div>
+
+      <div class="card-body" style="padding:0;position:relative;">
+        <div class="map-wrap drop-target" id="mapWrap">
+
+          <!-- Leaflet map -->
           <div id="map"></div>
+
+          <!-- Floating: Gerar Linhas -->
+          <div class="map-floating-actions">
+            <button id="btnGerar" class="btn btn-primary" aria-label="Gerar linhas paralelas" disabled>
+              <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              Gerar Linhas
+            </button>
+          </div>
+
+          <!-- Angle overlay -->
           <div class="angle-overlay">
-            <div class="angle-dial" id="angleDial"><div class="angle-value" aria-hidden="true">0°</div></div>
+            <div class="angle-dial" id="angleDial">
+              <div class="angle-value" aria-hidden="true">0°</div>
+            </div>
             <div class="angle-controls">
-              <div class="angle-label">Ângulo</div>
+              <div class="angle-ctrl-label">Ângulo</div>
               <input id="angulo" type="range" min="0" max="359" step="1" value="0">
-              <div style="display:flex;gap:8px;align-items:center;">
-                <input id="anguloBox" type="number" min="0" max="359" step="1" value="0" class="angle-value">
-                <span style="color:var(--muted);font-size:.9rem;">° relógio</span>
+              <div class="angle-num-row">
+                <input id="anguloBox" type="number" min="0" max="359" step="1" value="0">
+                <span>° relógio</span>
               </div>
             </div>
           </div>
+
         </div>
-        <div id="log" class="log hint" aria-live="polite" style="margin-top:12px;">Carregue um KML de polígono para começar.</div>
+
+        <!-- Log area -->
+        <div id="log" class="log-box hint" aria-live="polite" style="margin:12px;">
+          Carregue um KML ou Shapefile (.zip) de polígono para começar.
+        </div>
+
       </div>
     </div>
-    <div class="footer"></div>
   </div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script>
+</div><!-- /page-wrap -->
+
+<!-- ── THEME ──────────────────────────────────────────────── -->
+<script>
+(function(){
+  const h = document.documentElement;
+  const stored = localStorage.getItem('pulvion_theme') || 'light';
+  h.setAttribute('data-theme', stored);
+  function applyTheme(t){
+    h.setAttribute('data-theme', t);
+    localStorage.setItem('pulvion_theme', t);
+    const icon = document.getElementById('themeIcon');
+    if(icon){
+      if(t==='dark') icon.innerHTML='<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>';
+      else           icon.innerHTML='<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>';
+    }
+    const btn = document.getElementById('themeToggle');
+    if(btn) btn.title = t==='dark' ? 'Modo claro' : 'Modo escuro';
+  }
+  applyTheme(stored);
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const btn = document.getElementById('themeToggle');
+    if(btn) btn.addEventListener('click', ()=>{
+      applyTheme(h.getAttribute('data-theme')==='dark' ? 'light' : 'dark');
+    });
+  });
+})();
+</script>
+
+<!-- ── LIBS ───────────────────────────────────────────────── -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://cdn.jsdelivr.net/npm/shpjs@latest/dist/shp.min.js"></script>
+
+<script>
     const logEl = document.getElementById('log');
     const kmlFileEl = document.getElementById('kmlFile');
     const espEl = document.getElementById('espacamento');
@@ -262,14 +671,15 @@
     let projectPaths = [];
 
     function logMsg(msg, type='hint'){
-      logEl.className = 'log ' + (type === 'error' ? 'error' : type === 'success' ? 'success' : 'hint');
+      logEl.className = 'log-box ' + (type === 'error' ? 'error' : type === 'success' ? 'success' : 'hint');
       logEl.textContent = msg;
     }
 
     function buildDownloadName(defaultName){
       const base = (kmlFileName || '').trim();
       if (!base) return defaultName;
-      const clean = base.toLowerCase().endsWith('.kml') ? base.slice(0,-4) : base;
+      const lower = base.toLowerCase();
+      const clean = lower.endsWith('.kml') ? base.slice(0,-4) : lower.endsWith('.zip') ? base.slice(0,-4) : lower.endsWith('.shp') ? base.slice(0,-4) : base;
       return `${clean}_Linhas.kml`;
     }
 
@@ -306,7 +716,11 @@
     kmlFileEl.addEventListener('change', async (e) => {
       const f = e.target.files && e.target.files[0];
       if (!f) { kmlFileName = ''; return; }
-      await loadKmlFile(f);
+      const zone = document.getElementById('fileDropZone');
+      const nameEl = document.getElementById('fileNameDisplay');
+      if(zone) zone.classList.add('has-file');
+      if(nameEl){ nameEl.textContent = f.name; nameEl.style.display = ''; }
+      await loadAreaFile(f);
     });
 
     btnLimpar.addEventListener('click', () => { linesLayer.clearLayers(); logMsg('Pré-visualização removida.'); });
@@ -638,12 +1052,55 @@
       return pathLL;
     }
 
-    async function loadKmlFile(file){
+    function extractPolygonsFromGeoJSON(gj){
+      if (!gj) return [];
+      const feats = Array.isArray(gj.features) ? gj.features : (gj.type === 'FeatureCollection' ? gj.features : []);
+      const out = [];
+      feats.forEach((f, idx) => {
+        const geom = f && f.geometry;
+        const name = (f && f.properties && (f.properties.name || f.properties.NOME || f.properties.Nome)) || `Talhão ${idx+1}`;
+        if (!geom || !geom.type || !geom.coordinates) return;
+        const pushRing = (coords, nm) => {
+          if (!Array.isArray(coords) || coords.length < 4) return;
+          let arr = coords.map(c => ({ lat: c[1], lon: c[0] }));
+          if (arr.length > 2) {
+            const f0=arr[0], l0=arr[arr.length-1];
+            if (Math.abs(f0.lat-l0.lat)<1e-9 && Math.abs(f0.lon-l0.lon)<1e-9) arr = arr.slice(1);
+          }
+          if (arr.length >= 3) out.push({ name: nm, coords: arr });
+        };
+        if (geom.type === 'Polygon') {
+          pushRing(geom.coordinates[0], name);
+        } else if (geom.type === 'MultiPolygon') {
+          geom.coordinates.forEach((poly, pidx) => pushRing(poly[0], `${name} - P${pidx+1}`));
+        }
+      });
+      return out;
+    }
+
+    async function loadAreaFile(file){
       if (!file) return;
       kmlFileName = file.name || '';
-      const text = await file.text();
-      const res = extractPolygons(text);
-      if (!res || res.length === 0) { logMsg('Nenhum polígono válido encontrado no KML.', 'error'); btnGerar.disabled = true; btnProximo.disabled = true; return; }
+      const lower = (file.name || '').toLowerCase();
+      let res = [];
+      try{
+        if (lower.endsWith('.kml')) {
+          const text = await file.text();
+          res = extractPolygons(text);
+        } else if (lower.endsWith('.zip') || lower.endsWith('.shp')) {
+          const gj = await shp(await file.arrayBuffer());
+          res = extractPolygonsFromGeoJSON(Array.isArray(gj) ? {type:'FeatureCollection',features:gj.flatMap(fc=>fc.features||[])} : gj);
+        } else {
+          logMsg('Formato não suportado. Use .kml ou um Shapefile compactado (.zip).', 'error');
+          return;
+        }
+      } catch (e){
+        console.error(e);
+        logMsg('Erro ao ler o arquivo. Verifique o formato.', 'error');
+        return;
+      }
+
+      if (!res || res.length === 0) { logMsg('Nenhum polígono válido encontrado.', 'error'); btnGerar.disabled = true; btnProximo.disabled = true; return; }
       polygons = res; selectedIdx = -1; polygonCoords = null; btnGerar.disabled = true; btnProximo.disabled = (polygons.length <= 1); dlEl.style.display = 'none';
       drawAllPolygons(polygons);
       const totalVerts = polygons.reduce((s,p)=>s+p.coords.length,0);
@@ -653,7 +1110,7 @@
     updateAngleDial();
 
     const formCard = document.getElementById('formCard');
-    const mapWrap = document.querySelector('.map-wrap');
+    const mapWrap = document.getElementById('mapWrap');
     [formCard, mapWrap].forEach(zone => {
       if (!zone) return;
       zone.classList.add('drop-target');
@@ -662,7 +1119,13 @@
       zone.addEventListener('drop', async (e) => {
         e.preventDefault(); zone.classList.remove('dropping');
         const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-        if (f) await loadKmlFile(f);
+        if (f) {
+          const dz = document.getElementById('fileDropZone');
+          const nm = document.getElementById('fileNameDisplay');
+          if(dz) dz.classList.add('has-file');
+          if(nm){ nm.textContent = f.name; nm.style.display = ''; }
+          await loadAreaFile(f);
+        }
       });
     });
   </script>
