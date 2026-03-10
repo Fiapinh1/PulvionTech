@@ -1,195 +1,606 @@
-<!doctype html>
-<html lang="pt-BR">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Adicionar Pontos ao longo de Linhas (KML)</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
-    <style>
-      :root{
-        --bg:#f9fbff;
-        --panel:#ffffff;
-        --soft:#f7fafc;
-        --text:#0f172a;
-        --muted:#64748b;
-        --accent:#c62828;
-        --accent-2:#168f4b;
-        --border:#e2e8f0;
-      }
-      *{box-sizing:border-box;}
-      html, body { margin: 0; padding: 0; height: 100%; }
-      body {
-        font-family: system-ui,-apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, sans-serif;
-        background:#ffffff;
-        color: var(--text);
-      }
-      .wrap { max-width: 1400px; margin: 24px auto; padding: 0 16px; }
-      .top-nav{display:flex;justify-content:flex-end;gap:10px;margin-bottom:12px;}
-      .nav-btn{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--text);border:1px solid var(--border);padding:8px 12px;border-radius:999px;font-weight:600;text-decoration:none;box-shadow:0 10px 20px rgba(15,23,42,0.06);transition:.15s ease;}
-      .nav-btn:hover{border-color:var(--accent);transform:translateY(-1px);}
-      .card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px; box-shadow:0 18px 40px rgba(15,23,42,0.12); }
-      h1 { font-size: 1.4rem; margin: 0 0 8px; color: #ba9942; }
-      p.helper { color: #0f172a; margin: 0 0 12px; font-size: .95rem; }
-      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
-      .row.single { grid-template-columns: 1fr; }
-      .field { display: flex; flex-direction: column; gap: 6px; }
-      label { color: #0f172a; font-size: .9rem; }
-      input[type="number"], input[type="text"], input[type="file"], select {
-        border: 1px solid var(--border);
-        background: #fff;
-        color: var(--text);
-        border-radius: 10px;
-        padding: 10px;
-        font-size: 1rem;
-      }
-      input[type="checkbox"] { transform: scale(1.05); }
-      .checkbox { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
-      button {
-        background: linear-gradient(135deg,var(--accent),#ef5350);
-        color: #fff; border: none; padding: 10px 14px;
-        border-radius: 10px; font-weight: 700; cursor: pointer;
-        box-shadow:0 12px 24px rgba(198,40,40,0.25);
-      }
-      button.secondary { background: #fff; color: var(--text); border: 1px solid var(--border); box-shadow:0 8px 18px rgba(15,23,42,0.06); }
-      button:disabled { opacity: .6; cursor: not-allowed; }
-      .actions { display: flex; gap: 10px; align-items: center; margin-top: 16px; flex-wrap: wrap; }
-      .log { margin-top: 16px; background: var(--soft); border: 1px solid var(--border); padding: 12px; border-radius: 10px; white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: .9rem; color: var(--text); box-shadow: inset 0 1px 0 rgba(255,255,255,0.6); }
-      .success { color: var(--accent-2); }
-      .error { color: var(--accent); }
-      .hint { color: #0f172a; }
-      .footer { margin-top: 24px; color: var(--muted); font-size: .85rem; text-align: center; }
-      a { color: var(--accent); }
-      .layout-grid{display:grid;grid-template-columns:minmax(360px,460px) 1fr;gap:16px;align-items:start;}
-      .map-card{padding:18px;}
-      .map-wrap{position:relative;height:78vh;}
-      #map{height:100%;width:100%;border-radius:12px;border:1px solid var(--border);box-shadow:0 14px 30px rgba(15,23,42,0.08);}
-    .map-floating-actions{
-      position:absolute;top:16px;left:88px;
-      display:flex;gap:8px;z-index:1100;flex-wrap:wrap;
-    }
-    .map-floating-actions .mini-input{
-      display:flex;align-items:center;gap:6px;
-      background:rgba(255,255,255,0.95);
-      border:1px solid var(--border);
-      border-radius:10px;
-      padding:6px 8px;
-      box-shadow:0 10px 20px rgba(15,23,42,0.08);
-    }
-    .map-floating-actions .mini-input input{
-      width:72px;
-      padding:6px 8px;
-      border:1px solid var(--border);
-      border-radius:8px;
-    }
-      .export-btn{
-        display:inline-flex;align-items:center;gap:8px;
-        background:#ba9942;
-        color:#fff;text-decoration:none;
-        padding:12px 15px;border-radius:12px;font-weight:800;
-        border:1px solid rgba(0,0,0,0.08);box-shadow:0 12px 26px rgba(15,23,42,0.25);
-        letter-spacing:0.2px;
-        transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
-      }
-      .export-btn:hover{transform:translateY(-1px);box-shadow:0 14px 30px rgba(15,23,42,0.3);filter:saturate(1.05);}
-      .export-btn:active{transform:translateY(0);box-shadow:0 10px 20px rgba(15,23,42,0.22);}
-      .export-btn .icon-download{
-        width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;
-        background:rgba(255,255,255,0.12);border-radius:6px;font-size:.95rem;
-        padding:4px;line-height:1;
-      }
-      .drop-target{position:relative;}
-      .drop-target.dropping::after{
-        content:'Solte o KML aqui';
-        position:absolute;inset:0;
-        background:rgba(22,143,75,0.1);
-        border:2px dashed var(--accent-2);
-        border-radius:12px;
-        color:var(--accent-2);
-        display:flex;align-items:center;justify-content:center;
-        font-weight:700;font-size:1.05rem;
-        z-index:1200;
-        pointer-events:none;
-      }
-      @media (max-width: 1200px){
-        .layout-grid{grid-template-columns:1fr;}
-        .map-wrap{height:72vh;}
-      }
-      @media (max-width: 800px){
-        .map-wrap{height:64vh;}
-      }
-    </style>
-  </head>
-  <body>
-    <div class="wrap">
-      <div class="top-nav">
-        <!-- <a href="index.html" class="nav-btn">Home</a> -->
-        <a href="gerar_linhas.html" class="nav-btn">Gerar Linhas</a>
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gerar Pontos ao longo de Linhas · Top Gun</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   THEME TOKENS
+============================================================ */
+:root, [data-theme="light"] {
+  --gold:        #b8942e;
+  --gold-light:  #d9b24c;
+  --gold-dim:    rgba(184,148,46,0.10);
+  --gold-border: rgba(184,148,46,0.28);
+
+  --bg:          #f0ede6;
+  --card:        #ffffff;
+  --surface:     #f5f2eb;
+  --surface-2:   #ebe7dd;
+  --input-bg:    #f8f6f1;
+
+  --header-bg:   rgba(240,237,230,0.97);
+  --header-bdr:  rgba(184,148,46,0.22);
+
+  --text:        #0d1117;
+  --text-muted:  #4b5563;
+  --text-label:  #94a3b8;
+
+  --success:     #16a34a;
+  --success-dim: rgba(22,163,74,0.10);
+  --success-bdr: rgba(22,163,74,0.28);
+  --danger:      #dc2626;
+  --danger-dim:  rgba(220,38,38,0.08);
+  --danger-bdr:  rgba(220,38,38,0.28);
+
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md:   0 4px 20px rgba(0,0,0,0.08);
+  --radius:      12px;
+  --radius-sm:   8px;
+}
+[data-theme="dark"] {
+  --gold:        #d9b24c;
+  --gold-light:  #f0d078;
+  --gold-dim:    rgba(217,178,76,0.10);
+  --gold-border: rgba(217,178,76,0.28);
+
+  --bg:          #060912;
+  --card:        #0c1224;
+  --surface:     #0f1628;
+  --surface-2:   rgba(255,255,255,0.04);
+  --input-bg:    #0b1425;
+
+  --header-bg:   rgba(10,15,31,0.97);
+  --header-bdr:  rgba(217,178,76,0.22);
+
+  --text:        #f0ece4;
+  --text-muted:  #9ca3af;
+  --text-label:  #6b7280;
+
+  --success:     #22c55e;
+  --success-dim: rgba(34,197,94,0.10);
+  --success-bdr: rgba(34,197,94,0.28);
+  --danger:      #ef4444;
+  --danger-dim:  rgba(239,68,68,0.10);
+  --danger-bdr:  rgba(239,68,68,0.30);
+
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.25);
+  --shadow-md:   0 8px 28px rgba(0,0,0,0.35);
+  --radius:      12px;
+  --radius-sm:   8px;
+}
+
+/* ============================================================
+   BASE
+============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Barlow', sans-serif; font-size: 15px; line-height: 1.6;
+  color: var(--text); background: var(--bg); min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+[data-theme="light"] body {
+  background-image: radial-gradient(ellipse 70% 40% at 5% 0%, rgba(184,148,46,0.06) 0%, transparent 55%);
+}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--gold-border); border-radius: 4px; }
+
+/* ============================================================
+   HEADER
+============================================================ */
+.site-header {
+  position: sticky; top: 0; z-index: 500;
+  background: var(--header-bg); border-bottom: 1px solid var(--header-bdr);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-sm);
+}
+.header-inner {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 16px; height: 58px; max-width: 1500px; margin: 0 auto;
+}
+.header-title {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 1.05rem; font-weight: 800;
+  letter-spacing: 0.05em; text-transform: uppercase; color: var(--gold);
+}
+.header-title svg { flex-shrink: 0; }
+.header-grow { flex: 1; }
+
+/* ============================================================
+   BUTTONS
+============================================================ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase;
+  text-decoration: none; border-radius: var(--radius-sm); padding: 9px 14px;
+  border: 1px solid var(--gold-border); background: var(--gold-dim); color: var(--gold);
+  transition: all 0.18s ease; -webkit-tap-highlight-color: transparent; white-space: nowrap;
+}
+.btn svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.8; fill: none; flex-shrink: 0; }
+.btn:hover:not(:disabled) { background: rgba(184,148,46,0.18); border-color: var(--gold); }
+.btn:disabled { opacity: 0.38; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--gold); border-color: var(--gold); color: #fff;
+  box-shadow: 0 4px 14px rgba(184,148,46,0.3);
+}
+[data-theme="dark"] .btn-primary { color: #0b0f1f; }
+.btn-primary:hover:not(:disabled) { background: var(--gold-light); border-color: var(--gold-light); }
+
+.btn-ghost {
+  background: var(--surface); border-color: rgba(0,0,0,0.08); color: var(--text-muted);
+}
+[data-theme="dark"] .btn-ghost { border-color: rgba(255,255,255,0.08); }
+.btn-ghost:hover:not(:disabled) { background: var(--surface-2); color: var(--text); border-color: var(--gold-border); }
+
+.btn-danger { background: var(--danger-dim); border-color: var(--danger-bdr); color: var(--danger); }
+.btn-danger:hover:not(:disabled) { background: rgba(220,38,38,0.14); }
+
+.btn-sm { padding: 7px 11px; font-size: 0.78rem; }
+
+.theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: var(--radius-sm);
+  border: 1px solid var(--gold-border); background: var(--gold-dim);
+  color: var(--gold); cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+}
+.theme-toggle:hover { background: rgba(184,148,46,0.2); border-color: var(--gold); transform: rotate(20deg); }
+.theme-toggle svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+
+/* Export link  */
+a.export-btn-link {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase;
+  text-decoration: none; border-radius: var(--radius-sm); padding: 9px 14px;
+  background: var(--gold); border: 1px solid var(--gold); color: #fff;
+  box-shadow: 0 4px 14px rgba(184,148,46,0.3); transition: all 0.18s ease; white-space: nowrap;
+}
+[data-theme="dark"] a.export-btn-link { color: #0b0f1f; }
+a.export-btn-link:hover { background: var(--gold-light); border-color: var(--gold-light); }
+a.export-btn-link svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.8; fill: none; flex-shrink: 0; }
+
+/* ============================================================
+   PAGE LAYOUT
+============================================================ */
+.page-wrap {
+  max-width: 1500px; margin: 0 auto; padding: 16px;
+  display: grid; grid-template-columns: minmax(340px, 400px) 1fr;
+  gap: 14px; align-items: start;
+}
+@media (max-width: 1100px) { .page-wrap { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   CARDS
+============================================================ */
+.card {
+  background: var(--card); border: 1px solid var(--gold-border);
+  border-radius: var(--radius); box-shadow: var(--shadow-md); overflow: hidden;
+  transition: background 0.3s, border-color 0.3s;
+}
+.card-header {
+  display: flex; align-items: center; gap: 10px; padding: 12px 18px;
+  border-bottom: 1px solid var(--gold-border); background: var(--gold-dim);
+}
+.card-header-icon {
+  width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--gold-border);
+  background: var(--card); display: flex; align-items: center; justify-content: center;
+  color: var(--gold); flex-shrink: 0;
+}
+.card-header-icon svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+.card-title {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 800;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--text); flex: 1;
+}
+.card-badge {
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em;
+  color: var(--text-label); padding: 3px 8px; border-radius: 999px;
+  border: 1px solid var(--gold-border); background: var(--card);
+}
+.card-body { padding: 18px; }
+
+/* ============================================================
+   FORM FIELDS
+============================================================ */
+.field-group { display: flex; flex-direction: column; gap: 12px; }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.63rem; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-label);
+}
+input[type="number"], input[type="text"], select {
+  width: 100%; background: var(--input-bg); color: var(--text);
+  border: 1px solid var(--gold-border); border-radius: var(--radius-sm);
+  padding: 9px 12px; font-family: 'Barlow', sans-serif; font-size: 0.92rem;
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none;
+}
+input[type="number"]:focus, input[type="text"]:focus, select:focus {
+  border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim);
+}
+
+/* Section label divider */
+.section-label {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 800;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted);
+  display: flex; align-items: center; gap: 6px; padding-top: 4px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--gold-border); }
+.section-label svg { width: 12px; height: 12px; stroke: currentColor; stroke-width: 1.8; fill: none; flex-shrink: 0; }
+
+/* ============================================================
+   FILE DROP ZONE
+============================================================ */
+#kmlFile { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+.file-drop-zone {
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  padding: 22px 16px; border: 2px dashed var(--gold-border);
+  border-radius: var(--radius-sm); background: var(--surface);
+  cursor: pointer; transition: all 0.2s; text-align: center; position: relative;
+}
+.file-drop-zone:hover,
+.file-drop-zone.dropping { border-color: var(--gold); background: var(--gold-dim); }
+.file-drop-zone.has-file { border-style: solid; border-color: var(--success-bdr); background: var(--success-dim); }
+.file-drop-icon { color: var(--gold); }
+.file-drop-icon svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 1.5; fill: none; }
+.file-drop-zone.has-file .file-drop-icon { color: var(--success); }
+.file-drop-text {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--gold);
+}
+.file-drop-zone.has-file .file-drop-text { color: var(--success); }
+.file-drop-hint {
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem;
+  letter-spacing: 0.05em; color: var(--text-label);
+}
+.file-name-display {
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem;
+  color: var(--success); letter-spacing: 0.04em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
+
+/* ============================================================
+   CHECKBOXES
+============================================================ */
+.checks-list { display: flex; flex-direction: column; gap: 8px; }
+.check-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  border: 1px solid var(--gold-border); background: var(--surface);
+  cursor: pointer; transition: background 0.15s, border-color 0.15s;
+}
+.check-row:hover { background: var(--gold-dim); border-color: var(--gold); }
+.check-row input[type="checkbox"] {
+  width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; cursor: pointer;
+  accent-color: var(--gold);
+}
+.check-label {
+  font-family: 'Barlow', sans-serif; font-size: 0.85rem;
+  color: var(--text); line-height: 1.45; cursor: pointer;
+}
+
+/* ============================================================
+   ACTIONS
+============================================================ */
+.actions-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.actions-grid .span2 { grid-column: 1 / -1; }
+.actions-grid .btn,
+.actions-grid .export-btn-link { width: 100%; justify-content: center; }
+
+/* ============================================================
+   LOG
+============================================================ */
+.log-box {
+  background: var(--input-bg); border: 1px solid var(--gold-border);
+  border-radius: var(--radius-sm); padding: 11px 14px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem;
+  line-height: 1.65; color: var(--text-muted); letter-spacing: 0.02em;
+  min-height: 42px; transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.log-box.success { color: var(--success); border-color: var(--success-bdr); background: var(--success-dim); }
+.log-box.error   { color: var(--danger);  border-color: var(--danger-bdr);  background: var(--danger-dim); }
+
+/* ============================================================
+   MAP CARD
+============================================================ */
+.map-card-wrap { position: sticky; top: 74px; }
+.map-wrap {
+  position: relative; overflow: hidden;
+  height: calc(100vh - 180px); min-height: 420px;
+}
+#map { height: 100%; width: 100%; }
+
+/* drag-over overlay */
+.drop-target.dropping::after {
+  content: 'Solte o KML aqui';
+  position: absolute; inset: 0;
+  background: rgba(184,148,46,0.10);
+  border: 2px dashed var(--gold);
+  border-radius: var(--radius-sm);
+  color: var(--gold); font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; pointer-events: none;
+}
+
+/* ── Floating toolbar ── */
+.map-floating-actions {
+  position: absolute; top: 12px; left: 52px;
+  display: flex; gap: 8px; z-index: 1100; align-items: center; flex-wrap: wrap;
+}
+.map-floating-actions .btn { box-shadow: var(--shadow-md); }
+
+/* Points count inline */
+.points-inline {
+  display: flex; align-items: center; gap: 0;
+  background: var(--card); border: 1px solid var(--gold-border);
+  border-radius: var(--radius-sm); box-shadow: var(--shadow-md); overflow: hidden;
+}
+.points-inline-label {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 800;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted);
+  padding: 0 10px 0 12px; white-space: nowrap;
+  border-right: 1px solid var(--gold-border);
+}
+.points-inline input[type="number"] {
+  width: 68px; padding: 9px 10px; font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.88rem; text-align: center; border: none !important;
+  background: transparent; border-radius: 0; box-shadow: none !important;
+}
+
+/* ============================================================
+   LEAFLET OVERRIDES
+============================================================ */
+.leaflet-bar a {
+  background-color: var(--card) !important; color: var(--text-muted) !important;
+  border-color: var(--gold-border) !important;
+}
+.leaflet-bar a:hover { background-color: var(--surface) !important; color: var(--gold) !important; }
+.leaflet-control-layers {
+  background: var(--card) !important; border-color: var(--gold-border) !important;
+  color: var(--text) !important; border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+.leaflet-control-layers label { color: var(--text) !important; font-family: 'Barlow', sans-serif; font-size: 0.82rem; }
+/* Draw toolbar: keep original sprite, just style the container */
+.leaflet-draw-toolbar a {
+  background-color: var(--card) !important;
+}
+.leaflet-draw-toolbar a:hover { background-color: var(--surface) !important; }
+.leaflet-draw-toolbar.leaflet-bar { border-color: var(--gold-border) !important; }
+.leaflet-draw-toolbar.leaflet-bar a { border-color: var(--gold-border) !important; }
+.leaflet-draw-tooltip { background: var(--card) !important; color: var(--text) !important; border-color: var(--gold-border) !important; }
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 1100px) {
+  .map-card-wrap { position: static; }
+  .map-wrap { height: 62vh; }
+}
+@media (max-width: 640px) {
+  .actions-grid { grid-template-columns: 1fr; }
+  .actions-grid .span2 { grid-column: 1; }
+  .map-floating-actions { left: 44px; flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ───────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="header-inner">
+    <a class="btn btn-ghost btn-sm" href="gerar_linhas.html" title="Gerar Linhas">
+      <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+      Gerar Linhas
+    </a>
+    <div class="header-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none">
+        <circle cx="5" cy="12" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="12" cy="19" r="2"/>
+        <line x1="7" y1="12" x2="10" y2="12"/><line x1="14" y1="12" x2="17" y2="12"/>
+        <line x1="12" y1="7" x2="12" y2="10"/><line x1="12" y1="14" x2="12" y2="17"/>
+      </svg>
+      Gerar Pontos ao longo de Linhas
+    </div>
+    <div class="header-grow"></div>
+    <a id="downloadLinkFloating" class="export-btn-link" href="#" download style="display:none;">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Baixar KML
+    </a>
+    <button class="theme-toggle" id="themeToggle" title="Alternar tema">
+      <svg id="themeIcon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ── PAGE ─────────────────────────────────────────────── -->
+<div class="page-wrap">
+
+  <!-- LEFT: Form panels -->
+  <div style="display:flex;flex-direction:column;gap:12px;">
+
+    <!-- 1. Arquivo -->
+    <div class="card drop-target" id="formCard">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <span class="card-title">Arquivo de Entrada</span>
+        <span class="card-badge">Etapa 1</span>
       </div>
-      <div class="layout-grid">
-      <div class="card drop-target" id="formCard">
-        <h1>Gerador de Pontos ao longo de Linhas (KML)</h1>
-        <p class="helper">Carregue um KML defina a quantidade total de pontos e exporte um novo KML com as linhas originais mais pontos numerados.</p>
+      <div class="card-body">
+        <input id="kmlFile" type="file" accept=".kml,application/vnd.google-earth.kml+xml">
+        <label for="kmlFile" class="file-drop-zone" id="fileDropZone">
+          <span class="file-drop-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </span>
+          <span class="file-drop-text">Clique ou arraste o KML</span>
+          <span class="file-drop-hint">KML com LineStrings (linhas de voo)</span>
+          <span class="file-name-display" id="fileNameDisplay" style="display:none;"></span>
+        </label>
+      </div>
+    </div>
 
-        <div class="row single">
-          <div class="field">
-            <label for="kmlFile"> </label>
-            <input id="kmlFile" type="file" accept=".kml,application/vnd.google-earth.kml+xml" />
-            <div class="hint"></div>
-          </div>
+    <!-- 2. Opções -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
         </div>
+        <span class="card-title">Opções</span>
+        <span class="card-badge">Etapa 2</span>
+      </div>
+      <div class="card-body">
+        <div class="field-group">
 
-        <div class="row single">
-          <div class="checkbox">
-            <input id="includeEndpoints" type="checkbox" checked />
-            <label for="includeEndpoints">Incluir extremidades (0% e 100%)</label>
+          <div class="section-label">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+            Distribuição de pontos
           </div>
-          <div class="checkbox">
-            <input id="warnSmallLines" type="checkbox" checked />
-            <label for="warnSmallLines">Garantir cobertura por linha quando possível</label>
+
+          <div class="checks-list">
+            <label class="check-row">
+              <input id="includeEndpoints" type="checkbox" checked>
+              <span class="check-label">Incluir extremidades (0% e 100%)</span>
+            </label>
+            <label class="check-row">
+              <input id="warnSmallLines" type="checkbox" checked>
+              <span class="check-label">Garantir cobertura por linha quando possível</span>
+            </label>
           </div>
-          <div class="checkbox">
-            <input id="applyExclusions" type="checkbox" checked />
-            <label for="applyExclusions">Aplicar áreas de exclusão desenhadas</label>
+
+          <div class="section-label">
+            <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+            Áreas de exclusão
           </div>
+
+          <label class="check-row">
+            <input id="applyExclusions" type="checkbox" checked>
+            <span class="check-label">Aplicar áreas de exclusão desenhadas no mapa</span>
+          </label>
+
         </div>
+      </div>
+    </div>
 
-        <div class="actions">
-          <button id="btnGerar" disabled style="display:none;">Gerar KML</button>
-          <a id="downloadLink" class="export-btn" href="#" download style="display:none;">
-            <span class="icon-download" aria-hidden="true">⤓</span><span>Baixar KML</span>
+    <!-- 3. Ações -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <span class="card-title">Ações</span>
+        <span class="card-badge">Etapa 3</span>
+      </div>
+      <div class="card-body">
+        <div class="actions-grid">
+          <a id="downloadLink" class="export-btn-link span2" href="#" download style="display:none;">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Baixar KML com Pontos
           </a>
-
-          <button id="btnLimparPoligonos" class="secondary" title="Remove todas as áreas de exclusão">Limpar Áreas</button>
+          <button id="btnGerar" class="btn btn-primary span2" disabled style="display:none;">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4"/></svg>
+            Gerar KML
+          </button>
+          <button id="btnLimparPoligonos" class="btn btn-danger span2" title="Remove todas as áreas de exclusão desenhadas">
+            <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Limpar Áreas de Exclusão
+          </button>
         </div>
-
-        <div id="log" class="log hint" aria-live="polite">Aguardando arquivo KML...</div>
       </div>
+    </div>
 
-      <div class="card map-card">
-        <div class="map-wrap drop-target">
-          <div class="map-floating-actions">
-            <div class="mini-input">
-              <label for="numPoints" style="font-weight:700;font-size:.9rem;color:var(--text);">Pontos</label>
-              <input id="numPoints" type="number" min="1" step="1" value="10" />
-            </div>
-            <button id="btnGerarFloating" aria-label="Gerar pontos no mapa" disabled>Gerar Pontos</button>
-            <a id="downloadLinkFloating" class="export-btn" href="#" download style="display:none;padding:10px 12px;border-radius:10px;">
-              <span class="icon-download" aria-hidden="true">⤓</span>
-            </a>
-          </div>
+    <!-- Log -->
+    <div id="log" class="log-box hint" aria-live="polite">
+      Aguardando arquivo KML...
+    </div>
+
+  </div>
+
+  <!-- RIGHT: Map card -->
+  <div class="map-card-wrap">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        </div>
+        <span class="card-title">Visualização do Mapa</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--text-label);letter-spacing:0.06em;">
+          Use o painel de desenho para marcar áreas de exclusão
+        </span>
+      </div>
+      <div class="card-body" style="padding:0;position:relative;">
+
+        <div class="map-wrap drop-target" id="mapWrap">
+
+          <!-- Leaflet map -->
           <div id="map"></div>
+
+          <!-- Floating toolbar -->
+          <div class="map-floating-actions">
+            <div class="points-inline">
+              <span class="points-inline-label">Pontos</span>
+              <input id="numPoints" type="number" min="1" step="1" value="10">
+            </div>
+            <button id="btnGerarFloating" class="btn btn-primary" aria-label="Gerar pontos no mapa" disabled>
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+              Gerar Pontos
+            </button>
+          </div>
+
         </div>
+
       </div>
     </div>
+  </div>
 
-      <div class="footer">Processamento 100% no navegador.</div>
-    </div>
+</div><!-- /page-wrap -->
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
-    <script>
+<!-- ── THEME ──────────────────────────────────────────────── -->
+<script>
+(function(){
+  const h = document.documentElement;
+  const stored = localStorage.getItem('pulvion_theme') || 'light';
+  h.setAttribute('data-theme', stored);
+  function applyTheme(t){
+    h.setAttribute('data-theme', t);
+    localStorage.setItem('pulvion_theme', t);
+    const icon = document.getElementById('themeIcon');
+    if(icon){
+      if(t==='dark') icon.innerHTML='<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>';
+      else           icon.innerHTML='<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>';
+    }
+    const btn = document.getElementById('themeToggle');
+    if(btn) btn.title = t==='dark' ? 'Modo claro' : 'Modo escuro';
+  }
+  applyTheme(stored);
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const btn = document.getElementById('themeToggle');
+    if(btn) btn.addEventListener('click', ()=>{
+      applyTheme(h.getAttribute('data-theme')==='dark' ? 'light' : 'dark');
+    });
+  });
+})();
+</script>
+
+<!-- ── LIBS ───────────────────────────────────────────────── -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+
+<script>
       const el = (id) => document.getElementById(id);
       const logEl = el('log');
       const fileEl = el('kmlFile');
@@ -251,6 +662,12 @@
 
       fileEl.addEventListener('change', async (e) => {
         const f = e.target.files && e.target.files[0];
+        if (f) {
+          const zone = document.getElementById('fileDropZone');
+          const nameEl = document.getElementById('fileNameDisplay');
+          if(zone) zone.classList.add('has-file');
+          if(nameEl){ nameEl.textContent = f.name; nameEl.style.display = ''; }
+        }
         await loadKmlFile(f);
       });
 
@@ -311,7 +728,7 @@
       if (btnGerarFloating) btnGerarFloating.addEventListener('click', triggerGerar);
 
       function suggestOutName(name) { const idx = name.lastIndexOf('.'); return (idx > 0 ? name.slice(0, idx) : name) + '-pontos.kml'; }
-      function logMsg(msg, isError = false, success = false) { logEl.className = 'log ' + (isError ? 'error' : success ? 'success' : 'hint'); logEl.textContent = msg; }
+      function logMsg(msg, isError = false, success = false) { logEl.className = 'log-box ' + (isError ? 'error' : success ? 'success' : 'hint'); logEl.textContent = msg; }
 
       function scanKmlDetailed(kmlText) {
         try {
@@ -512,7 +929,7 @@ ${xml}`;
 
       window.addEventListener('DOMContentLoaded', initMap);
       // Drag & Drop KML
-      const dropZones = [document.getElementById('formCard'), document.querySelector('.map-wrap')];
+      const dropZones = [document.getElementById('formCard'), document.getElementById('mapWrap')];
       dropZones.forEach(zone => {
         if (!zone) return;
         zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dropping'); });
@@ -520,9 +937,15 @@ ${xml}`;
         zone.addEventListener('drop', async (e) => {
           e.preventDefault(); zone.classList.remove('dropping');
           const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-          if (f) await loadKmlFile(f);
+          if (f) {
+            const dz = document.getElementById('fileDropZone');
+            const nm = document.getElementById('fileNameDisplay');
+            if(dz) dz.classList.add('has-file');
+            if(nm){ nm.textContent = f.name; nm.style.display = ''; }
+            await loadKmlFile(f);
+          }
         });
       });
     </script>
-  </body>
+</body>
 </html>
